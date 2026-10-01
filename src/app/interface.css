@@ -1,0 +1,274 @@
+.custom-select {
+  width: 100%;
+  position: relative;
+}
+.custom-select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  text-align: left;
+  background: #f7f6ed;
+  border: 1px solid #d9ded0;
+  border-radius: 8px;
+  padding: 14px 15px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #2e3d32;
+  min-height: 46px;
+}
+.custom-select-trigger > span {
+  min-width: 0;
+}
+.custom-select-trigger svg {
+  transition: transform 0.25s;
+}
+.custom-select-trigger[aria-expanded="true"] {
+  border-color: #8e9a76;
+  box-shadow: 0 0 0 3px #8e9a7615;
+}
+.select-chevron-open {
+  transform: rotate(180deg);
+}
+.custom-select-panel {
+  position: fixed;
+  z-index: 2000;
+  background: #fbfaf4;
+  color: #2e3d32;
+  border: 1px solid #dce0d4;
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 18px 45px #1d251f25;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: select-enter 0.18s ease-out;
+  font-family: var(--font-body);
+  scrollbar-width: thin;
+}
+.custom-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 11px;
+  min-height: 44px;
+  border-radius: 7px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.custom-select-option.active {
+  background: #edf0e5;
+}
+.custom-select-option[aria-selected="true"] {
+  color: #486337;
+  font-weight: 600;
+}
+.shop-sort {
+  padding: 0 0 0 12px !important;
+  overflow: visible;
+}
+.shop-sort .custom-select-trigger {
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  min-height: 44px;
+  padding: 10px 12px;
+}
+.contact-dialog .custom-select {
+  margin-bottom: 22px;
+}
+.detail-options .custom-select-trigger {
+  padding: 14px;
+  font-size: 12px;
+  border-radius: 0;
+  min-height: 48px;
+}
+.business {
+  overflow: hidden;
+}
+.business-copy {
+  position: relative;
+  z-index: 1;
+}
+.business-switch {
+  display: flex;
+  position: relative;
+  isolation: isolate;
+  padding: 4px;
+  background: #ffffff08;
+  border: 1px solid #ffffff25;
+  border-radius: 50px;
+  width: 244px;
+  margin: 22px 0 29px;
+}
+.business-switch button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  background: transparent;
+  color: #d6caba;
+  flex: 1;
+  font-size: 12px;
+  padding: 11px 14px;
+  position: relative;
+  z-index: 1;
+}
+.business-switch button[aria-pressed="true"] {
+  color: #f7f5ea;
+}
+.business-switch-slider {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  background: #ffffff15;
+  border: 1px solid #ffffff20;
+  border-radius: 30px;
+  transition:
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.55s;
+}
+.business-switch-slider.water {
+  transform: translateX(100%);
+  background: #7cd3df22;
+}
+.business-ritual {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 6px 0 17px;
+}
+.business-ritual .business-checks {
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+}
+.business-scene {
+  position: relative;
+  width: 240px;
+  height: 210px;
+  flex: 0 0 240px;
+  isolation: isolate;
+  margin-right: -30px;
+}
+.business-scene canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.business-scene-glow {
+  position: absolute;
+  inset: 24px 20px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #d9a76a18, transparent 70%);
+  z-index: 0;
+  transition: background 0.6s;
+}
+.business-scene[data-world="water"] .business-scene-glow {
+  background: radial-gradient(ellipse, #7fd7de20, transparent 70%);
+}
+.business-scene-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 7px;
+  letter-spacing: 1.5px;
+  color: #d8c4a2;
+  z-index: 2;
+}
+.business-scene[data-world="water"] .business-scene-caption {
+  color: #98d4dc;
+}
+.business-scene-symbol {
+  display: block;
+  text-align: center;
+  font-size: 80px;
+  line-height: 180px;
+}
+.business-copy h2 {
+  margin-top: 0;
+}
+.business .membership-card {
+  transition: background 0.6s;
+}
+.business-switch button:focus-visible {
+  outline-color: #d3bb8e;
+}
+@keyframes select-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 1100px) {
+  .business-ritual {
+    flex-wrap: wrap;
+  }
+  .business-scene {
+    margin: 0;
+    width: 210px;
+    height: 180px;
+    flex-basis: 210px;
+  }
+  .business-ritual .business-checks {
+    min-width: 180px;
+  }
+}
+@media (max-width: 650px) {
+  .business-switch {
+    width: 230px;
+    margin: 20px 0 25px;
+  }
+  .business-ritual {
+    gap: 8px;
+    margin: 8px 0 24px;
+  }
+  .business-scene {
+    width: 180px;
+    height: 165px;
+    flex: 0 0 150px;
+  }
+  .business-ritual .business-checks {
+    min-width: 160px;
+  }
+  .business-scene-caption {
+    font-size: 5px;
+    letter-spacing: 1px;
+  }
+  .custom-select-trigger,
+  .custom-select-option {
+    font-size: 11px;
+  }
+  .detail-options .custom-select-trigger {
+    padding: 11px;
+    font-size: 10px;
+  }
+  .shop-sort .custom-select-trigger {
+    font-size: 10px;
+    gap: 8px;
+  }
+  .shop-sort {
+    padding-left: 8px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .custom-select-panel {
+    animation: none;
+  }
+  .custom-select-trigger svg,
+  .business-switch-slider {
+    transition: none;
+  }
+}

@@ -1,0 +1,309 @@
+.service-studio {
+  background: #eeeae2;
+  overflow: hidden;
+}
+.studio-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 48px;
+  margin: 40px 0 52px;
+}
+.studio-heading h2 {
+  font-size: clamp(32px, 3.6vw, 54px);
+  font-weight: 500;
+  letter-spacing: -2.6px;
+  line-height: 1.15;
+  margin: 0;
+}
+.studio-heading h2 span {
+  color: #7d8177;
+}
+.studio-heading > p {
+  max-width: 330px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: #62695e;
+  margin: 8px 0;
+}
+.studio-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+.studio-visual {
+  color: #d8a66d;
+  background: #1b211c;
+  border-radius: 24px;
+  padding: 30px 30px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.studio-water .studio-visual {
+  color: #93dce2;
+  background: #14272a;
+}
+.studio-visual-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+.studio-diagram {
+  display: block;
+  width: 100%;
+  max-height: 410px;
+  margin: 12px 0;
+}
+.studio-diagram text {
+  fill: currentColor;
+  font-size: 9px;
+  letter-spacing: 2px;
+  font-family: inherit;
+}
+.studio-visual-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 7px;
+  letter-spacing: 1px;
+  opacity: 0.6;
+  border-top: 1px solid #ffffff20;
+  padding-top: 18px;
+}
+.studio-tabs {
+  border-top: 1px solid #18251d30;
+}
+.studio-tabs button {
+  border: 0;
+  border-bottom: 1px solid #18251d30;
+  padding: 24px 0;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  text-align: left;
+  gap: 18px;
+  background: transparent;
+  color: #777d73;
+  font: inherit;
+  font-size: 19px;
+  font-weight: 500;
+  transition:
+    color 0.25s,
+    padding 0.3s;
+}
+.studio-tabs button span {
+  font-size: 10px;
+  font-weight: 400;
+}
+.studio-tabs button svg {
+  margin-left: auto;
+  transition: transform 0.3s;
+}
+.studio-tabs button[aria-selected="true"] {
+  color: #253729;
+  padding-left: 12px;
+}
+.studio-tabs button[aria-selected="true"] svg {
+  transform: rotate(45deg);
+}
+.studio-tabs button:focus-visible {
+  outline: 2px solid #a78050;
+  outline-offset: 4px;
+}
+.studio-detail {
+  padding: 23px 0 0;
+}
+.studio-detail p {
+  font-size: 13px;
+  color: #62695e;
+  line-height: 1.9;
+  margin: 0 0 22px;
+  min-height: 75px;
+}
+.studio-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 25px;
+}
+.studio-tags span {
+  border: 1px solid #293d2420;
+  border-radius: 30px;
+  padding: 8px 12px;
+  font-size: 9px;
+}
+.studio-detail .text-link {
+  font-size: 12px;
+  gap: 14px;
+}
+.steps {
+  position: relative;
+}
+.journey-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent, #8ba478);
+  transform-origin: left;
+  z-index: 1;
+}
+.world-water .journey-progress {
+  background: #71b7bd;
+}
+.membership-card {
+  position: relative;
+  overflow: hidden;
+}
+.membership-card:after {
+  content: "";
+  width: 240px;
+  height: 240px;
+  border: 1px solid #ffffff12;
+  position: absolute;
+  right: -110px;
+  top: -130px;
+  border-radius: 40%;
+  pointer-events: none;
+  animation: membership-orbit 20s linear infinite;
+  animation-play-state: paused;
+}
+.membership-card.motion-visible:after {
+  animation-play-state: running;
+}
+.water-brand .water-ripple {
+  animation: water-ripple 4s ease-out infinite;
+  animation-play-state: paused;
+}
+.water-brand .ripple-two {
+  animation-delay: 2s;
+}
+.water-brand.motion-visible .water-ripple {
+  animation-play-state: running;
+}
+.shop-product-art {
+  perspective: 900px;
+}
+.shop-product-art .coffee-pack {
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+.shop-product-art:hover .coffee-pack {
+  transform: translateY(-13px) rotate(-5deg);
+}
+.product-card .product-art {
+  overflow: hidden;
+}
+.world-water .service-studio {
+  background: #e8edeb;
+}
+.world-water .studio-heading h2 span {
+  color: #718c8a;
+}
+.world-water .studio-tabs button[aria-selected="true"] {
+  color: #1d5961;
+}
+@keyframes water-ripple {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+@keyframes membership-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.shop-product-art .coffee-pack-art {
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.shop-product-art:hover .coffee-pack-art {
+  transform: translateY(-13px);
+}
+.contact-summary .text-link {
+  margin-top: 14px;
+}
+.dialog-email {
+  justify-content: center;
+  margin-top: 18px;
+}
+@media (max-width: 900px) {
+  .studio-layout {
+    gap: 30px;
+  }
+  .studio-heading {
+    gap: 25px;
+  }
+  .studio-tabs button {
+    font-size: 16px;
+    padding: 22px 0;
+  }
+  .studio-visual {
+    padding: 23px 18px;
+  }
+  .studio-visual-footer {
+    font-size: 6px;
+  }
+  .studio-heading h2 {
+    letter-spacing: -1.5px;
+  }
+}
+@media (max-width: 650px) {
+  .studio-heading {
+    display: block;
+    margin: 28px 0;
+  }
+  .studio-heading > p {
+    margin: 20px 0 0;
+    max-width: none;
+    font-size: 12px;
+  }
+  .studio-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .studio-diagram {
+    max-height: 280px;
+  }
+  .studio-visual-label {
+    font-size: 8px;
+  }
+  .studio-tabs button {
+    font-size: 16px;
+    padding: 19px 0;
+  }
+  .studio-detail p {
+    min-height: 0;
+  }
+  .studio-detail .text-link {
+    font-size: 11px;
+  }
+  .journey-progress {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .membership-card:after,
+  .water-brand .water-ripple {
+    animation: none;
+  }
+  .shop-product-art .coffee-pack,
+  .shop-product-art .coffee-pack-art {
+    transition: none;
+    will-change: auto;
+  }
+  .shop-product-art:hover .coffee-pack,
+  .shop-product-art:hover .coffee-pack-art {
+    transform: none;
+  }
+}

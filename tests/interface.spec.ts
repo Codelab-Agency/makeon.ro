@@ -1,0 +1,55 @@
+import {test,expect} from "@playwright/test";
+
+test("service choices remain identical across entry points and custom dropdown supports keyboard and Escape",async({page})=>{
+  await page.goto("/");
+  await page.getByRole("button",{name:"Solicită oferta de cafea",exact:true}).click();
+  const dialog=page.getByRole("dialog"),select=dialog.getByRole("combobox",{name:"Ce soluție cauți?"});
+  await expect(select).toContainText("Abonament de cafea");
+  await select.click();
+  const original=await dialog.getByRole("option").allTextContents();
+  expect(original).toHaveLength(11);
+  expect(original).not.toContain("Abonament de cafea — ofertă personalizată");
+  await page.keyboard.press("End");
+  await page.keyboard.press("Enter");
+  await expect(select).toContainText("Schimb filtre și mentenanță");
+  await select.click();
+  await page.keyboard.press("Escape");
+  await expect(select).toHaveAttribute("aria-expanded","false");
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.locator(".product-info").first().getByRole("button",{name:"Află mai multe"}).click();
+  await expect(select).toContainText("Cafea și espressoare");
+  await select.click();
+  expect(await dialog.getByRole("option").allTextContents()).toEqual(original);
+  await page.keyboard.press("Escape");
+  await page.keyboard.press("Escape");
+  await page.goto("/cafea");
+  const sort=page.getByRole("combobox",{name:"Sortează cafelele"});
+  await sort.focus();await page.keyboard.press("ArrowDown");await page.keyboard.press("End");await page.keyboard.press("Enter");
+  await expect(sort).toContainText("Nume A–Z");
+  await expect(page.locator(".shop-product-info h3").first()).toHaveText("Armonia");
+});
+
+test("business switch updates the offer and local 3D scene without scroll jumps",async({page})=>{
+  await page.emulateMedia({reducedMotion:"no-preference"});
+  const errors:string[]=[];page.on("pageerror",error=>errors.push(error.message));
+  await page.goto("/");
+  const section=page.locator("#abonamente"),scene=section.locator(".business-scene");
+  await section.scrollIntoViewIfNeeded();
+  await expect(scene).toHaveAttribute("data-engine","three");
+  const frame=await scene.getAttribute("data-frame");
+  await expect.poll(()=>scene.getAttribute("data-frame")).not.toBe(frame);
+  await section.getByRole("button",{name:"Apă",exact:true}).click();
+  await expect(scene).toHaveAttribute("data-world","water");
+  await expect(section.locator(".membership-card")).toContainText("31");
+  await expect(section.getByRole("button",{name:"Apă",exact:true})).toHaveAttribute("aria-pressed","true");
+  await expect(section).toBeInViewport();
+  await section.getByRole("button",{name:"Cafea",exact:true}).click();
+  await expect(scene).toHaveAttribute("data-world","coffee");
+  await expect(section.locator(".membership-card")).not.toContainText("31");
+  await page.setViewportSize({width:390,height:844});
+  await section.scrollIntoViewIfNeeded();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+  await expect(scene.locator("canvas")).toBeVisible();
+  expect(errors).toEqual([]);
+});

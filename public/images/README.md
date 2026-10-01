@@ -1,0 +1,7 @@
+# Makeon hero
+
+`makeon-hero.png` este un vizual de concept generat cu instrumentul built-in imagegen. Nu reprezintă fotografii ale modelelor comerciale exacte.
+
+Prompt final:
+
+> Use case: product-mockup. Asset type: premium Romanian Makeon coffee and filtered-water company website hero image. Create a photorealistic high-end studio product still-life, square 1536x1536 composition. A professional matte black bean-to-cup espresso machine with chrome spouts, small touch display and transparent bean hopper stands on a low cylindrical dark sage green plinth at left foreground. A taller premium rectangular black and brushed silver filtered-water dispenser, freestanding tower with dispensing alcove, stands on a higher sage green plinth at right background. At front is one ivory ceramic espresso cup with coffee, and one tall transparent glass of pure water. Sculptural, minimal product advertising, shot from slightly above table height, tasteful three-quarter view. Seamless warm ivory background #f3f2e9, soft daylight from upper left, realistic grounding shadows, studio-quality brushed stainless steel and black plastic materials. Center composition with generous margin around all products, entire apparatus visible without cropping, objects occupy central 80% image. No lettering, no logos, no floating objects, no beans flying, no decorative foliage, no people, no typography. This is a conceptual product scene, not exact reproductions of a specific machine. Sharp industrial design, convincing realistic physical objects.
