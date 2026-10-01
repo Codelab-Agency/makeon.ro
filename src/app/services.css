@@ -97,6 +97,9 @@
   font-size: 10px;
   font-weight: 400;
 }
+.studio-tabs button .studio-tab-title {
+  font: inherit;
+}
 .studio-tabs button svg {
   margin-left: auto;
   transition: transform 0.3s;

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { money, productBySlug } from "@/lib/coffee-catalog";
 import CoffeePack from "./coffee-pack";
+import useDialogMotion from "./use-dialog-motion";
 
 export type CartLine = { slug: string; grind: string; quantity: number };
 type CartContextValue = {
@@ -62,6 +63,7 @@ export default function CartProvider({
     [copied, setCopied] = useState(false);
   const [notice, setNotice] = useState("");
   const dialog = useRef<HTMLDialogElement>(null);
+  useDialogMotion(dialog, opened, "cart");
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     try {
@@ -100,20 +102,6 @@ export default function CartProvider({
       }
     }
   }, [items, loaded]);
-  useEffect(() => {
-    const el = dialog.current;
-    if (!el) return;
-    if (opened) {
-      el.showModal();
-      document.body.style.overflow = "hidden";
-    } else {
-      el.close();
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [opened]);
   useEffect(
     () => () => {
       if (noticeTimer.current) clearTimeout(noticeTimer.current);
@@ -208,7 +196,10 @@ export default function CartProvider({
         className="cart-drawer"
         ref={dialog}
         aria-label="Coșul de cafea"
-        onCancel={() => setOpened(false)}
+        onCancel={(event) => {
+          event.preventDefault();
+          setOpened(false);
+        }}
         onClick={(e) => {
           if (e.target === e.currentTarget) setOpened(false);
         }}

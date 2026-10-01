@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -196,8 +196,36 @@ export default function Home() {
   const [team, setTeam] = useState("11–30 persoane");
   const [prepared, setPrepared] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const scrollAnchor = useRef<{ element: HTMLElement; top: number } | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const data = content[world];
+
+  useLayoutEffect(() => {
+    const anchor = scrollAnchor.current;
+    const site = root.current;
+    if (!anchor || !site) return;
+    site.style.overflowAnchor = "none";
+    const align = () => {
+      if (!anchor.element.isConnected) return;
+      const delta = anchor.element.getBoundingClientRect().top - anchor.top;
+      if (Math.abs(delta) > .5) window.scrollTo({ top: window.scrollY + delta, behavior: "instant" });
+    };
+    align();
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      align();
+      secondFrame = requestAnimationFrame(() => {
+        align();
+        site.style.overflowAnchor = "";
+        if (scrollAnchor.current === anchor) scrollAnchor.current = null;
+      });
+    });
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+      site.style.overflowAnchor = "";
+    };
+  }, [world]);
 
   useEffect(
     () => () => {
@@ -298,8 +326,16 @@ export default function Home() {
     setPrepared(false);
     setModal(true);
   }
-  function changeWorld(value: World) {
+  function changeWorld(value: World, source?: HTMLElement) {
     if (activeWorld.current === value) return;
+    const localSwitch = source?.closest<HTMLElement>(".business-switch, .mini-switch");
+    scrollAnchor.current = localSwitch ? { element: localSwitch, top: localSwitch.getBoundingClientRect().top } : null;
+    if (localSwitch && root.current) root.current.style.overflowAnchor = "none";
+    const enteringSection = localSwitch?.closest(".reveal");
+    if (enteringSection) {
+      gsap.killTweensOf(enteringSection);
+      gsap.set(enteringSection, { y: 0, opacity: 1 });
+    }
     activeWorld.current = value;
     transition.current?.kill();
     setWorld(value);
@@ -309,7 +345,7 @@ export default function Home() {
     if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches)
       return;
     const button =
-      document.activeElement?.closest(".business-switch, .mini-switch") ??
+      source?.closest(".business-switch, .mini-switch, .world-switch") ??
       root.current?.querySelector(".world-switch");
     const rect = button?.getBoundingClientRect();
     const x = rect
@@ -341,12 +377,6 @@ export default function Home() {
         <div className="curtain-current" />
         <span>{world === "coffee" ? "ENERGIE" : "PURITATE"}</span>
       </div>
-      <div className="announcement">
-        <span>Două lumi. Aceeași grijă pentru echipa ta.</span>
-        <a href="#ecosistem">
-          Descoperă universul Makeon <ArrowUpRight size={12} />
-        </a>
-      </div>
       <SiteHeader onOffer={() => openOffer()} />
 
       <main>
@@ -374,7 +404,7 @@ export default function Home() {
             >
               <span className={`switch-slider ${world}`} />
               <button
-                onClick={() => changeWorld("coffee")}
+                onClick={event => changeWorld("coffee", event.currentTarget)}
                 aria-label="Lumea cafelei"
                 aria-pressed={world === "coffee"}
               >
@@ -384,7 +414,7 @@ export default function Home() {
                 </span>
               </button>
               <button
-                onClick={() => changeWorld("water")}
+                onClick={event => changeWorld("water", event.currentTarget)}
                 aria-label="Lumea apei"
                 aria-pressed={world === "water"}
               >
@@ -575,14 +605,14 @@ export default function Home() {
             <div className="mini-switch">
               <button
                 aria-pressed={world === "coffee"}
-                onClick={() => changeWorld("coffee")}
+                onClick={event => changeWorld("coffee", event.currentTarget)}
               >
                 <Coffee size={16} />
                 Cafea
               </button>
               <button
                 aria-pressed={world === "water"}
-                onClick={() => changeWorld("water")}
+                onClick={event => changeWorld("water", event.currentTarget)}
               >
                 <Droplets size={16} />
                 Apă
@@ -678,14 +708,14 @@ export default function Home() {
               <span className={`business-switch-slider ${world}`} />
               <button
                 aria-pressed={world === "coffee"}
-                onClick={() => changeWorld("coffee")}
+                onClick={event => changeWorld("coffee", event.currentTarget)}
               >
                 <Coffee size={17} />
                 Cafea
               </button>
               <button
                 aria-pressed={world === "water"}
-                onClick={() => changeWorld("water")}
+                onClick={event => changeWorld("water", event.currentTarget)}
               >
                 <Droplets size={17} />
                 Apă

@@ -520,7 +520,7 @@ export default function ServiceStudio({
                 }}
               >
                 <span>0{i + 1}</span>
-                {service.title}
+                <span className="studio-tab-title">{service.title}</span>
                 <ArrowUpRight size={19} />
               </button>
             ))}
