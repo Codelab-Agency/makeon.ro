@@ -1,9 +1,26 @@
 import { test, expect } from '@playwright/test';
 
 test('mobile brand illustrations leave room for text and fit inside their cards', async ({ page }) => {
-  for (const width of [320, 390, 430]) {
+  for (const width of [320, 390, 430, 650, 768]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/');
+    if (width <= 620) {
+      const mobileLayout = await page.evaluate(() => {
+        const benefits = [...document.querySelectorAll('.benefits-strip > span')].filter(el => getComputedStyle(el).display !== 'none').map(el => el.getBoundingClientRect().top);
+        const fullWidth = ['.hero', '.business-copy'].map(selector => {
+          const el = document.querySelector(selector)!;
+          const rect = el.getBoundingClientRect();
+          const style = getComputedStyle(el);
+          const button = el.querySelector('.primary-button')!.getBoundingClientRect();
+          return Math.abs(button.width - (rect.width - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight))) < 1;
+        });
+        return { benefits, fullWidth, starIsSvg: !!document.querySelector('.heading-star svg') };
+      });
+      expect(mobileLayout.benefits).toHaveLength(3);
+      expect(new Set(mobileLayout.benefits).size).toBe(1);
+      expect(mobileLayout.fullWidth).toEqual([true, true]);
+      expect(mobileLayout.starIsSvg).toBe(true);
+    }
     for (const selector of ['.coffee-brand', '.water-brand']) {
       const card = page.locator(selector);
       const boxes = await card.evaluate((el) => {

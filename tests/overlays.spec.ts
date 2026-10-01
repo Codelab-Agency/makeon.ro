@@ -8,6 +8,9 @@ test("mobile menu fills the screen, animates, traps focus and restores scrolling
   await opener.click();
   const menu=page.getByRole("dialog",{name:"Meniul Makeon"});
   await expect(menu).toBeVisible();
+  expect(await menu.evaluate(el=>getComputedStyle(el.querySelector(":focus")!).outlineStyle)).toBe("none");
+  await page.keyboard.press("Tab");
+  expect(await menu.evaluate(el=>getComputedStyle(el.querySelector(":focus")!).outlineStyle)).toBe("solid");
   await expect.poll(()=>menu.evaluate(el=>Math.round(el.getBoundingClientRect().top))).toBe(0);
   expect(await menu.evaluate(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height}))).toEqual({width:390,height:844});
   await expect(page.getByRole("navigation",{name:"Navigație mobilă"}).getByRole("link")).toHaveCount(5);
@@ -36,6 +39,7 @@ test("cart slides in from the right with a backdrop on desktop and mobile",async
     await opener.click();
     const cart=page.getByRole("dialog",{name:"Coșul de cafea"});
     await expect(cart).toBeVisible();
+    expect(await cart.evaluate(el=>getComputedStyle(el.querySelector(":focus")!).outlineStyle)).toBe("none");
     await expect.poll(()=>cart.evaluate(el=>Math.round(el.getBoundingClientRect().right))).toBe(width);
     const rect=await cart.evaluate(el=>({left:el.getBoundingClientRect().left,width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height}));
     expect(rect.left).toBeGreaterThan(0);

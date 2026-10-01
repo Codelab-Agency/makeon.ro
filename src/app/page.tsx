@@ -24,6 +24,7 @@ import dynamic from "next/dynamic";
 import CoffeeShop from "@/components/coffee-shop";
 import SiteHeader from "@/components/site-header";
 import BrandLogo from "@/components/brand-logo";
+import Starburst from "@/components/starburst";
 import ServiceStudio from "@/components/service-studio";
 import PageMotion from "@/components/page-motion";
 import CustomSelect from "@/components/custom-select";
@@ -394,7 +395,7 @@ export default function Home() {
               {world === "coffee" ? "Binele începe" : "Lasă binele"}
               <br />
               <span>{world === "coffee" ? "cu o cafea." : "să curgă."}</span>
-              <span className="heading-star">✳</span>
+              <Starburst className="heading-star" />
             </h1>
             <p className="hero-description world-copy">{data.description}</p>
             <div
@@ -946,7 +947,7 @@ export default function Home() {
             Hai să facem loc
             <br />
             <span>pentru mai bine.</span>
-            <span className="closing-star">✳</span>
+            <Starburst className="closing-star" />
           </h2>
           <button className="primary-button" onClick={() => openOffer()}>
             Începem cu o conversație
