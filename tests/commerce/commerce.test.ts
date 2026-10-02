@@ -58,6 +58,25 @@ async function product(stock = 5) {
     collection: 'Teste', grams: 500, description: 'Produs pentru verificarea comenzilor.', price: 49.99, stock, reserved: 0, active: true } });
 }
 
+test('admin order edits preserve payment snapshots and concurrent stock settlement', async () => {
+  const p = await product(3); const key = randomUUID();
+  await commerce.createCheckout([{ slug: p.slug, grind: 'Boabe', quantity: 1 }], key, fakeStripe, cms);
+  const order = (await cms.find({ collection: 'orders', where: { reference: { equals: `MK-${key}` } } })).docs[0];
+  const user = { id: 999, collection: 'users' as const, email: 'admin@example.test' };
+  await assert.rejects(cms.update({ collection: 'orders', id: order.id, overrideAccess: false, data: { fulfillmentStatus: 'processing' } }));
+  const session = keys.get(`MK-${key}`)!;
+  await Promise.all([
+    commerce.applySession({ ...session, status: 'complete', payment_status: 'paid' }, cms),
+    cms.update({ collection: 'orders', id: order.id, overrideAccess: false, user,
+      data: { fulfillmentStatus: 'processing', status: 'failed', totalBani: 1, shippingAddress: { fake: true } } }),
+  ]);
+  const saved = await cms.findByID({ collection: 'orders', id: order.id });
+  assert.equal(saved.fulfillmentStatus, 'processing'); assert.equal(saved.status, 'paid');
+  assert.equal(saved.totalBani, order.totalBani); assert.equal(saved.shippingAddress, null);
+  const inventory = await cms.findByID({ collection: 'products', id: p.id });
+  assert.equal(inventory.stock, 2); assert.equal(inventory.reserved, 0);
+});
+
 test('validates cart input and ignores client-supplied prices', () => {
   assert.deepEqual(parseLines({ items: [{ slug: 'intense', grind: 'Boabe', quantity: 1, price: 0.01 }, { slug: 'intense', grind: 'Boabe', quantity: 2 }] }),
     [{ slug: 'intense', grind: 'Boabe', quantity: 3 }]);

@@ -220,6 +220,10 @@ export interface Product {
  */
 export interface Order {
   id: number;
+  /**
+   * Alege etapa comenzii și apasă Salvează. Statusul plății este actualizat automat.
+   */
+  fulfillmentStatus: 'new' | 'processing' | 'shipped' | 'delivered';
   reference: string;
   status: 'pending' | 'paid' | 'expired' | 'failed';
   stripeSessionId?: string | null;
@@ -428,6 +432,7 @@ export interface ProductsSelect<T extends boolean = true> {
  * via the `definition` "orders_select".
  */
 export interface OrdersSelect<T extends boolean = true> {
+  fulfillmentStatus?: T;
   reference?: T;
   status?: T;
   stripeSessionId?: T;

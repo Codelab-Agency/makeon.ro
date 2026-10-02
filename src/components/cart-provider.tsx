@@ -60,7 +60,10 @@ export default function CartProvider({
   children: React.ReactNode;
 }) {
   const catalog = useCatalog();
-  const productBySlug = useCallback((slug: string) => catalog.products.find(p => p.slug === slug), [catalog.products]);
+  const productBySlug = useCallback(
+    (slug: string) => catalog.products.find((p) => p.slug === slug),
+    [catalog.products],
+  );
   const [paying, setPaying] = useState(false);
   const [paymentError, setPaymentError] = useState("");
   const checkoutKey = useRef<{ fingerprint: string; key: string } | null>(null);
@@ -115,24 +118,29 @@ export default function CartProvider({
     },
     [],
   );
-  const add = useCallback((slug: string, grind: string, quantity = 1) => {
-    const product = productBySlug(slug);
-    if (!product) return;
-    const qty = Math.max(1, Math.min(99, Math.floor(quantity)));
-    setItems((previous) => {
-      const found = previous.find((i) => i.slug === slug && i.grind === grind);
-      return found
-        ? previous.map((i) =>
-            i === found
-              ? { ...i, quantity: Math.min(99, i.quantity + qty) }
-              : i,
-          )
-        : [...previous, { slug, grind, quantity: qty }];
-    });
-    setNotice(`${product.name} a fost adăugată în coș.`);
-    if (noticeTimer.current) clearTimeout(noticeTimer.current);
-    noticeTimer.current = setTimeout(() => setNotice(""), 3500);
-  }, [productBySlug]);
+  const add = useCallback(
+    (slug: string, grind: string, quantity = 1) => {
+      const product = productBySlug(slug);
+      if (!product) return;
+      const qty = Math.max(1, Math.min(99, Math.floor(quantity)));
+      setItems((previous) => {
+        const found = previous.find(
+          (i) => i.slug === slug && i.grind === grind,
+        );
+        return found
+          ? previous.map((i) =>
+              i === found
+                ? { ...i, quantity: Math.min(99, i.quantity + qty) }
+                : i,
+            )
+          : [...previous, { slug, grind, quantity: qty }];
+      });
+      setNotice(`${product.name} a fost adăugată în coș.`);
+      if (noticeTimer.current) clearTimeout(noticeTimer.current);
+      noticeTimer.current = setTimeout(() => setNotice(""), 3500);
+    },
+    [productBySlug],
+  );
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
   const completePrices =
     items.length > 0 &&
@@ -141,31 +149,46 @@ export default function CartProvider({
     (sum, i) => sum + (productBySlug(i.slug)?.price ?? 0) * i.quantity,
     0,
   );
-  const canPay = catalog.checkout && completePrices && items.every(i => {
-    const p = productBySlug(i.slug);
-    const quantity = items.filter(line => line.slug === i.slug).reduce((sum, line) => sum + line.quantity, 0);
-    return (checkoutKey.current?.fingerprint === JSON.stringify(items)) || (p?.stock != null && p.stock >= quantity);
-  });
+  const canPay =
+    catalog.checkout &&
+    completePrices &&
+    items.every((i) => {
+      const p = productBySlug(i.slug);
+      const quantity = items
+        .filter((line) => line.slug === i.slug)
+        .reduce((sum, line) => sum + line.quantity, 0);
+      return (
+        checkoutKey.current?.fingerprint === JSON.stringify(items) ||
+        (p?.stock != null && p.stock >= quantity)
+      );
+    });
   async function pay() {
     if (paying || !canPay) return;
-    setPaying(true); setPaymentError("");
+    setPaying(true);
+    setPaymentError("");
     const fingerprint = JSON.stringify(items);
     if (!checkoutKey.current || checkoutKey.current.fingerprint !== fingerprint)
       checkoutKey.current = { fingerprint, key: crypto.randomUUID() };
     try {
-      const response = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, key: checkoutKey.current.key }) });
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items, key: checkoutKey.current.key }),
+      });
       const data = await response.json();
       if (!response.ok) {
         if (response.status === 409) checkoutKey.current = null;
-        throw new Error(data.error || 'Nu am putut deschide plata.');
+        throw new Error(data.error || "Nu am putut deschide plata.");
       }
-      sessionStorage.setItem('makeon-checkout-cart', fingerprint);
-      sessionStorage.setItem('makeon-checkout-key', checkoutKey.current.key);
+      sessionStorage.setItem("makeon-checkout-cart", fingerprint);
+      sessionStorage.setItem("makeon-checkout-key", checkoutKey.current.key);
       window.location.assign(data.url);
     } catch (error) {
-      setPaymentError(error instanceof Error ? error.message : 'Reîncearcă plata.');
-      catalog.refresh(); setPaying(false);
+      setPaymentError(
+        error instanceof Error ? error.message : "Reîncearcă plata.",
+      );
+      catalog.refresh();
+      setPaying(false);
     }
   }
   const changeQuantity = (line: CartLine, value: number) =>
@@ -275,7 +298,20 @@ export default function CartProvider({
               <div className="cart-lines">
                 {items.map((line) => {
                   const p = productBySlug(line.slug);
-                  if (!p) return <article className="cart-line" key={`${line.slug}-${line.grind}`}><div className="cart-line-copy"><p>Produs indisponibil: {line.slug}</p><button onClick={() => remove(line)}>Elimină din coș</button></div></article>;
+                  if (!p)
+                    return (
+                      <article
+                        className="cart-line"
+                        key={`${line.slug}-${line.grind}`}
+                      >
+                        <div className="cart-line-copy">
+                          <p>Produs indisponibil: {line.slug}</p>
+                          <button onClick={() => remove(line)}>
+                            Elimină din coș
+                          </button>
+                        </div>
+                      </article>
+                    );
                   return (
                     <article
                       className="cart-line"
@@ -349,28 +385,49 @@ export default function CartProvider({
                   </strong>
                 </div>
                 <p>
-                  {catalog.checkout && completePrices ? `Transport: ${money((catalog.shippingBani ?? 0) / 100)}. Total: ${money(total + (catalog.shippingBani ?? 0) / 100)}.` : completePrices
-                    ? "Livrarea și disponibilitatea se confirmă la comandă."
-                    : "Solicită prețurile și disponibilitatea pentru cafelele alese."}
+                  {catalog.checkout && completePrices
+                    ? `Transport: ${money((catalog.shippingBani ?? 0) / 100)}. Total: ${money(total + (catalog.shippingBani ?? 0) / 100)}.`
+                    : completePrices
+                      ? "Livrarea și disponibilitatea se confirmă la comandă."
+                      : "Solicită prețurile și disponibilitatea pentru cafelele alese."}
                 </p>
                 <button className="copy-selection" onClick={copySelection}>
                   {copied ? <Check size={16} /> : <ShoppingBag size={16} />}{" "}
                   {copied ? "Selecție copiată" : "Copiază selecția"}
                 </button>
-                {catalog.checkout && completePrices ? <button className="primary-button cart-phone" disabled={!canPay || paying} onClick={pay}>
-                  {paying ? 'Deschidem plata…' : 'Plătește prin Stripe'}<ArrowUpRight size={18} />
-                </button> : <a
-                  className="primary-button cart-phone"
-                  href="tel:+40744524728"
-                >
-                  <Phone size={17} />
-                  Solicită oferta
-                  <ArrowUpRight size={18} />
-                </a>}
-                {catalog.checkout && completePrices && !canPay && <p className="checkout-error">Verifică disponibilitatea și cantitățile din coș.</p>}
-                {paymentError && <p className="checkout-error" role="alert">{paymentError}</p>}
+                {catalog.checkout && completePrices ? (
+                  <button
+                    className="primary-button cart-phone"
+                    disabled={!canPay || paying}
+                    onClick={pay}
+                  >
+                    {paying ? "Deschidem plata…" : "Plătește prin Stripe"}
+                    <ArrowUpRight size={18} />
+                  </button>
+                ) : (
+                  <a
+                    className="primary-button cart-phone"
+                    href="tel:+40744524728"
+                  >
+                    <Phone size={17} />
+                    Solicită oferta
+                    <ArrowUpRight size={18} />
+                  </a>
+                )}
+                {catalog.checkout && completePrices && !canPay && (
+                  <p className="checkout-error">
+                    Verifică disponibilitatea și cantitățile din coș.
+                  </p>
+                )}
+                {paymentError && (
+                  <p className="checkout-error" role="alert">
+                    {paymentError}
+                  </p>
+                )}
                 <span className="cart-summary-note">
-                  {catalog.checkout && completePrices ? 'Plata este procesată securizat de Stripe.' : '+40 744 524 728 · Nicio comandă nu este trimisă automat.'}
+                  {catalog.checkout && completePrices
+                    ? "Plata este procesată securizat de Stripe."
+                    : "+40 744 524 728 · Nicio comandă nu este trimisă automat."}
                 </span>
               </div>
             </>

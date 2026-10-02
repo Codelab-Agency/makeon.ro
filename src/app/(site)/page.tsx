@@ -399,9 +399,7 @@ export default function Home() {
               {data.brand} <span>/ {world === "coffee" ? "01" : "02"}</span>
             </div>
             <h1 id="hero-title" className="hero-world-heading">
-              {world === "coffee"
-                ? "Ritualul cafelei"
-                : "Hidratare bună."}
+              {world === "coffee" ? "Ritualul cafelei" : "Hidratare bună."}
               <br />
               <span>{world === "coffee" ? "energia zilei." : "zi de zi."}</span>
               <Starburst className="heading-star" />

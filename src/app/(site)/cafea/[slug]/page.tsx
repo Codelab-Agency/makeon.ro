@@ -4,7 +4,7 @@ import CoffeeDetail from "@/components/coffee-detail";
 import ShopShell from "@/components/shop-shell";
 import { getProduct } from "@/lib/storefront";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: {

@@ -1,4 +1,8 @@
-import { sql, type MigrateUpArgs, type MigrateDownArgs } from '@payloadcms/db-postgres';
+import {
+  sql,
+  type MigrateUpArgs,
+  type MigrateDownArgs,
+} from "@payloadcms/db-postgres";
 
 export async function up({ db }: MigrateUpArgs) {
   await db.execute(sql`ALTER TABLE products ADD CONSTRAINT products_inventory_valid

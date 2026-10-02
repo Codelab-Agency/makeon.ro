@@ -10,7 +10,11 @@ export default function PageMotion({ world }: { world: "coffee" | "water" }) {
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const cleanups: (() => void)[] = [];
-      const pauseDecoration = () => document.documentElement.classList.toggle("cinematic-paused", document.hidden);
+      const pauseDecoration = () =>
+        document.documentElement.classList.toggle(
+          "cinematic-paused",
+          document.hidden,
+        );
       pauseDecoration();
       document.addEventListener("visibilitychange", pauseDecoration);
       cleanups.push(() => {
@@ -19,16 +23,20 @@ export default function PageMotion({ world }: { world: "coffee" | "water" }) {
       });
       const ctx = gsap.context(() => {
         gsap.utils
-          .toArray<HTMLElement>(".brand-card, .product-art, .membership-card, .ecosystem, .business, .closing")
+          .toArray<HTMLElement>(
+            ".brand-card, .product-art, .membership-card, .ecosystem, .business, .closing",
+          )
           .forEach((el) => {
             const loop = gsap.timeline({
               paused: true,
               repeat: -1,
               yoyo: true,
             });
-            const objects = el.matches(".brand-card, .product-art") ? el.querySelectorAll(
-              ".bag, .filter-cylinder, .subscription-pass, .water-glass",
-            ) : [];
+            const objects = el.matches(".brand-card, .product-art")
+              ? el.querySelectorAll(
+                  ".bag, .filter-cylinder, .subscription-pass, .water-glass",
+                )
+              : [];
             if (objects.length)
               loop.to(objects, {
                 y: -12,
@@ -55,13 +63,21 @@ export default function PageMotion({ world }: { world: "coffee" | "water" }) {
             });
           });
         gsap.utils.toArray<HTMLElement>(".ambient-orbit").forEach((orbit) => {
-          gsap.fromTo(orbit, { y: -6, rotation: -2 }, {
-            y: 6, rotation: 2, ease: "none",
-            scrollTrigger: {
-              trigger: orbit.closest(".brand-card, .product-card, section"),
-              start: "top bottom", end: "bottom top", scrub: .8,
+          gsap.fromTo(
+            orbit,
+            { y: -6, rotation: -2 },
+            {
+              y: 6,
+              rotation: 2,
+              ease: "none",
+              scrollTrigger: {
+                trigger: orbit.closest(".brand-card, .product-card, section"),
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.8,
+              },
             },
-          });
+          );
         });
         gsap.fromTo(
           ".journey-progress",

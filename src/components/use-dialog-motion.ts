@@ -22,13 +22,19 @@ export default function useDialogMotion(
       }
     };
     const timeline = gsap.timeline();
-    const keyboardFocus = () => { el.dataset.keyboardFocus = "true"; };
-    const pointerFocus = () => { el.dataset.keyboardFocus = "false"; };
+    const keyboardFocus = () => {
+      el.dataset.keyboardFocus = "true";
+    };
+    const pointerFocus = () => {
+      el.dataset.keyboardFocus = "false";
+    };
     if (opened) {
       if (!el.open) {
         previousOverflow.current = document.body.style.overflow;
         // Native dialogs mark autofocus as focus-visible even after a tap.
-        el.dataset.keyboardFocus = String(document.activeElement?.matches(":focus-visible") ?? false);
+        el.dataset.keyboardFocus = String(
+          document.activeElement?.matches(":focus-visible") ?? false,
+        );
         el.showModal();
       }
       el.addEventListener("keydown", keyboardFocus);

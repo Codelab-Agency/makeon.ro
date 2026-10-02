@@ -1,4 +1,71 @@
-.site>.header{position:sticky;top:0;z-index:100;box-shadow:0 6px 24px #00000012}.header .mobile-nav{top:calc(100% - 1px)}
-.brand-mark{align-items:center;gap:12px;flex-shrink:0}.brand-symbol{width:58px;height:58px;object-fit:contain;flex-shrink:0}.brand-name{display:inline-flex;align-items:flex-start}.brand-mark .logo-dot{padding-top:6px}.shop-footer .brand-mark{font-size:30px;letter-spacing:-1.8px}.shop-footer .brand-symbol{width:48px;height:48px}
-@media(max-width:1100px){.header .desktop-nav{gap:18px;font-size:11px}.header .brand-symbol{width:49px;height:49px}.header .brand-mark{gap:8px;font-size:34px}}
-@media(max-width:650px){.header .brand-mark{font-size:29px;gap:7px;letter-spacing:-1.8px}.header .brand-symbol{width:43px;height:43px}.header .offer-button{display:none}.footer .brand-symbol{width:50px;height:50px}.shop-footer .brand-symbol{width:43px;height:43px}}
+.site > .header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 6px 24px #00000012;
+}
+.header .mobile-nav {
+  top: calc(100% - 1px);
+}
+.brand-mark {
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.brand-symbol {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.brand-name {
+  display: inline-flex;
+  align-items: flex-start;
+}
+.brand-mark .logo-dot {
+  padding-top: 6px;
+}
+.shop-footer .brand-mark {
+  font-size: 30px;
+  letter-spacing: -1.8px;
+}
+.shop-footer .brand-symbol {
+  width: 48px;
+  height: 48px;
+}
+@media (max-width: 1100px) {
+  .header .desktop-nav {
+    gap: 18px;
+    font-size: 11px;
+  }
+  .header .brand-symbol {
+    width: 49px;
+    height: 49px;
+  }
+  .header .brand-mark {
+    gap: 8px;
+    font-size: 34px;
+  }
+}
+@media (max-width: 650px) {
+  .header .brand-mark {
+    font-size: 29px;
+    gap: 7px;
+    letter-spacing: -1.8px;
+  }
+  .header .brand-symbol {
+    width: 43px;
+    height: 43px;
+  }
+  .header .offer-button {
+    display: none;
+  }
+  .footer .brand-symbol {
+    width: 50px;
+    height: 50px;
+  }
+  .shop-footer .brand-symbol {
+    width: 43px;
+    height: 43px;
+  }
+}

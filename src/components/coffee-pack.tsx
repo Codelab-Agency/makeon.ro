@@ -3,7 +3,16 @@ import type { CSSProperties } from "react";
 import type { CoffeeProduct } from "@/lib/coffee-catalog";
 
 export default function CoffeePack({ product }: { product: CoffeeProduct }) {
-  if (product.imageUrl) return <div className="coffee-pack-art product-photo"><img src={product.imageUrl} alt={product.imageAlt || `${product.name}, ${product.grams} g`} loading="lazy" /></div>;
+  if (product.imageUrl)
+    return (
+      <div className="coffee-pack-art product-photo">
+        <img
+          src={product.imageUrl}
+          alt={product.imageAlt || `${product.name}, ${product.grams} g`}
+          loading="lazy"
+        />
+      </div>
+    );
   const tin =
     product.category === "solubila" ||
     product.category === "alternative" ||

@@ -236,6 +236,19 @@
           "primaryKey": false,
           "notNull": true
         },
+        "prefix": {
+          "name": "prefix",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "_objectkey": {
+          "name": "_objectkey",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp(3) with time zone",
@@ -840,6 +853,14 @@
           "type": "serial",
           "primaryKey": true,
           "notNull": true
+        },
+        "fulfillment_status": {
+          "name": "fulfillment_status",
+          "type": "enum_orders_fulfillment_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'new'"
         },
         "reference": {
           "name": "reference",
@@ -1642,6 +1663,11 @@
       "schema": "public",
       "values": ["boabe", "macinata", "solubila", "alternative"]
     },
+    "public.enum_orders_fulfillment_status": {
+      "name": "enum_orders_fulfillment_status",
+      "schema": "public",
+      "values": ["new", "processing", "shipped", "delivered"]
+    },
     "public.enum_orders_status": {
       "name": "enum_orders_status",
       "schema": "public",
@@ -1658,6 +1684,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "58306b97-97db-4402-8cf1-25178019b23f",
+  "id": "63f8c2d3-1b72-4ca4-83ea-afec0e503516",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }
