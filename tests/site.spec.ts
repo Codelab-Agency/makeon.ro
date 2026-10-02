@@ -4,7 +4,7 @@ test("the brand switch synchronizes solutions and FAQs", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("cu o cafea.");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("energia zilei.");
   await expect(page.getByRole("button", { name: "Lumea cafelei", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".coffee-shop")).toHaveCount(1);
   await page.getByRole("button", { name: "Lumea apei", exact: true }).click();
@@ -69,7 +69,7 @@ test("Three.js morphs a coffee bean into water and keeps rendering after rapid s
   await expect(page.locator(".world-curtain")).toHaveCSS("visibility", "visible");
   await expect.poll(async()=>Number(await scene.getAttribute("data-morph"))).toBeGreaterThan(.2);
   await expect(scene).toHaveAttribute("data-morph", "1.000");
-  await expect(page.getByRole("heading",{level:1})).toContainText("să curgă.");
+  await expect(page.getByRole("heading",{level:1})).toContainText("zi de zi.");
   await page.getByRole("button",{name:"Lumea cafelei",exact:true}).click();
   await page.getByRole("button",{name:"Lumea apei",exact:true}).click();
   await page.getByRole("button",{name:"Lumea cafelei",exact:true}).click();

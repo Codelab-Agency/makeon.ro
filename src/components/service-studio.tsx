@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Coffee, Droplets } from "lucide-react";
+import AmbientOrbit from "./ambient-orbit";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -242,6 +243,7 @@ export default function ServiceStudio({
       className={`service-studio section-padding studio-${world}`}
       id="servicii"
     >
+      <AmbientOrbit />
       <div className="section-top">
         <span className="eyebrow">MAKEON / PRICEPERE ÎN FIECARE DETALIU</span>
         <span className="section-index">DE LA PRODUS LA EXPERIENȚĂ</span>

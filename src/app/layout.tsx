@@ -9,6 +9,7 @@ import "./interface.css";
 import "./navigation.css";
 import "./overlays.css";
 import "./mobile.css";
+import "./cinematic.css";
 import CartProvider from "@/components/cart-provider";
 
 export const metadata: Metadata = {

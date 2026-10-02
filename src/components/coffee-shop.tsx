@@ -97,6 +97,14 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
   useEffect(() => {
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
+      const cards = root.current?.querySelectorAll(".shop-product-card") ?? [];
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => entry.target.classList.toggle("motion-visible", entry.isIntersecting));
+      });
+      cards.forEach(card => observer.observe(card));
+      const visibility = () => root.current?.classList.toggle("cinematic-paused", document.hidden);
+      visibility();
+      document.addEventListener("visibilitychange", visibility);
       const ctx = gsap.context(() => {
         gsap.utils
           .toArray<HTMLElement>(".shop-product-card")
@@ -116,7 +124,13 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
           });
         ScrollTrigger.refresh();
       }, root);
-      return () => ctx.revert();
+      return () => {
+        ctx.revert();
+        observer.disconnect();
+        cards.forEach(card => card.classList.remove("motion-visible"));
+        document.removeEventListener("visibilitychange", visibility);
+        root.current?.classList.remove("cinematic-paused");
+      };
     });
     return () => mm.revert();
   }, [shownKey]);

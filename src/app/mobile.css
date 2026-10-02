@@ -7,6 +7,9 @@
 }
 
 @media (max-width: 800px) {
+  .hero-copy { min-width: 0; }
+  .hero h1 { width: fit-content; max-width: 100%; }
+  .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); }
   .brand-card {
     min-height: 0;
     padding: 24px;
@@ -54,6 +57,7 @@
 }
 
 @media (max-width: 620px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
   .benefits-strip {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -25,6 +25,7 @@ import CoffeeShop from "@/components/coffee-shop";
 import SiteHeader from "@/components/site-header";
 import BrandLogo from "@/components/brand-logo";
 import Starburst from "@/components/starburst";
+import AmbientOrbit from "@/components/ambient-orbit";
 import ServiceStudio from "@/components/service-studio";
 import PageMotion from "@/components/page-motion";
 import CustomSelect from "@/components/custom-select";
@@ -197,7 +198,9 @@ export default function Home() {
   const [team, setTeam] = useState("11–30 persoane");
   const [prepared, setPrepared] = useState(false);
   const root = useRef<HTMLDivElement>(null);
-  const scrollAnchor = useRef<{ element: HTMLElement; top: number } | null>(null);
+  const scrollAnchor = useRef<{ element: HTMLElement; top: number } | null>(
+    null,
+  );
   const dialog = useRef<HTMLDialogElement>(null);
   const data = content[world];
 
@@ -209,7 +212,8 @@ export default function Home() {
     const align = () => {
       if (!anchor.element.isConnected) return;
       const delta = anchor.element.getBoundingClientRect().top - anchor.top;
-      if (Math.abs(delta) > .5) window.scrollTo({ top: window.scrollY + delta, behavior: "instant" });
+      if (Math.abs(delta) > 0.5)
+        window.scrollTo({ top: window.scrollY + delta, behavior: "instant" });
     };
     align();
     let secondFrame = 0;
@@ -329,8 +333,12 @@ export default function Home() {
   }
   function changeWorld(value: World, source?: HTMLElement) {
     if (activeWorld.current === value) return;
-    const localSwitch = source?.closest<HTMLElement>(".business-switch, .mini-switch");
-    scrollAnchor.current = localSwitch ? { element: localSwitch, top: localSwitch.getBoundingClientRect().top } : null;
+    const localSwitch = source?.closest<HTMLElement>(
+      ".business-switch, .mini-switch",
+    );
+    scrollAnchor.current = localSwitch
+      ? { element: localSwitch, top: localSwitch.getBoundingClientRect().top }
+      : null;
     if (localSwitch && root.current) root.current.style.overflowAnchor = "none";
     const enteringSection = localSwitch?.closest(".reveal");
     if (enteringSection) {
@@ -392,9 +400,11 @@ export default function Home() {
               {data.brand} <span>/ {world === "coffee" ? "01" : "02"}</span>
             </div>
             <h1 id="hero-title" className="hero-world-heading">
-              {world === "coffee" ? "Binele începe" : "Lasă binele"}
+              {world === "coffee"
+                ? "Ritualul cafelei"
+                : "Hidratare inteligentă."}
               <br />
-              <span>{world === "coffee" ? "cu o cafea." : "să curgă."}</span>
+              <span>{world === "coffee" ? "energia zilei." : "zi de zi."}</span>
               <Starburst className="heading-star" />
             </h1>
             <p className="hero-description world-copy">{data.description}</p>
@@ -405,7 +415,7 @@ export default function Home() {
             >
               <span className={`switch-slider ${world}`} />
               <button
-                onClick={event => changeWorld("coffee", event.currentTarget)}
+                onClick={(event) => changeWorld("coffee", event.currentTarget)}
                 aria-label="Lumea cafelei"
                 aria-pressed={world === "coffee"}
               >
@@ -415,7 +425,7 @@ export default function Home() {
                 </span>
               </button>
               <button
-                onClick={event => changeWorld("water", event.currentTarget)}
+                onClick={(event) => changeWorld("water", event.currentTarget)}
                 aria-label="Lumea apei"
                 aria-pressed={world === "water"}
               >
@@ -506,6 +516,7 @@ export default function Home() {
         </div>
 
         <section className="ecosystem section-padding" id="ecosistem">
+          <AmbientOrbit />
           <div className="section-top reveal">
             <span className="eyebrow">UNIVERSUL MAKEON</span>
             <span className="section-index">01 / ÎMPREUNĂ, MAI BINE</span>
@@ -550,6 +561,7 @@ export default function Home() {
               </h3>
               <p>Cafea de specialitate · Espressoare · Abonamente</p>
               <div className="brand-art">
+                <AmbientOrbit />
                 <Beans />
               </div>
               <span className="brand-card-link">
@@ -584,6 +596,7 @@ export default function Home() {
               </h3>
               <p>Apă filtrată · Aparate · Filtre & mentenanță</p>
               <div className="water-visual">
+                <AmbientOrbit />
                 <span className="water-ripple ripple-one" />
                 <span className="water-ripple ripple-two" />
                 <div className="water-glass">
@@ -606,14 +619,14 @@ export default function Home() {
             <div className="mini-switch">
               <button
                 aria-pressed={world === "coffee"}
-                onClick={event => changeWorld("coffee", event.currentTarget)}
+                onClick={(event) => changeWorld("coffee", event.currentTarget)}
               >
                 <Coffee size={16} />
                 Cafea
               </button>
               <button
                 aria-pressed={world === "water"}
-                onClick={event => changeWorld("water", event.currentTarget)}
+                onClick={(event) => changeWorld("water", event.currentTarget)}
               >
                 <Droplets size={16} />
                 Apă
@@ -634,6 +647,7 @@ export default function Home() {
             {data.products.map((product, i) => (
               <article className="product-card world-copy" key={i}>
                 <div className={`product-art product-${product.type}`}>
+                  <AmbientOrbit />
                   <span className="product-number">0{i + 1}</span>
                   {product.type === "beans" ? (
                     <Beans />
@@ -697,10 +711,9 @@ export default function Home() {
         <PageMotion world={world} />
 
         <section className="business section-padding" id="abonamente">
+          <AmbientOrbit />
           <div className="business-copy reveal">
-            <span className="eyebrow">
-              <span className="status-dot" /> MAKEON PENTRU COMPANII
-            </span>
+            <span className="eyebrow">MAKEON PENTRU COMPANII</span>
             <div
               className="business-switch"
               role="group"
@@ -709,14 +722,14 @@ export default function Home() {
               <span className={`business-switch-slider ${world}`} />
               <button
                 aria-pressed={world === "coffee"}
-                onClick={event => changeWorld("coffee", event.currentTarget)}
+                onClick={(event) => changeWorld("coffee", event.currentTarget)}
               >
                 <Coffee size={17} />
                 Cafea
               </button>
               <button
                 aria-pressed={world === "water"}
-                onClick={event => changeWorld("water", event.currentTarget)}
+                onClick={(event) => changeWorld("water", event.currentTarget)}
               >
                 <Droplets size={17} />
                 Apă
@@ -942,6 +955,7 @@ export default function Home() {
         </section>
 
         <section className="closing section-padding reveal">
+          <AmbientOrbit />
           <span className="eyebrow">LUCRURI MICI. ZILE MAI BUNE.</span>
           <h2>
             Hai să facem loc
@@ -987,7 +1001,7 @@ export default function Home() {
           <span>
             © {new Date().getFullYear()} Makeon. Toate drepturile rezervate.
           </span>
-          <span>Concept de prezentare · România</span>
+          <span>România</span>
           <a href="#">
             Înapoi sus
             <ArrowUpRight size={13} />

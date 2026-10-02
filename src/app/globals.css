@@ -205,13 +205,7 @@ h3 {
   align-items: center;
   gap: 9px;
 }
-.status-dot {
-  width: 6px;
-  height: 6px;
-  background: #8ca66b;
-  border-radius: 50%;
-  display: inline-block;
-}
+
 .hero-copy {
   position: relative;
   z-index: 3;
