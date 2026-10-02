@@ -11,6 +11,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Missing signature" }, { status: 400 });
   let event: Stripe.Event;
   try {
+    // Signature verification requires the untouched body, not parsed/rebuilt JSON.
     event = stripeClient().webhooks.constructEvent(
       await request.text(),
       signature,

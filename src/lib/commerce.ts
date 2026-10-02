@@ -1,3 +1,8 @@
+/**
+ * Checkout and inventory lifecycle. Product prices use RON; orders and Stripe use
+ * integer bani. Stock is physical inventory, reserved is held for pending payments,
+ * and sellable inventory is stock - reserved. Inventory transitions are atomic.
+ */
 import "server-only";
 import Stripe from "stripe";
 import { sql, type PostgresAdapter } from "@payloadcms/db-postgres";
@@ -22,6 +27,7 @@ export function stripeClient() {
   });
 }
 
+/** Share Payload's transaction connection so raw SQL and Local API writes commit together. */
 function transactionDB(cms: Payload, id: number | string) {
   return (cms.db as unknown as PostgresAdapter).sessions[String(id)].db;
 }
@@ -49,6 +55,12 @@ async function lockOrder(cms: Payload, id: number | string, reference: string) {
   );
 }
 
+/**
+ * Reconcile a session fetched from Stripe or verified by its webhook.
+ * Paid sessions deduct stock; expiration releases reservations. The order lock
+ * and pending-state guard make retries harmless. Reject conflicting terminal
+ * states and payment amounts that differ from the persisted order snapshot.
+ */
 export async function applySession(
   session: Stripe.Checkout.Session,
   cmsArg?: Payload,
@@ -94,6 +106,7 @@ export async function applySession(
         (quantities.get(productID) ?? 0) + line.quantity,
       );
     }
+    // Acquire product locks in ID order across flows to reduce deadlock risk.
     for (const [productID, quantity] of [...quantities].sort(
       (a, b) => a[0] - b[0],
     )) {
@@ -126,6 +139,7 @@ export async function applySession(
   });
 }
 
+/** Release a draft only when Stripe definitively rejected creating its session. */
 async function failDraft(cms: Payload, reference: string) {
   await transaction(cms, async (id) => {
     const req = { transactionID: id };
@@ -166,6 +180,11 @@ async function failDraft(cms: Payload, reference: string) {
   });
 }
 
+/**
+ * Recover up to 25 overdue pending orders per call, including missed webhooks.
+ * A local timestamp alone never releases stock: Stripe is the authority.
+ * Catalog/checkout requests invoke this recovery; it is not a scheduled job.
+ */
 export async function reconcileExpired(cms: Payload, stripe: Stripe) {
   const { docs } = await cms.find({
     collection: "orders",
@@ -191,6 +210,11 @@ export async function reconcileExpired(cms: Payload, stripe: Stripe) {
   }
 }
 
+/**
+ * Create/recover a session with the order reference as Stripe's retry key.
+ * A network timeout may hide a successful request, so its reservation stays
+ * retryable. The order lock covers both creation and persistence of the session ID.
+ */
 async function sessionForOrder(order: Order, stripe: Stripe, cms: Payload) {
   try {
     return await transaction(cms, async (id) => {
@@ -265,6 +289,12 @@ async function sessionForOrder(order: Order, stripe: Stripe, cms: Payload) {
   }
 }
 
+/**
+ * Reserve inventory and persist a price snapshot before opening Stripe Checkout.
+ * Client lines contain selections only; CMS supplies prices and availability.
+ * Reusing a key requires the same pending cart. Different grind variants consume
+ * the same product stock, so reservations aggregate their quantities.
+ */
 export async function createCheckout(
   lines: CheckoutLine[],
   key: string,
@@ -371,6 +401,7 @@ export async function createCheckout(
   return { url: session.url };
 }
 
+/** Expire an open Stripe session, then reconcile its actual state to handle payment races. */
 export async function cancelCheckout(
   key: string,
   stripe = stripeClient(),

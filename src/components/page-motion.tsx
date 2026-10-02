@@ -5,6 +5,11 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
+/**
+ * Decorative motion only: no scroll pinning or content reordering. Visibility
+ * observers pause loops offscreen; media queries keep reduced-motion views static.
+ * World changes revert GSAP state and observers before attaching fresh effects.
+ */
 export default function PageMotion({ world }: { world: "coffee" | "water" }) {
   useEffect(() => {
     const mm = gsap.matchMedia();

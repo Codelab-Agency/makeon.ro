@@ -30,6 +30,7 @@ export const Users: CollectionConfig = {
   },
 };
 
+/** Public image metadata with admin-only uploads; binary files are stored in R2. */
 export const Media: CollectionConfig = {
   slug: "media",
   labels: { singular: "Imagine", plural: "Imagini" },
@@ -66,6 +67,7 @@ export const Media: CollectionConfig = {
   },
 };
 
+/** Deactivate products instead of deleting them to preserve historical order relationships. */
 export const Products: CollectionConfig = {
   slug: "products",
   labels: { singular: "Produs", plural: "Produse" },
@@ -342,6 +344,9 @@ export const Orders: CollectionConfig = {
   ],
 };
 
+// Fulfillment is the only editable order state in the admin. Payment status,
+// customer details, items and amounts belong to the server-side Stripe snapshot.
+// Field access enforces this for API requests; hiding inputs alone is insufficient.
 Orders.fields = [
   {
     name: "fulfillmentStatus",

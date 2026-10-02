@@ -3,6 +3,8 @@ import * as migration_20261002_121000_inventory_constraints from "./20261002_121
 import * as migration_20261002_121759_r2_storage from "./20261002_121759_r2_storage";
 import * as migration_20261002_134255 from "./20261002_134255";
 
+// Append migrations in order. Keep applied migrations unchanged so deployments
+// advance existing databases without replaying or rewriting their history.
 export const migrations = [
   {
     up: migration_20261002_120914_initial.up,

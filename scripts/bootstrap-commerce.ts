@@ -1,6 +1,11 @@
 import nextEnv from '@next/env';
 nextEnv.loadEnvConfig(process.cwd());
 
+/**
+ * Rerunnable setup: create the first admin only when no users exist and seed missing
+ * product slugs without overwriting edits. New products start with zero stock.
+ * Remove ADMIN_PASSWORD from the environment after initial setup.
+ */
 async function main() {
   if (!process.env.DATABASE_URL || !process.env.PAYLOAD_SECRET) throw new Error('Completează DATABASE_URL și PAYLOAD_SECRET.');
   const { getPayload } = await import('payload');

@@ -21,6 +21,8 @@ export default async function Page({
     /^cs_(test_|live_)?[A-Za-z0-9]+$/.test(params.session_id ?? "")
   ) {
     try {
+      // Redirect parameters are not payment proof. Fetch Stripe's session server-side
+      // and reconcile through the webhook's shared path before showing success.
       const session = await stripeClient().checkout.sessions.retrieve(
         params.session_id!,
       );

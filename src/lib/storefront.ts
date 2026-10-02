@@ -4,6 +4,7 @@ import { cmsConfigured } from "./commerce-env";
 import { getCMS } from "./cms";
 import type { Product } from "@/payload-types";
 
+/** Explicit public-field allowlist; expose sellable stock and prefer the card-sized image. */
 export function publicProduct(doc: Product): CoffeeProduct {
   const image =
     doc.image && typeof doc.image === "object" ? doc.image : undefined;
@@ -30,6 +31,11 @@ export function publicProduct(doc: Product): CoffeeProduct {
   };
 }
 
+/**
+ * Static data is used only when CMS is unconfigured; configured CMS failures
+ * propagate rather than silently exposing stale prices. Local API access bypasses
+ * admin permissions, so active filtering and public-field mapping are mandatory.
+ */
 export async function getProducts(): Promise<CoffeeProduct[]> {
   if (!cmsConfigured()) return coffeeProducts;
   const cms = await getCMS();

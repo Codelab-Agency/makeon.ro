@@ -28,7 +28,7 @@ import Starburst from "@/components/starburst";
 import AmbientOrbit from "@/components/ambient-orbit";
 import ServiceStudio from "@/components/service-studio";
 import PageMotion from "@/components/page-motion";
-import CustomSelect from "@/components/custom-select";
+import ContactRequestForm from "@/components/contact-request-form";
 import { serviceOptions, normalizeService } from "@/lib/service-options";
 const BusinessScene = dynamic(() => import("@/components/business-scene"), {
   ssr: false,
@@ -194,8 +194,6 @@ export default function Home() {
   const [faq, setFaq] = useState<number | null>(0);
   const [modal, setModal] = useState(false);
   const [interest, setInterest] = useState("Cafea + apă");
-  const [team, setTeam] = useState("11–30 persoane");
-  const [prepared, setPrepared] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const scrollAnchor = useRef<{ element: HTMLElement; top: number } | null>(
     null,
@@ -327,9 +325,10 @@ export default function Home() {
 
   function openOffer(selection = "Cafea + apă") {
     setInterest(normalizeService(selection));
-    setPrepared(false);
     setModal(true);
   }
+  // Anchor section-local switches in viewport space because world-specific content
+  // changes page height. The layout effect restores that anchor after React commits.
   function changeWorld(value: World, source?: HTMLElement) {
     if (activeWorld.current === value) return;
     const localSwitch = source?.closest<HTMLElement>(
@@ -1029,72 +1028,10 @@ export default function Home() {
             începe cu tine.
           </h2>
           <p>
-            Alege ce te interesează și dimensiunea echipei. Pregătim detaliile
-            pentru discuția noastră.
+            Spune-ne ce cauți și lasă-ne datele de contact. Îți pregătim
+            o ofertă potrivită echipei tale.
           </p>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setPrepared(true);
-            }}
-          >
-            <label htmlFor="interest">Ce soluție cauți?</label>
-            <CustomSelect
-              id="interest"
-              label="Ce soluție cauți?"
-              value={interest}
-              onChange={(value) => {
-                setInterest(value);
-                setPrepared(false);
-              }}
-              options={serviceOptions.map((value) => ({ value, label: value }))}
-            />
-            <label htmlFor="team">Câți oameni sunt în echipă?</label>
-            <CustomSelect
-              id="team"
-              label="Câți oameni sunt în echipă?"
-              value={team}
-              onChange={(value) => {
-                setTeam(value);
-                setPrepared(false);
-              }}
-              options={[
-                "1–10 persoane",
-                "11–30 persoane",
-                "31–75 persoane",
-                "76–150 persoane",
-                "Peste 150 persoane",
-              ].map((value) => ({ value, label: value }))}
-            />
-            <button type="submit" className="primary-button">
-              Pregătește discuția
-              <ArrowRight size={18} />
-            </button>
-          </form>
-          {prepared && (
-            <div className="contact-summary" role="status">
-              <Check size={20} />
-              <div>
-                <strong>Ai pregătit detaliile.</strong>
-                <p>
-                  {interest} · {team}
-                </p>
-                <span>
-                  Alege telefonul sau WhatsApp pentru a discuta oferta.
-                  Detaliile se trimit doar când alegi tu să trimiți mesajul.
-                </span>
-                <a
-                  className="text-link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={`https://wa.me/40744524728?text=${encodeURIComponent(`Bună! Mă interesează: ${interest}. Echipa: ${team}. Aș dori o ofertă Makeon.`)}`}
-                >
-                  Continuă pe WhatsApp
-                  <ArrowUpRight size={16} />
-                </a>
-              </div>
-            </div>
-          )}
+          {modal && <ContactRequestForm interest={interest} onInterestChange={setInterest} />}
           <a className="dialog-phone" href="tel:+40744524728">
             <Phone size={18} />
             +40 744 524 728

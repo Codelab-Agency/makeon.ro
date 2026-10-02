@@ -11,6 +11,7 @@ export function ResponsiveList() {
   );
 }
 
+/** Product prices are already in RON; unlike order amounts, do not divide by 100. */
 export function ProductPriceCell({ cellData }: DefaultCellComponentProps) {
   return (
     <span>
@@ -24,6 +25,7 @@ export function ProductPriceCell({ cellData }: DefaultCellComponentProps) {
   );
 }
 
+/** Display integer-bani order snapshots in RON without changing stored values. */
 export function OrderAmountCell({ cellData }: DefaultCellComponentProps) {
   return (
     <span>

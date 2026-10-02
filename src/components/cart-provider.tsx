@@ -24,6 +24,7 @@ import { useCatalog } from "./catalog-provider";
 import CoffeePack from "./coffee-pack";
 import useDialogMotion from "./use-dialog-motion";
 
+/** Persist selections only; the server resolves current prices and reserves inventory. */
 export type CartLine = { slug: string; grind: string; quantity: number };
 type CartContextValue = {
   items: CartLine[];
@@ -66,6 +67,7 @@ export default function CartProvider({
   );
   const [paying, setPaying] = useState(false);
   const [paymentError, setPaymentError] = useState("");
+  // Network retries retain the key for this cart; a changed cart receives a new key.
   const checkoutKey = useRef<{ fingerprint: string; key: string } | null>(null);
   const [items, setItems] = useState<CartLine[]>([]),
     [loaded, setLoaded] = useState(false),
@@ -149,6 +151,8 @@ export default function CartProvider({
     (sum, i) => sum + (productBySlug(i.slug)?.price ?? 0) * i.quantity,
     0,
   );
+  // UI hint only: the server performs the atomic stock check. An existing retry
+  // may already hold this cart's reservation, reducing the reported public stock.
   const canPay =
     catalog.checkout &&
     completePrices &&

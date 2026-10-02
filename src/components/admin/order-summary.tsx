@@ -13,6 +13,7 @@ const paymentLabels = {
 const string = (value: unknown) =>
   typeof value === "string" ? value.trim() : "";
 
+/** Read-only view of the payment snapshot; amounts are converted from bani for display only. */
 export function OrderSummary() {
   const { data } = useDocumentInfo();
   const order = data as Order | undefined;
@@ -27,6 +28,7 @@ export function OrderSummary() {
     shipping && typeof shipping === "object" && !Array.isArray(shipping)
       ? shipping
       : {};
+  // Support Stripe's nested shipping details and older flat address snapshots.
   const nested = recipient.address;
   const address = (
     nested && typeof nested === "object" && !Array.isArray(nested)

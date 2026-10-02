@@ -52,6 +52,7 @@ export default buildConfig({
       max: 10,
       connectionTimeoutMillis: 10000,
     },
+    // Development may synchronize the schema; production requires reviewed migrations.
     push: process.env.NODE_ENV !== "production",
     migrationDir: path.resolve(process.cwd(), "src/migrations"),
   }),
@@ -60,11 +61,13 @@ export default buildConfig({
   plugins: [
     s3Storage({
       enabled: r2Ready,
+      // Keep the schema stable when R2 credentials are absent during builds.
       alwaysInsertFields: true,
       bucket: process.env.R2_BUCKET || "makeon-unconfigured",
       collections: {
         media: {
           disablePayloadAccessControl: true,
+          // Browsers use the public media domain, not the authenticated S3 endpoint.
           generateFileURL: ({ filename }) =>
             `${process.env.R2_PUBLIC_URL!.replace(/\/$/, "")}/${encodeURIComponent(filename)}`,
         },

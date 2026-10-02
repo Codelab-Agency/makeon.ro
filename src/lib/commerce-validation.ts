@@ -9,6 +9,7 @@ export class CommerceError extends Error {
     super(message);
   }
 }
+/** Validate untrusted selections and merge duplicate slug/grind pairs before reserving stock. */
 export function parseLines(body: unknown): CheckoutLine[] {
   if (
     !body ||
@@ -56,6 +57,7 @@ export function validGrind(category: CoffeeCategory, grind: string) {
       ? ["Ibric", "Moka", "Espresso"].includes(grind)
       : grind === "Instant";
 }
+/** Convert a CMS price in RON to integer bani; missing prices cannot enter checkout. */
 export function priceBani(price: number | null | undefined): number {
   const bani = Math.round((price ?? 0) * 100);
   if (!Number.isSafeInteger(bani) || bani <= 0)

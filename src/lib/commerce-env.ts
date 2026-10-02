@@ -4,6 +4,7 @@ export function cmsConfigured() {
   );
 }
 
+/** Fail closed unless payments, signed webhooks and an explicit shipping amount are configured. */
 export function checkoutConfigured() {
   return (
     cmsConfigured() &&

@@ -243,6 +243,8 @@ export default function ElementScene({
     );
     observer.observe(el);
     let last = performance.now();
+    // Skip continuous rendering offscreen, in hidden tabs and for reduced motion.
+    // Explicit renders still update the static scene after resizing/world changes.
     renderer.setAnimationLoop(() => {
       const now = performance.now(),
         dt = Math.min((now - last) / 1000, 0.05);
@@ -262,6 +264,7 @@ export default function ElementScene({
       el.removeEventListener("pointermove", onPointer);
       gsap.killTweensOf(morph);
       gsap.killTweensOf(burst);
+      // React can remount this scene: release GPU resources, not just the canvas.
       geometry.dispose();
       material.dispose();
       particlesGeo.dispose();

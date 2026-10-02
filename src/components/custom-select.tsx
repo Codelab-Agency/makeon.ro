@@ -36,6 +36,8 @@ export default function CustomSelect({
   const selected = options.findIndex((option) => option.value === value);
   function expand() {
     setActive(Math.max(0, selected));
+    // A modal dialog occupies the browser's top layer. Portal inside it so the
+    // listbox stays visible and interactive instead of becoming inert behind it.
     setPortal(trigger.current?.closest("dialog") ?? document.body);
     setOpen(true);
   }

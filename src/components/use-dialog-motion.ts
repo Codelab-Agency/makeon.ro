@@ -3,6 +3,11 @@
 import { useEffect, useRef, type RefObject } from "react";
 import gsap from "gsap";
 
+/**
+ * Animate native dialogs while preserving their focus trap and top-layer behavior.
+ * Close only after the exit animation and restore the previous body scroll style.
+ * Pointer opens suppress the autofocus ring; keyboard use restores visible focus.
+ */
 export default function useDialogMotion(
   ref: RefObject<HTMLDialogElement | null>,
   opened: boolean,

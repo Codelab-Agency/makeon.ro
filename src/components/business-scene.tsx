@@ -326,6 +326,7 @@ export default function BusinessScene({
           ).forEach((material) => materials.add(material));
         }
       });
+      // Dispose every owned GPU resource to avoid leaks on remount/navigation.
       geometries.forEach((geometry) => geometry.dispose());
       materials.forEach((material) => material.dispose());
       renderer.dispose();
