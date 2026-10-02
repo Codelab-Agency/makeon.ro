@@ -56,9 +56,6 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
         <div className="detail-visual">
           <span className="eyebrow">{product.collection}</span>
           <CoffeePack product={product} />
-          <span className="detail-visual-caption">
-            Reprezentare de prezentare a ambalajului
-          </span>
         </div>
         <div className="detail-copy">
           <span className="eyebrow">
@@ -169,10 +166,6 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
             <br />
             are povestea ei.
           </h2>
-          <p>
-            Detaliile produsului sunt preluate din catalogul SwitchMorn
-            furnizat.
-          </p>
         </div>
         <dl>
           {specs.map(([label, value]) => (
