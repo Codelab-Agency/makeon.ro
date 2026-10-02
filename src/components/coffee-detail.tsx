@@ -173,15 +173,6 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
             Detaliile produsului sunt preluate din catalogul SwitchMorn
             furnizat.
           </p>
-          <a
-            href={`/catalog/${product.source}`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-link"
-          >
-            Vezi pagina din catalog
-            <ArrowUpRight size={17} />
-          </a>
         </div>
         <dl>
           {specs.map(([label, value]) => (
