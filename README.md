@@ -36,6 +36,8 @@ Fonturile variabile Manrope și DM Sans sunt găzduite local prin Fontsource, in
 
 ## Magazin cafea
 
+Magazinul este pregătit pentru Payload CMS (`/admin`), PostgreSQL în Neon, imagini Cloudflare R2 și Stripe Checkout. Configurarea serviciilor, inițializarea administratorului, importul catalogului și migrările sunt documentate în [docs/commerce-setup.md](docs/commerce-setup.md). Fără variabilele externe, funcționează catalogul de prezentare; prețurile și stocurile nu sunt inventate.
+
 `/cafea` include 17 produse extrase din catalog: Intense, Noblesse, Armonia, Exotic Blend, Etiopia, Brazilia, Columbia, Guatemala, India, Costa Rica, Kenia, Indonezia, Organic, Decaff, Solubilă Peru BIO, Chicory și Kopi Luwak. Fiecare are pagină proprie la `/cafea/[slug]`, gramajul din catalog, note aromatice și, unde sunt documentate, origine, altitudine, varietate, procesare și prăjire. Sunt disponibile filtre pe categorie, căutare și sortare alfabetică.
 
 Produsele măcinate permit alegerea măcinării pentru ibric, moka sau espresso. Coșul reține produsul, măcinarea și cantitatea în `localStorage`; variantele se păstrează separat. Se pot modifica cantitățile, elimina produse și copia selecția pentru solicitarea ofertei. Coșul funcționează între homepage, magazin și paginile produselor.

@@ -1,5 +1,9 @@
 export type CoffeeCategory = "boabe" | "macinata" | "solubila" | "alternative";
 export type CoffeeProduct = {
+  id?: number;
+  stock?: number;
+  imageUrl?: string;
+  imageAlt?: string;
   slug: string;
   name: string;
   category: CoffeeCategory;

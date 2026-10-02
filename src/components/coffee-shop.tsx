@@ -13,7 +13,6 @@ import {
 import {
   categories,
   categoryLabel,
-  coffeeProducts,
   money,
   type CoffeeCategory,
   type CoffeeProduct,
@@ -21,6 +20,7 @@ import {
 import CoffeePack from "./coffee-pack";
 import CustomSelect from "./custom-select";
 import { useCart } from "./cart-provider";
+import { useCatalog } from "./catalog-provider";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -56,6 +56,7 @@ export function CoffeeProductCard({ product }: { product: CoffeeProduct }) {
           ) : (
             <button
               className="shop-add"
+              disabled={product.stock === 0}
               onClick={() =>
                 add(
                   product.slug,
@@ -64,7 +65,7 @@ export function CoffeeProductCard({ product }: { product: CoffeeProduct }) {
               }
               aria-label={`Adaugă ${product.name} în coș`}
             >
-              Adaugă
+              {product.stock === 0 ? "Stoc epuizat" : "Adaugă"}
               <ShoppingBag size={16} />
             </button>
           )}
@@ -75,6 +76,7 @@ export function CoffeeProductCard({ product }: { product: CoffeeProduct }) {
 }
 
 export default function CoffeeShop({ full = false }: { full?: boolean }) {
+  const { products: coffeeProducts, unavailable } = useCatalog();
   const root = useRef<HTMLElement>(null);
   const [category, setCategory] = useState<"all" | CoffeeCategory>("all"),
     [search, setSearch] = useState(""),
@@ -91,7 +93,7 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
     return sort === "name"
       ? [...results].sort((a, b) => a.name.localeCompare(b.name, "ro"))
       : results;
-  }, [category, search, sort]);
+  }, [category, search, sort, coffeeProducts]);
   const shown = all ? filtered : filtered.slice(0, 6);
   const shownKey = shown.map((product) => product.slug).join(",");
   useEffect(() => {
@@ -214,6 +216,7 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
         </div>
       </div>
       <div className="shop-result-count" aria-live="polite">
+        {unavailable && <p>Catalogul nu poate fi actualizat acum. Reîncearcă în câteva momente.</p>}
         {filtered.length} {filtered.length === 1 ? "sortiment" : "sortimente"}
         {search && ` pentru „${search}”`}
       </div>
@@ -258,7 +261,7 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
           Boabe & măcinată
         </span>
         <span>Gramaje din catalog</span>
-        <span>Prețuri și disponibilitate la cerere</span>
+        <span>{coffeeProducts.some(p => p.price != null) ? "Plată securizată prin Stripe" : "Prețuri și disponibilitate la cerere"}</span>
       </div>
     </section>
   );

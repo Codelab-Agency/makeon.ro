@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import {
   categoryLabel,
-  coffeeProducts,
   money,
   type CoffeeProduct,
 } from "@/lib/coffee-catalog";
@@ -20,8 +19,10 @@ import CoffeePack from "./coffee-pack";
 import CustomSelect from "./custom-select";
 import { useCart } from "./cart-provider";
 import { CoffeeProductCard } from "./coffee-shop";
+import { useCatalog } from "./catalog-provider";
 
 export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
+  const { products: coffeeProducts } = useCatalog();
   const [quantity, setQuantity] = useState(1),
     [grind, setGrind] = useState(
       product.category === "boabe"
@@ -137,14 +138,16 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
             </div>
             <button
               className="primary-button"
+              disabled={product.stock === 0 || (product.stock != null && quantity > product.stock)}
               onClick={() => add(product.slug, grind, quantity)}
             >
-              Adaugă în coș
+              {product.stock === 0 ? "Stoc epuizat" : "Adaugă în coș"}
               <ShoppingBag size={18} />
             </button>
           </div>
           <p className="detail-order-note">
-            Adaugă cafelele preferate și solicită oferta pentru selecția ta.
+            {product.price == null ? "Adaugă cafelele preferate și solicită oferta pentru selecția ta." : "Adaugă cafeaua în coș și finalizează cumpărăturile prin Stripe."}
+            {product.stock != null && <span className="stock-note">{product.stock > 0 ? `${product.stock} ambalaje disponibile` : "Momentan indisponibilă"}</span>}
           </p>
           <div className="detail-ritual">
             <Coffee size={19} />

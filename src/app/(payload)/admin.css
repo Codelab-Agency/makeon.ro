@@ -1,0 +1,103 @@
+:root {
+  --font-body: 'DM Sans Variable', sans-serif;
+  --style-radius-s: 8px;
+  --style-radius-m: 12px;
+  --style-radius-l: 18px;
+}
+html[data-theme='light'] {
+  --theme-bg: #f5f6f3;
+  --theme-input-bg: #ffffff;
+  --theme-text: #252c28;
+  --theme-elevation-50: #eff2ec;
+  --theme-elevation-100: #e8ece3;
+  --theme-elevation-150: #dce2d5;
+  --theme-elevation-500: #727c69;
+  --theme-elevation-800: #33452f;
+  --theme-elevation-900: #253720;
+  --theme-elevation-1000: #1c2d18;
+}
+html[data-theme='dark'] {
+  --theme-bg: #151c19;
+  --theme-input-bg: #1d2721;
+  --theme-elevation-50: #1d2721;
+  --theme-elevation-100: #2b362f;
+  --theme-elevation-150: #39453d;
+}
+.makeon-admin-brand { display: flex; align-items: center; justify-content: center; gap: 15px; color: var(--theme-text); }
+.makeon-admin-brand img { flex: 0 0 auto; }
+.makeon-admin-brand > div { display: flex; flex-direction: column; gap: 5px; }
+.makeon-admin-wordmark { font-size: 42px; font-weight: 800; letter-spacing: -2px; line-height: 1; }
+.makeon-admin-registered { font-size: 12px; vertical-align: top; letter-spacing: 0; margin-left: 4px; }
+.makeon-admin-caption { font-size: 11px; letter-spacing: 1.2px; color: var(--theme-elevation-500); }
+.makeon-admin-brand--compact { justify-content: flex-start; gap: 10px; }
+.makeon-admin-brand--compact .makeon-admin-wordmark { font-size: 26px; letter-spacing: -1px; }
+.makeon-admin-overview { margin-bottom: 20px; }
+.makeon-admin-welcome { position: relative; overflow: hidden; padding: 42px; margin: 0 0 24px; border-radius: 22px;
+  color: #faf8ee; background: radial-gradient(ellipse at 85% 40%, #68845645, transparent 60%), #1c2a22; }
+.makeon-admin-welcome-content { position: relative; z-index: 1; }
+.makeon-admin-welcome .makeon-admin-caption { color: #bfcab0; display: flex; align-items: center; gap: 9px; font-size: 10px; letter-spacing: 2px; }
+.makeon-admin-status { width: 6px; height: 6px; border-radius: 50%; background: #c6d6a6; }
+.makeon-admin-welcome h1 { font-family: 'Manrope Variable', sans-serif; font-size: clamp(30px, 3.5vw, 47px); font-weight: 500; line-height: 1.16; margin: 20px 0 16px; letter-spacing: -1.8px; }
+.makeon-admin-welcome p { max-width: 460px; color: #b6c1b8; font-size: 14px; line-height: 1.75; margin-bottom: 26px; }
+.makeon-admin-shortcuts { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; }
+.makeon-admin-shortcuts a { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-size: 13px; font-weight: 500; }
+.makeon-admin-add { background: #e2e9cd; color: #263523; padding: 13px 18px; border-radius: 9px; }
+.makeon-admin-add:hover { background: #f1f4e8; }
+.makeon-admin-welcome-art { position: absolute; right: 5%; top: 50%; transform: translateY(-50%); width: 280px; height: 280px; display: grid; place-items: center; }
+.makeon-admin-welcome-art span { position: absolute; inset: 0; border: 1px solid #b7c4a723; border-radius: 50%; }
+.makeon-admin-welcome-art span:nth-child(2) { inset: -36px; border-style: dashed; transform: rotate(-15deg); }
+.makeon-admin-welcome-art img { filter: drop-shadow(0 12px 35px #00000040); opacity: .8; }
+.makeon-admin-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 30px; }
+.makeon-admin-metric { padding: 24px; border: 1px solid var(--theme-elevation-100); border-radius: 16px; background: var(--theme-input-bg); text-decoration: none; transition: border-color .18s, box-shadow .18s; }
+.makeon-admin-metric:hover { border-color: #9cae89; box-shadow: 0 8px 24px #17271a08; }
+.makeon-admin-metric-top { display: flex; align-items: center; justify-content: space-between; color: var(--theme-elevation-500); margin-bottom: 22px; }
+.makeon-admin-metric-top span { display: grid; place-items: center; width: 42px; height: 42px; background: var(--theme-elevation-50); color: var(--theme-text); border-radius: 12px; }
+.makeon-admin-metric strong { font-family: 'Manrope Variable', sans-serif; display: block; font-weight: 600; font-size: 34px; line-height: 1; margin-bottom: 12px; letter-spacing: -1px; }
+.makeon-admin-metric h2 { font-size: 13px; line-height: 1.5; margin: 0 0 5px; font-weight: 600; }
+.makeon-admin-metric p { font-size: 12px; color: var(--theme-elevation-500); margin: 0; line-height: 1.5; }
+.makeon-admin-section-title { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 18px; }
+.makeon-admin-section-title span:first-child { font-size: 17px; font-weight: 600; letter-spacing: -.4px; }
+.makeon-admin-section-title span:last-child { font-size: 12px; color: var(--theme-elevation-500); }
+.collections { --cols: 3; }
+.collections .card { min-height: 100px; background: var(--theme-input-bg); padding: 22px; border-radius: 14px; border-color: var(--theme-elevation-100); }
+.collections .card__title { font-size: 14px; font-weight: 500; }
+.collections__label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1.4px; color: var(--theme-elevation-500); }
+.nav { background: var(--theme-input-bg); border-right: 1px solid var(--theme-elevation-100); }
+.nav__link { border-radius: 8px; padding: 10px 12px; margin-bottom: 3px; text-decoration: none; }
+.nav__link:hover, .nav__link[aria-current='page'], .nav__link--active { background: var(--theme-elevation-50); }
+.nav-group__toggle { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; padding: 14px 12px 6px; }
+.nav__controls { border-top: 1px solid var(--theme-elevation-100); padding-top: 14px; }
+.btn { border-radius: 9px; font-weight: 500; }
+.field-type input:not([type='checkbox']):not([type='radio']), .field-type textarea { border-radius: 9px; box-shadow: none; }
+.field-label { font-weight: 500; }
+.doc-controls { border-bottom: 1px solid var(--theme-elevation-100); }
+.collection-edit .document-fields { max-width: 1100px; }
+.table { background: var(--theme-input-bg); border: 1px solid var(--theme-elevation-100); border-radius: 14px; }
+.table th { font-size: 11px; color: var(--theme-elevation-500); }
+body:has(.login) { background: radial-gradient(ellipse at 10% 10%, #52694744, transparent 60%), #17241e; }
+.login .makeon-admin-brand { margin-bottom: 30px; color: #f4f3e9; }
+.login .makeon-admin-caption { color: #b4c2a5; }
+.login__form { padding: 34px; border: 1px solid var(--theme-elevation-150); border-radius: 20px; background: var(--theme-input-bg); box-shadow: 0 24px 90px #00000020; }
+.login__form .btn { min-height: 44px; }
+.login a { text-underline-offset: 3px; }
+html[data-theme='dark'] .makeon-admin-metric, html[data-theme='dark'] .collections .card {
+  background: #1d2922; border-color: #35443a;
+}
+html[data-theme='dark'] .makeon-admin-metric p, html[data-theme='dark'] .makeon-admin-section-title span:last-child,
+html[data-theme='dark'] .collections__label { color: #acb8a8; }
+@media (max-width: 1000px) {
+  .makeon-admin-welcome-art { right: -60px; opacity: .35; }
+  .makeon-admin-welcome-content { max-width: 75%; }
+}
+@media (max-width: 600px) {
+  .makeon-admin-welcome { padding: 26px; border-radius: 16px; }
+  .makeon-admin-welcome-content { max-width: none; }
+  .makeon-admin-welcome h1 { font-size: 34px; }
+  .makeon-admin-welcome-art { right: -155px; opacity: .16; }
+  .makeon-admin-metrics { grid-template-columns: 1fr; gap: 10px; }
+  .makeon-admin-metric { padding: 20px; }
+  .makeon-admin-metric-top { margin-bottom: 14px; }
+  .collections { --cols: 1; }
+  .makeon-admin-wordmark { font-size: 35px; }
+  .login__form { padding: 24px; }
+}

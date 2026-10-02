@@ -2,18 +2,16 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CoffeeDetail from "@/components/coffee-detail";
 import ShopShell from "@/components/shop-shell";
-import { coffeeProducts, productBySlug } from "@/lib/coffee-catalog";
+import { getProduct } from "@/lib/storefront";
 
-export function generateStaticParams() {
-  return coffeeProducts.map((p) => ({ slug: p.slug }));
-}
+export const dynamic = 'force-dynamic';
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const p = productBySlug(slug);
+  const p = await getProduct(slug);
   return {
     title: p
       ? `${p.name} ${p.grams} g — SwitchMorn Coffee / Makeon`
@@ -27,7 +25,7 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const p = productBySlug(slug);
+  const p = await getProduct(slug);
   if (!p) notFound();
   return (
     <ShopShell>

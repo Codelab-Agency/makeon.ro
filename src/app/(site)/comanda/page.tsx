@@ -1,0 +1,20 @@
+import ShopShell from '@/components/shop-shell';
+import CheckoutResult from '@/components/checkout-result';
+import { stripeClient, applySession } from '@/lib/commerce';
+import { checkoutConfigured } from '@/lib/commerce-env';
+
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Comanda ta — Makeon', robots: { index: false, follow: false } };
+export default async function Page({ searchParams }: { searchParams: Promise<{ session_id?: string; anulata?: string }> }) {
+  const params = await searchParams;
+  let paid = false, reference: string | undefined;
+  if (checkoutConfigured() && /^cs_(test_|live_)?[A-Za-z0-9]+$/.test(params.session_id ?? '')) {
+    try {
+      const session = await stripeClient().checkout.sessions.retrieve(params.session_id!);
+      const order = await applySession(session);
+      paid = order?.status === 'paid';
+      if (paid) reference = order?.reference;
+    } catch { /* A webhook retry will reconcile a transient failure. */ }
+  }
+  return <ShopShell><CheckoutResult paid={paid} reference={reference} cancelled={params.anulata === '1'} /></ShopShell>;
+}
