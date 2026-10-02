@@ -181,7 +181,6 @@ function Filters() {
         <Droplets />
         <small>FILTER</small>
       </div>
-      <div className="filter-ring" />
     </div>
   );
 }
@@ -402,7 +401,7 @@ export default function Home() {
             <h1 id="hero-title" className="hero-world-heading">
               {world === "coffee"
                 ? "Ritualul cafelei"
-                : "Hidratare inteligentă."}
+                : "Hidratare bună."}
               <br />
               <span>{world === "coffee" ? "energia zilei." : "zi de zi."}</span>
               <Starburst className="heading-star" />

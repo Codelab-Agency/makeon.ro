@@ -33,8 +33,16 @@ test('mobile brand illustrations leave room for text and fit inside their cards'
       expect(boxes.right).toBeGreaterThanOrEqual(0);
       expect(boxes.gap).toBeGreaterThanOrEqual(12);
     }
+    const initialSceneTop = await page.locator('.hero-art').evaluate(el => el.getBoundingClientRect().top + window.scrollY);
     for (const world of ['coffee', 'water']) {
       if (world === 'water') await page.locator('.business-switch button').nth(1).click();
+      if (width <= 620) {
+        const lines = await page.locator('.hero h1').evaluate(el => el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight));
+        expect(lines).toBeCloseTo(2, 1);
+        expect(await page.locator('.hero-art').evaluate(el => el.getBoundingClientRect().top + window.scrollY)).toBeCloseTo(initialSceneTop, 0);
+        const centers = await page.locator('.footer-top > .brand-mark, .footer-brands, .footer-phone').evaluateAll(els => els.map(el => { const r = el.getBoundingClientRect(); return r.left + r.width / 2; }));
+        centers.forEach(center => expect(center).toBeCloseTo(width / 2, 0));
+      }
       const issues = await page.evaluate(() => [...document.querySelectorAll('h1,h2,h3,p,.studio-tabs button,.footer-brands,.business-switch')].filter(el => {
         if (el.closest('dialog:not([open]), [role="img"]')) return false;
         const r = el.getBoundingClientRect();
@@ -42,6 +50,7 @@ test('mobile brand illustrations leave room for text and fit inside their cards'
       }).map(el => el.className));
       expect(issues).toEqual([]);
     }
+    await expect(page.locator('.filter-ring')).toHaveCount(0);
   }
 });
 
