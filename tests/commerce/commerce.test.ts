@@ -5,6 +5,7 @@ import type { Payload } from 'payload';
 import { sql, type PostgresAdapter } from '@payloadcms/db-postgres';
 import type Stripe from 'stripe';
 import { parseLines, validGrind, priceBani } from '../../src/lib/commerce-validation';
+import { legal } from '../../src/lib/legal';
 
 let cms: Payload;
 let commerce: typeof import('../../src/lib/commerce');
@@ -359,12 +360,31 @@ test('production link regeneration ignores old expiration webhooks and recovers 
 
 test('production HTTP requests validate contact data, reject foreign origins, and deduplicate retries',async()=>{
   const {POST}=await import('../../src/app/api/orders/request/route');
-  const p=await product(0),input={key:randomUUID(),name:'Client test',email:'client@example.test',phone:'+40744123456',items:[{slug:p.slug,grind:'Boabe',quantity:1}]};
+  const p=await product(0),input={key:randomUUID(),name:'Client test',email:'client@example.test',phone:'+40744123456',termsAccepted:true,legalVersion:legal.version,items:[{slug:p.slug,grind:'Boabe',quantity:1}]};
   const request=(body:unknown,origin='http://localhost:3000')=>new Request('http://localhost:3000/api/orders/request',{method:'POST',headers:{origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
   assert.equal((await POST(request(input,'https://foreign.example'))).status,403);
-  for(const change of [{phone:''},{email:'bad'},{name:'x'},{website:'spam'},{items:[{slug:p.slug,grind:'Boabe',quantity:0}]}])assert.equal((await POST(request({...input,...change}))).status,400);
+  for(const change of [{termsAccepted:false},{termsAccepted:'true'},{legalVersion:'outdated'},{phone:''},{email:'bad'},{name:'x'},{website:'spam'},{items:[{slug:p.slug,grind:'Boabe',quantity:0}]}])assert.equal((await POST(request({...input,...change}))).status,400);
   for(let i=0;i<2;i++){const response=await POST(request(input));assert.equal(response.status,200);assert.deepEqual(await response.json(),{reference:`MK-${input.key}`});}
   assert.equal((await cms.find({collection:'orders',where:{reference:{equals:`MK-${input.key}`}}})).docs.length,1);
+  const saved=(await cms.find({collection:'orders',where:{reference:{equals:`MK-${input.key}`}}})).docs[0];
+  assert.equal(saved.legalVersion,legal.version);assert.ok(saved.legalAcceptedAt);
+});
+
+test('stock checkout rejects missing legal acknowledgement before reserving stock or contacting Stripe',async()=>{
+  const {POST}=await import('../../src/app/api/checkout/route');
+  const p=await product(3);const input={key:randomUUID(),items:[{slug:p.slug,grind:'Boabe',quantity:1}]};
+  for(const extra of [{},{termsAccepted:false,legalVersion:legal.version},{termsAccepted:true,legalVersion:'outdated'}]){
+    const response=await POST(new Request('http://localhost:3000/api/checkout',{method:'POST',headers:{origin:'http://localhost:3000','Content-Type':'application/json'},body:JSON.stringify({...input,...extra})}));
+    assert.equal(response.status,400);
+  }
+  assert.equal((await cms.findByID({collection:'products',id:p.id})).reserved,0);
+  const key=randomUUID();await commerce.createCheckout(input.items,key,fakeStripe,cms,legal.version);
+  const first=(await cms.find({collection:'orders',where:{reference:{equals:`MK-${key}`}}})).docs[0];
+  await commerce.createCheckout(input.items,key,fakeStripe,cms,legal.version);
+  const second=await cms.findByID({collection:'orders',id:first.id});
+  assert.equal(first.legalVersion,legal.version);assert.ok(first.legalAcceptedAt);
+  assert.equal(second.legalAcceptedAt,first.legalAcceptedAt);
+  await assert.rejects(commerce.createCheckout(input.items,key,fakeStripe,cms,'new-version'));
 });
 
 test('production payment-link endpoint requires an authenticated administrator',async()=>{

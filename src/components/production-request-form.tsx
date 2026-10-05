@@ -2,6 +2,8 @@
 import { useRef, useState } from "react";
 import { Check, ArrowUpRight } from "lucide-react";
 import type { CartLine } from "./cart-provider";
+import OrderLegalAcknowledgement from "./order-legal-acknowledgement";
+import { legal } from "@/lib/legal";
 
 /** Keep identical submissions on one retry key; requests are saved without taking payment. */
 export default function ProductionRequestForm({
@@ -13,6 +15,7 @@ export default function ProductionRequestForm({
 }) {
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [reference, setReference] = useState("");
   const request = useRef<{
     fingerprint: string;
@@ -46,10 +49,15 @@ export default function ProductionRequestForm({
       aria-busy={status === "sending"}
       onSubmit={async (event) => {
         event.preventDefault();
-        if (busy.current) return;
+        if (busy.current || !termsAccepted) return;
         busy.current = true;
         const values = Object.fromEntries(new FormData(event.currentTarget));
-        const data = { ...values, items };
+        const data = {
+          ...values,
+          items,
+          termsAccepted,
+          legalVersion: legal.version,
+        };
         const fingerprint = JSON.stringify(data);
         setStatus("sending");
         setError("");
@@ -139,6 +147,11 @@ export default function ProductionRequestForm({
       <p>
         Folosim datele completate pentru confirmarea și gestionarea comenzii.
       </p>
+      <OrderLegalAcknowledgement
+        checked={termsAccepted}
+        onChange={setTermsAccepted}
+        disabled={status === "sending"}
+      />
       {error && (
         <p className="checkout-error" role="alert">
           {error}
@@ -147,7 +160,7 @@ export default function ProductionRequestForm({
       <button
         className="primary-button cart-phone"
         type="submit"
-        disabled={status === "sending"}
+        disabled={status === "sending" || !termsAccepted}
       >
         {status === "sending" ? "Se înregistrează…" : "Înregistrează comanda"}
         <ArrowUpRight size={18} />

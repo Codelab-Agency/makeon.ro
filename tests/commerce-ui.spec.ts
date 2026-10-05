@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { coffeeProducts } from "../src/lib/coffee-catalog";
+import { legal } from "../src/lib/legal";
 
 test("managed catalog and shipping reach checkout; a stock conflict keeps the cart", async ({
   page,
@@ -35,6 +36,8 @@ test("managed catalog and shipping reach checkout; a stock conflict keeps the ca
     .click();
   const cart = page.getByRole("dialog", { name: "Coșul de cafea" });
   await expect(cart).toContainText("119,98");
+  await expect(cart.getByRole("button", { name: "Plătește prin Stripe" })).toBeDisabled();
+  await cart.getByRole("checkbox").check();
   await cart.getByRole("button", { name: "Plătește prin Stripe" }).click();
   await expect(cart.getByRole("alert")).toHaveText(
     "Stocul disponibil s-a schimbat.",
@@ -113,6 +116,8 @@ test("a mixed cart submits customer details and selections without immediate pay
   await page.route("**/api/orders/request", async (route) => {
     const body = route.request().postDataJSON();
     expect(body.phone).toBe("+40744123456");
+    expect(body.termsAccepted).toBe(true);
+    expect(body.legalVersion).toBe(legal.version);
     expect(body.items).toHaveLength(2);
     keys.push(body.key);
     await route.fulfill({
@@ -131,6 +136,8 @@ test("a mixed cart submits customer details and selections without immediate pay
   await cart.locator("#production-name").fill("Client test");
   await cart.locator("#production-phone").fill("+40744123456");
   await cart.locator("#production-email").fill("client@example.test");
+  await expect(cart.getByRole("button", { name: "Înregistrează comanda" })).toBeDisabled();
+  await cart.getByRole("checkbox").check();
   await cart.getByRole("button", { name: "Înregistrează comanda" }).click();
   await expect(cart.getByRole("alert")).toHaveText("Reîncearcă solicitarea.");
   await cart.getByRole("button", { name: "Înregistrează comanda" }).click();

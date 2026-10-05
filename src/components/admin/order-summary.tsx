@@ -76,6 +76,7 @@ export function OrderSummary() {
         </span>
         <div className="makeon-order-reference">
           Referință: {order.reference}
+          {order.legalAcceptedAt && <p>Termeni acceptați: versiunea {order.legalVersion}, {new Intl.DateTimeFormat("ro-RO", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Bucharest" }).format(new Date(order.legalAcceptedAt))}.</p>}
         </div>
       </section>
       {order.orderType === "production" && (

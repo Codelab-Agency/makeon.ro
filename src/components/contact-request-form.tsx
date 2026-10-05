@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import CustomSelect from "./custom-select";
 import { serviceOptions } from "@/lib/service-options";
+import { legal } from "@/lib/legal";
 
 const teams = [
   "1–10 persoane",
@@ -180,7 +181,11 @@ export default function ContactRequestForm({
           </p>
         )}
         <p className="contact-data-note">
-          Folosim datele completate pentru a răspunde solicitării tale.
+          Folosim datele completate pentru a răspunde solicitării tale.{" "}
+          <a href={legal.privacy} target="_blank" rel="noopener noreferrer">
+            Politica de confidențialitate
+          </a>
+          .
         </p>
         <button
           type="submit"

@@ -62,7 +62,7 @@ export function parseProductionRequest(value: unknown) {
 }
 
 export async function createProductionRequest(
-  input: ReturnType<typeof parseProductionRequest>,
+  input: ReturnType<typeof parseProductionRequest> & { legalVersion?: string },
   cmsArg?: Payload,
 ) {
   const cms = cmsArg ?? (await getCMS());
@@ -135,6 +135,12 @@ export async function createProductionRequest(
       data: {
         reference,
         requestFingerprint: fingerprint,
+        ...(input.legalVersion
+          ? {
+              legalVersion: input.legalVersion,
+              legalAcceptedAt: new Date().toISOString(),
+            }
+          : {}),
         orderType: "production",
         status: "requested",
         fulfillmentStatus: "new",

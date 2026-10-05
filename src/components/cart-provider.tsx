@@ -24,6 +24,8 @@ import { useCatalog } from "./catalog-provider";
 import CoffeePack from "./coffee-pack";
 import useDialogMotion from "./use-dialog-motion";
 import ProductionRequestForm from "./production-request-form";
+import OrderLegalAcknowledgement from "./order-legal-acknowledgement";
+import { legal } from "@/lib/legal";
 
 /** Persist selections only; the server resolves current prices and reserves inventory. */
 export type CartLine = { slug: string; grind: string; quantity: number };
@@ -67,13 +69,14 @@ export default function CartProvider({
     [catalog.products],
   );
   const [paying, setPaying] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [paymentError, setPaymentError] = useState("");
   // Network retries retain the key for this cart; a changed cart receives a new key.
   const checkoutKey = useRef<{ fingerprint: string; key: string } | null>(null);
   const [items, setItems] = useState<CartLine[]>([]),
     [loaded, setLoaded] = useState(false),
-    [opened, setOpened] = useState(false),
-    [copied, setCopied] = useState(false);
+    [opened, setOpened] = useState(false);
+  useEffect(() => setTermsAccepted(false), [items, opened]);
   const [notice, setNotice] = useState("");
   const dialog = useRef<HTMLDialogElement>(null);
   useDialogMotion(dialog, opened, "cart");
@@ -180,7 +183,7 @@ export default function CartProvider({
     }) &&
     checkoutKey.current?.fingerprint !== JSON.stringify(items);
   async function pay() {
-    if (paying || !canPay) return;
+    if (paying || !canPay || !termsAccepted) return;
     setPaying(true);
     setPaymentError("");
     const fingerprint = JSON.stringify(items);
@@ -190,7 +193,12 @@ export default function CartProvider({
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items, key: checkoutKey.current.key }),
+        body: JSON.stringify({
+          items,
+          key: checkoutKey.current.key,
+          termsAccepted,
+          legalVersion: legal.version,
+        }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -220,25 +228,6 @@ export default function CartProvider({
     setItems((previous) =>
       previous.filter((i) => !(i.slug === line.slug && i.grind === line.grind)),
     );
-  async function copySelection() {
-    const summary = [
-      "Selecție cafea Makeon / SwitchMorn",
-      ...items.map((i) => {
-        const p = productBySlug(i.slug);
-        if (!p) return `${i.quantity} × ${i.slug} — indisponibil`;
-        return `${i.quantity} × ${p.name}, ${p.grams} g, ${i.grind}`;
-      }),
-      completePrices
-        ? `Total produse: ${money(total)}`
-        : "Vă rog să confirmați prețurile și disponibilitatea.",
-    ].join("\n");
-    try {
-      await navigator.clipboard.writeText(summary);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
-  }
   return (
     <CartContext.Provider
       value={{
@@ -247,7 +236,6 @@ export default function CartProvider({
         count,
         clear: () => setItems([]),
         open: () => {
-          setCopied(false);
           setOpened(true);
         },
       }}
@@ -410,10 +398,6 @@ export default function CartProvider({
                         ? "Livrarea și disponibilitatea se confirmă la comandă."
                         : "Solicită prețurile și disponibilitatea pentru cafelele alese."}
                 </p>
-                <button className="copy-selection" onClick={copySelection}>
-                  {copied ? <Check size={16} /> : <ShoppingBag size={16} />}{" "}
-                  {copied ? "Selecție copiată" : "Copiază selecția"}
-                </button>
                 {needsRequest ? (
                   <ProductionRequestForm
                     items={items}
@@ -426,14 +410,21 @@ export default function CartProvider({
                     }}
                   />
                 ) : catalog.checkout && completePrices ? (
-                  <button
-                    className="primary-button cart-phone"
-                    disabled={!canPay || paying}
-                    onClick={pay}
-                  >
-                    {paying ? "Deschidem plata…" : "Plătește prin Stripe"}
-                    <ArrowUpRight size={18} />
-                  </button>
+                  <>
+                    <OrderLegalAcknowledgement
+                      checked={termsAccepted}
+                      onChange={setTermsAccepted}
+                      disabled={paying}
+                    />
+                    <button
+                      className="primary-button cart-phone"
+                      disabled={!canPay || paying || !termsAccepted}
+                      onClick={pay}
+                    >
+                      {paying ? "Deschidem plata…" : "Plătește prin Stripe"}
+                      <ArrowUpRight size={18} />
+                    </button>
+                  </>
                 ) : (
                   <a
                     className="primary-button cart-phone"

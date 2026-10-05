@@ -282,6 +282,35 @@ Check mobile layouts and reduced motion when changing navigation or animations.
 
 ## 10. Operational troubleshooting and current limits
 
+### Legal content and launch configuration
+
+The legal pages are `/termeni-si-conditii`, `/politica-de-confidentialitate`,
+and `/politica-de-cookie-uri`. Public legal details, document version, and draft
+flag are centralized in `src/lib/legal.ts`. They are drafts with `noindex` until
+the merchant identity, business terms, contact details, and provider/retention
+arrangements are approved. Before launch, fill the company fields, confirm the
+email/phone and commercial delivery/return details in the pages, and publish the
+approved version by updating its version and setting `draft=false`.
+
+Checkout and made-to-order request APIs require `termsAccepted=true` and the
+current `legalVersion`; acknowledgement is stored server-side as `legalVersion`
+and `legalAcceptedAt` on the order. These fields are optional for historical
+orders; do not backfill consent/acceptance that never occurred. This contractual
+acknowledgement is separate from marketing consent. The additive migration
+`20261005_144420_order_legal_acceptance` is required before deploying this code.
+
+The SAL asset is downloaded unchanged from the official ANPC source:
+`https://anpc.ro/download/sal/SAL-PICTOGRAMA.png`, linked from
+`https://anpc.ro/sal`. The footer links it to `https://reclamatiisal.anpc.ro/`.
+The discontinued European SOL/ODR link is deliberately absent.
+
+Public contact configuration is separate from server-side email configuration.
+Review `APP_URL`, `ADMIN_ALLOWED_ORIGINS`, `R2_PUBLIC_URL`, `RESEND_FROM_EMAIL`,
+and `CONTACT_EMAIL_TO` in the hosting environment, along with hardcoded contact
+links in the public components, before launch. Do not leave the agency test inbox
+as the live recipient. Verify sender-domain authorization and Stripe's production
+webhook destination. These values must not be guessed from placeholder policies.
+
 | Symptom | First checks |
 | --- | --- |
 | Admin action denied | Authentication, collection/field access, exact origin, `APP_URL` and `ADMIN_ALLOWED_ORIGINS` |

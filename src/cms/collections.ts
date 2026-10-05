@@ -290,6 +290,8 @@ export const Orders: CollectionConfig = {
     { name: "customerNote", label: "Mesaj client", type: "textarea" },
     { name: "paymentAttempt", type: "number", defaultValue: 0 },
     { name: "paymentUrl", type: "text" },
+    { name: "legalVersion", label: "Versiune termeni acceptați", type: "text" },
+    { name: "legalAcceptedAt", label: "Acceptarea termenilor", type: "date" },
     {
       name: "reference",
       label: "Referință",

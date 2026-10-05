@@ -229,6 +229,8 @@ export interface Order {
   customerNote?: string | null;
   paymentAttempt?: number | null;
   paymentUrl?: string | null;
+  legalVersion?: string | null;
+  legalAcceptedAt?: string | null;
   reference: string;
   status: 'requested' | 'pending' | 'paid' | 'expired' | 'failed';
   stripeSessionId?: string | null;
@@ -443,6 +445,8 @@ export interface OrdersSelect<T extends boolean = true> {
   customerNote?: T;
   paymentAttempt?: T;
   paymentUrl?: T;
+  legalVersion?: T;
+  legalAcceptedAt?: T;
   reference?: T;
   status?: T;
   stripeSessionId?: T;

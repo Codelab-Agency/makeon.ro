@@ -1,6 +1,7 @@
 import { ArrowUpRight, Coffee, Droplets } from "lucide-react";
 import SiteHeader from "./site-header";
 import BrandLogo from "./brand-logo";
+import LegalFooter from "./legal-footer";
 
 export default function ShopShell({ children }: { children: React.ReactNode }) {
   return (
@@ -20,6 +21,7 @@ export default function ShopShell({ children }: { children: React.ReactNode }) {
           +40 744 524 728
           <ArrowUpRight size={15} />
         </a>
+        <LegalFooter />
       </footer>
     </div>
   );

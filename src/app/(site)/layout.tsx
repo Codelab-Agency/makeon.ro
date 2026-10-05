@@ -11,6 +11,7 @@ import "../overlays.css";
 import "../mobile.css";
 import "../cinematic.css";
 import "../commerce.css";
+import "../legal.css";
 import CartProvider from "@/components/cart-provider";
 import CatalogProvider from "@/components/catalog-provider";
 

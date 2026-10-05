@@ -331,6 +331,7 @@ export async function createCheckout(
   key: string,
   stripe = stripeClient(),
   cmsArg?: Payload,
+  legalVersion?: string,
 ) {
   const cms = cmsArg ?? (await getCMS());
   if (!checkoutConfigured())
@@ -366,6 +367,21 @@ export async function createCheckout(
         doc.status !== "pending"
       )
         throw new CommerceError("Coșul s-a modificat. Reîncearcă plata.", 409);
+      if (legalVersion && doc.legalVersion && doc.legalVersion !== legalVersion)
+        throw new CommerceError(
+          "Termenii s-au actualizat. Reîncarcă pagina și începe o comandă nouă.",
+          409,
+        );
+      if (legalVersion && !doc.legalVersion)
+        return cms.update({
+          collection: "orders",
+          id: doc.id,
+          req,
+          data: {
+            legalVersion,
+            legalAcceptedAt: new Date().toISOString(),
+          },
+        });
       return doc;
     }
     const products = await cms.find({
@@ -416,6 +432,9 @@ export async function createCheckout(
       data: {
         reference,
         items,
+        ...(legalVersion
+          ? { legalVersion, legalAcceptedAt: new Date().toISOString() }
+          : {}),
         totalBani,
         shippingBani,
         currency: "ron",

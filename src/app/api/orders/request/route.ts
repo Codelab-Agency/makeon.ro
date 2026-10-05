@@ -3,7 +3,10 @@ import {
   createProductionRequest,
   parseProductionRequest,
 } from "@/lib/production-orders";
-import { CommerceError } from "@/lib/commerce-validation";
+import {
+  CommerceError,
+  requireLegalAcceptance,
+} from "@/lib/commerce-validation";
 import { cmsConfigured } from "@/lib/commerce-env";
 import { allowedRequestOrigin } from "@/lib/request-origin";
 
@@ -24,7 +27,9 @@ export async function POST(request: Request) {
     const raw = await request.text();
     if (Buffer.byteLength(raw) > 16000)
       throw new CommerceError("Solicitare prea mare.", 413);
-    const input = parseProductionRequest(JSON.parse(raw));
+    const body = JSON.parse(raw);
+    const legalVersion = requireLegalAcceptance(body);
+    const input = { ...parseProductionRequest(body), legalVersion };
     const now = Date.now();
     for (const [key, value] of requests)
       if (value.expires <= now) requests.delete(key);

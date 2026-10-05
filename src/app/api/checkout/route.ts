@@ -1,5 +1,6 @@
 import { createCheckout, parseLines, CommerceError } from "@/lib/commerce";
 import { checkoutConfigured } from "@/lib/commerce-env";
+import { requireLegalAcceptance } from "@/lib/commerce-validation";
 
 export const runtime = "nodejs";
 /** Validate browser input; the commerce service owns pricing and inventory locks. */
@@ -16,6 +17,7 @@ export async function POST(request: Request) {
     const text = await request.text();
     if (text.length > 16000) throw new CommerceError("Coș prea mare.");
     const body = JSON.parse(text);
+    const legalVersion = requireLegalAcceptance(body);
     if (
       typeof body.key !== "string" ||
       !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
@@ -23,7 +25,15 @@ export async function POST(request: Request) {
       )
     )
       throw new CommerceError("Identificator de plată invalid.");
-    return Response.json(await createCheckout(parseLines(body), body.key));
+    return Response.json(
+      await createCheckout(
+        parseLines(body),
+        body.key,
+        undefined,
+        undefined,
+        legalVersion,
+      ),
+    );
   } catch (error) {
     if (error instanceof CommerceError)
       return Response.json({ error: error.message }, { status: error.status });

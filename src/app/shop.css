@@ -1156,19 +1156,6 @@
   color: #9d8a71;
   margin-top: 15px;
 }
-.copy-selection {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  width: 100%;
-  background: transparent;
-  border: 1px solid #d9c7ae;
-  border-radius: 5px;
-  padding: 13px;
-  font-size: 11px;
-}
 .cart-phone {
   display: flex;
   background: #4d3e2e;

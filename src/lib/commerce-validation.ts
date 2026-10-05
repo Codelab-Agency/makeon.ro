@@ -1,4 +1,5 @@
 import type { CoffeeCategory } from "./coffee-catalog";
+import { legal } from "./legal";
 
 export type CheckoutLine = { slug: string; grind: string; quantity: number };
 export class CommerceError extends Error {
@@ -8,6 +9,21 @@ export class CommerceError extends Error {
   ) {
     super(message);
   }
+}
+/** Require explicit acceptance of the currently displayed terms at the HTTP boundary.
+ * This is contractual acknowledgement, not consent to marketing/data processing.
+ */
+export function requireLegalAcceptance(value: unknown): string {
+  const body = value as Record<string, unknown> | null;
+  if (
+    !body ||
+    body.termsAccepted !== true ||
+    body.legalVersion !== legal.version
+  )
+    throw new CommerceError(
+      "Acceptă Termenii și condițiile și consultă Politica de confidențialitate înainte de comandă.",
+    );
+  return legal.version;
 }
 /** Validate untrusted selections and merge duplicate slug/grind pairs before reserving stock. */
 export function parseLines(body: unknown): CheckoutLine[] {

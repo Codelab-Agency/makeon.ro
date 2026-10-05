@@ -29,6 +29,7 @@ import AmbientOrbit from "@/components/ambient-orbit";
 import ServiceStudio from "@/components/service-studio";
 import PageMotion from "@/components/page-motion";
 import ContactRequestForm from "@/components/contact-request-form";
+import LegalFooter from "@/components/legal-footer";
 import { serviceOptions, normalizeService } from "@/lib/service-options";
 const BusinessScene = dynamic(() => import("@/components/business-scene"), {
   ssr: false,
@@ -993,6 +994,7 @@ export default function Home() {
             <span>+40 744 524 728</span>
           </a>
         </div>
+        <LegalFooter />
         <div className="footer-bottom">
           <span>
             © {new Date().getFullYear()} Makeon. Toate drepturile rezervate.
