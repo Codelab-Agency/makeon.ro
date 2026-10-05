@@ -1,69 +1,48 @@
-# Makeon
+﻿# Makeon
 
-Concept de site pentru umbrela Makeon: SwitchMorn Coffee și Vero Aqua. Next.js App Router, TypeScript, Three.js și GSAP.
+Site de prezentare și magazin online pentru Makeon, care reunește **SwitchMorn Coffee** și **Vero Aqua**. Platforma prezintă oferta de cafea, apă și echipamente pentru companii și include un dashboard pentru administrarea magazinului.
 
-## Pornire
+## Site-ul
 
-```sh
-npm install
-npm run dev
-```
+Experiența vizuală alternează între cafea și apă, cu o scenă 3D în hero, tranziții animate și accente cromatice sincronizate în pagină. Secțiunile prezintă brandurile, produsele, serviciile și ofertele pentru companii.
 
-Pe Windows, dacă PowerShell blochează `npm.ps1`, folosește `npm.cmd install` și `npm.cmd run dev`. Deschide http://localhost:3000.
+Interfața este adaptată pentru desktop și telefon. Animațiile respectă preferința de mișcare redusă, iar scenele 3D au o variantă de rezervă pentru dispozitivele fără WebGL.
 
-## Verificare
+Solicitările de ofertă sunt trimise prin e-mail folosind Resend. Telefonul și WhatsApp sunt disponibile ca alternative de contact.
 
-```sh
-npm run typecheck
-npm run build
-```
+## Magazinul
 
-Cu site-ul pornit local și Google Chrome instalat: `npm run test:e2e` verifică switch-ul, dialogul și navigația pe mobil. `npm run preview:images` salvează capturi desktop și mobil în `artifacts/`.
+Catalogul de cafea include pagini individuale de produs, fotografii, gramaje, note de degustare și informații despre origine. Produsele pot fi căutate, filtrate și sortate. Pentru cafeaua măcinată, clientul poate alege măcinarea pentru ibric, moka sau espresso.
 
-Switch-ul din hero declanșează o metamorfoză Three.js între un bob de cafea prăjit și o picătură de apă albastră. Bobul are o formă sculptată cu șanț central și o suprafață procedurală; doi boabe mici devin picături satelit. Un ShaderMaterial interpolează forma, textura și culorile; particulele de aromă se transformă în orbite în jurul apei. Scena răspunde mișcării cursorului, iar unde concentrice pulsează la bază. GSAP coordonează metamorfoza de 1,8 secunde, expansiunea particulelor, tranziția circulară peste ecran și intrarea titlurilor.
+Coșul păstrează selecția între pagini și permite modificarea cantităților și eliminarea produselor. Magazinul are două fluxuri de comandă:
 
-Ambele switch-uri sincronizează brandul, produsele, accentele întregii pagini și întrebările frecvente. Preferința `prefers-reduced-motion` păstrează scena statică și schimbă starea imediat. Scena se oprește din randare când este în afara ecranului sau pagina este ascunsă; resursele WebGL se eliberează la demontare. Există un fallback CSS când WebGL nu poate fi inițializat. Dialogul accesibil pregătește o discuție telefonică, fără a transmite date către un server.
+- **Produse disponibile:** plată prin Stripe Checkout, cu rezervarea stocului și actualizarea lui după confirmarea plății.
+- **Comenzi la cerere:** solicitare înregistrată în dashboard, confirmare telefonică și link de plată generat de administrator. Coșurile care includ produse fără stoc sau fără preț confirmat urmează integral acest flux.
 
-## Materiale și conținut
+Plățile sunt procesate idempotent, iar rezervările și actualizările stocului sunt protejate prin tranzacții și constrângeri în PostgreSQL. Comenzile la cerere nu afectează stocul fizic și pot fi trecute în pregătire după confirmarea plății.
 
-Conținutul pornește de la pliantele furnizate. Oferta Vero Aqua este 31 € + TVA/lună/aparat, pe 36 luni; totalul din pliant este 1.116 € + TVA. Numărul de telefon din pliant este +40 744 524 728. Oferta și disponibilitatea trebuie reconfirmate înainte de publicare.
+## Administrare
 
-Ilustrațiile aparatelor, filtrelor și ambalajelor sunt concepte, nu fotografii sau reproduceri exacte ale produselor. Siglele sunt reprezentări tipografice provizorii. Înainte de lansare sunt necesare fotografiile și siglele originale, catalogul confirmat, informațiile legale și o integrare reală pentru solicitări de ofertă, dacă se dorește.
+Dashboardul de la `/admin` permite gestionarea produselor, prețurilor, stocurilor și imaginilor, precum și consultarea comenzilor și actualizarea statusului lor de pregătire și livrare.
 
-Vizualul static al primei direcții este păstrat în `public/images/makeon-hero.png`, cu promptul în `public/images/README.md`. Hero-ul actual folosește scena Three.js din `src/components/element-scene.tsx`.
+Pentru comenzile la cerere, administratorul confirmă prețurile și transportul, generează linkul Stripe și îl transmite clientului. Datele clientului și adresa de livrare sunt preluate din sesiunea de plată atunci când sunt furnizate de Stripe.
 
-Fonturile variabile Manrope și DM Sans sunt găzduite local prin Fontsource, inclusiv caracterele românești. Site-ul nu necesită cereri către Google Fonts.
+## Tehnologii
 
-## Magazin cafea
+| Componentă | Tehnologie |
+| --- | --- |
+| Aplicație | Next.js, React, TypeScript |
+| Administrare | Payload CMS |
+| Bază de date | PostgreSQL, găzduit în Neon |
+| Imagini | Cloudflare R2 |
+| Plăți | Stripe Checkout |
+| E-mail | Resend |
+| Animații | Three.js, GSAP, SVG și CSS |
+| Găzduire | Vercel |
 
-Produsele fără stoc pot fi comandate la cerere. Coșurile mixte intră integral în confirmare telefonică. Administratorul confirmă prețurile în RON și generează un link Stripe individual; pregătirea comenzii este permisă după plata confirmată. Aceste comenzi nu afectează inventarul fizic. Noua schemă necesită migrarea `20261005_113310_production_orders` înainte de publicare.
+Aplicația, baza de date și stocarea imaginilor sunt separate, astfel încât infrastructura poate fi mutată fără refacerea magazinului. Modificările schemei bazei de date sunt gestionate prin migrări versionate.
 
-Magazinul este pregătit pentru Payload CMS (`/admin`), PostgreSQL în Neon, imagini Cloudflare R2 și Stripe Checkout. [Ghidul pentru client](docs/commerce-setup.md) explică administrarea produselor, imaginilor, stocului și comenzilor. Configurarea serviciilor, inițializarea administratorului, importul catalogului și migrările sunt documentate separat în [ghidul tehnic](docs/commerce-development.md). Fără variabilele externe, funcționează catalogul de prezentare; prețurile și stocurile nu sunt inventate.
+## Documentație
 
-`/cafea` include 17 produse extrase din catalog: Intense, Noblesse, Armonia, Exotic Blend, Etiopia, Brazilia, Columbia, Guatemala, India, Costa Rica, Kenia, Indonezia, Organic, Decaff, Solubilă Peru BIO, Chicory și Kopi Luwak. Fiecare are pagină proprie la `/cafea/[slug]`, gramajul din catalog, note aromatice și, unde sunt documentate, origine, altitudine, varietate, procesare și prăjire. Sunt disponibile filtre pe categorie, căutare și sortare alfabetică.
-
-Produsele măcinate permit alegerea măcinării pentru ibric, moka sau espresso. Coșul reține produsul, măcinarea și cantitatea în `localStorage`; variantele se păstrează separat. Se pot modifica cantitățile, elimina produse și copia selecția pentru solicitarea ofertei. Coșul funcționează între homepage, magazin și paginile produselor.
-
-Prețurile sunt `null` în `src/lib/coffee-catalog.ts`, fiindcă nu au fost furnizate. Interfața afișează „Preț la cerere” și nu generează prețuri sau totaluri fictive. După completarea câmpurilor `price` în RON cu TVA inclus, prețurile și totalul produselor se afișează automat. Plata online, transmiterea comenzilor, livrarea și stocurile nu sunt încă integrate. Solicitarea actuală este telefonică; copierea selecției nu trimite o comandă.
-
-Oferta de 31 € + TVA/lună este exclusiv pentru apă Vero Aqua. Cardul abonamentului de cafea afișează „Ofertă personalizată”; prețul și serviciile rămân de confirmat cu clientul.
-
-Ambalajele magazinului sunt reprezentări construite în CSS, inspirate de catalog, și nu fotografii exacte ale produselor. Paginile de catalog originale sunt păstrate în `public/catalog/` și sunt accesibile din fiecare pagină de produs. Nu au fost incluse în descrieri afirmațiile de sănătate din catalog; pentru Chicory este afișată mențiunea „Conține gluten”.
-
-## Servicii și animații în pagină
-
-Serviciile sunt adaptate din https://makeon.ro/ (consultat la 1 octombrie 2026), fără preluarea designului: prăjire în loturi mici, blenduri personalizate, profiluri pentru espresso/V60/Chemex/AeroPress, cafea de probă, consultanță pentru filtrare, instalare, mentenanță și schimb de filtre. Cafeaua de probă este o solicitare de comandă, fără promisiunea unei mostre gratuite. Costurile serviciilor generale de filtrare se stabilesc în ofertă; nu sunt confundate cu abonamentul Vero Aqua. Sursa HTML este arhivată local în `artifacts/research/makeon-home.html`.
-
-Secțiunea `#servicii` include patru taburi pentru fiecare lume, utilizabile și cu săgețile tastaturii. GSAP animă tamburul prăjitoriei, boabele și aburul, respectiv fluxul și bulele circuitului de filtrare. Graficele sunt ilustrații, nu scheme tehnice ale aparatelor. Curba procesului se trasează odată cu scrollul, ambalajele și cartușele plutesc, paharul are unde animate, iar pașii colaborării au o linie de progres. Cardurile magazinului intră la scroll și ambalajele se ridică la hover. Animațiile continue GSAP sunt oprite în afara ecranului și în file ascunse; preferința de reducere a mișcării dezactivează aceste efecte.
-
-Dialogul trimite solicitări prin `POST /api/contact` către Resend, cu nume, e-mail, soluție, dimensiunea echipei și detalii opționale. Configurează pe server `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (expeditor dintr-un domeniu verificat) și `CONTACT_EMAIL_TO` (destinatar). Adaugă aceleași variabile în Vercel și redeploy. Cheia nu ajunge în browser. WhatsApp și telefonul rămân alternative.
-
-Resend acceptă cheia de idempotency a aceleiași solicitări timp de 24 de ore. Reîncercările cu aceleași date păstrează cheia. Endpointul validează originea și datele, include un honeypot și o limită de 5 încercări/10 minute/IP per instanță; aceasta nu este o limitare distribuită între instanțele Vercel. Solicitările nu sunt salvate în dashboard. În modul de test Resend, expeditorul `onboarding@resend.dev` poate trimite numai către adresa contului și destinatarii simulatorului; pentru `contact@code-lab.ro` verifică un domeniu de expeditor.
-
-Dropdown-urile pentru servicii, dimensiunea echipei, sortare și măcinare folosesc componenta `CustomSelect`: listă proprie, selecție cu tastatura, căutare prin tastare, închidere la click exterior și Escape. Popup-ul se poziționează deasupra sau dedesubt în funcție de spațiu și este redat în dialog atunci când controlul aparține unui dialog. Lista de servicii are 11 opțiuni fixe în `service-options.ts`; butoanele aleg opțiunea relevantă fără să adauge propriul text în listă.
-
-Secțiunea pentru companii are switch Cafea / Apă sincronizat cu celelalte switch-uri și cu oferta. `BusinessScene` construiește o ceașcă de ceramică, farfurioară, cafea cu cremă, abur și boabe în orbită, respectiv un pahar cu apă și picături. Schimbarea folosește GSAP pentru tranziția dintre obiectele Three.js. Scena răspunde cursorului, se oprește când nu este vizibilă sau fila este ascunsă și respectă preferința de reducere a mișcării.
-
-Animațiile la scroll sunt discrete și integrate în secțiunile existente: parallax de 6–9 px pe vizualurile produselor, mișcare de 7 px pe ilustrațiile serviciilor și o rotație ușoară a ceștii / variație mică a nivelului apei în scena pentru companii. Nu există o secțiune suplimentară sau blocare sticky. Preferința de reducere a mișcării dezactivează aceste efecte.
-
-Meniul de mobil este un dialog fullscreen, cu animație GSAP de intrare/ieșire și linkuri decalate. Coșul este un drawer ancorat la dreapta, cu slide și backdrop estompat; pe mobil păstrează o mică fâșie vizibilă din pagină. Ambele folosesc focusul modal nativ, închidere cu Escape și blocarea temporară a scrollului, cu restabilirea focusului și a scrollului la închidere. La reducerea mișcării, tranzițiile sunt imediate.
+- [Ghid de administrare](docs/commerce-setup.md) — utilizarea magazinului și gestionarea comenzilor.
+- [Documentație tehnică](docs/commerce-development.md) — configurare, infrastructură, migrări și verificări.
