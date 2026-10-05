@@ -73,19 +73,8 @@ export async function AdminWelcome({
     <div className="makeon-admin-overview">
       <section className="makeon-admin-welcome">
         <div className="makeon-admin-welcome-content">
-          <span className="makeon-admin-caption">
-            <span className="makeon-admin-status" /> SPAȚIUL TĂU MAKEON
-          </span>
-          <h1>
-            Un loc pentru
-            <br />
-            tot ce contează.
-          </h1>
-          <p>
-            Produse alese cu grijă. Un magazin în ordine.
-            <br />
-            Ai totul la îndemână, de aici.
-          </p>
+          <h1>Panou de administrare</h1>
+          <p>Gestionează produsele, stocurile și comenzile magazinului.</p>
           <div className="makeon-admin-shortcuts">
             <a
               className="makeon-admin-add"

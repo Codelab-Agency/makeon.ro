@@ -33,7 +33,7 @@ export default function ProductionRequestForm({
         <p>Referință: {reference}</p>
         <button
           type="button"
-          className="primary-button"
+          className="primary-button cart-phone"
           onClick={() => onComplete(request.current!.snapshot)}
         >
           Continuă cumpărăturile <ArrowUpRight size={18} />
