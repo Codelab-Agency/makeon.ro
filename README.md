@@ -44,5 +44,5 @@ Aplicația, baza de date și stocarea imaginilor sunt separate, astfel încât i
 
 ## Documentație
 
+- [Ghid de predare pentru developeri](docs/developer-handover.md) — arhitectură, cod, fluxuri de plată, migrări și mentenanță.
 - [Ghid de administrare](docs/commerce-setup.md) — utilizarea magazinului și gestionarea comenzilor.
-- [Documentație tehnică](docs/commerce-development.md) — configurare, infrastructură, migrări și verificări.

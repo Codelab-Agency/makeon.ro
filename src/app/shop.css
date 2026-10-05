@@ -831,7 +831,7 @@
   font-size: 12px;
   line-height: 1.65;
   color: var(--ink);
-  opacity: .75;
+  opacity: 0.75;
 }
 .pack-size-option,
 .detail-options select {
