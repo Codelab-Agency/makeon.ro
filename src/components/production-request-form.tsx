@@ -145,7 +145,7 @@ export default function ProductionRequestForm({
         </p>
       )}
       <button
-        className="primary-button"
+        className="primary-button cart-phone"
         type="submit"
         disabled={status === "sending"}
       >
