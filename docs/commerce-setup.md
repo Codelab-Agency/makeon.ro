@@ -1,87 +1,95 @@
-# Makeon: Payload + Neon + Cloudflare R2 + Stripe
+# Makeon — Ghid de administrare a magazinului
 
-Aplicația și `/admin` rulează în același Next.js. PostgreSQL și imaginile sunt externe, astfel încât mutarea aplicației pe VPS nu schimbă produsele sau fișierele. Nu există chei publice pentru accesul la baza de date, R2 ori Stripe.
+Acest ghid explică folosirea dashboardului pentru gestionarea produselor, imaginilor, stocului și comenzilor. Configurarea tehnică este realizată la predarea site-ului.
 
-## 1. Neon
+## Accesul în dashboard
 
-Creează un proiect PostgreSQL în UE în contul clientului. Folosește o bază/branch separată pentru dezvoltare și preview, fără datele clienților. Copiază URL-ul de conexiune cu pooling și SSL în `DATABASE_URL`. Aceeași variabilă funcționează cu un PostgreSQL propriu pe VPS.
+1. Deschide adresa site-ului urmată de `/admin`, de exemplu `https://makeon.ro/admin`.
+2. Autentifică-te cu adresa de e-mail și parola primite la predare.
+3. Folosește meniul pentru a deschide **Produse**, **Imagini**, **Comenzi** sau **Administratori**.
 
-## 2. R2
+Pe telefon, deschide meniul din butonul din colț. Tabelele pot fi glisate orizontal pentru a vedea coloanele din dreapta. Poți folosi căutarea și filtrele pentru a găsi un produs sau o comandă.
 
-Creează un bucket pentru fotografiile produselor. Configurează un domeniu public precum `media.makeon.ro` și un token S3 cu acces doar la acel bucket. Completează `R2_ENDPOINT`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_PUBLIC_URL`. Endpointul este de forma `https://<account-id>.r2.cloudflarestorage.com`; domeniul public este separat de endpointul S3. Contul trebuie să fie al clientului.
+Păstrează datele de acces private. Dacă ai uitat parola, contactează echipa care întreține site-ul; recuperarea automată prin e-mail nu este configurată în prezent.
 
-Payload acceptă JPEG, PNG, WebP și AVIF până la 3 MB (sub limita cererilor Vercel) și creează o variantă pentru carduri. Dacă R2 nu este configurat, încărcările sunt blocate: stocarea locală este dezactivată, inclusiv pe Vercel. Nu pune documente de comandă sau date personale în bucketul public.
+## Adăugarea unui produs
 
-## 3. Inițializare
+1. Deschide **Produse** și apasă **Creați unul nou** sau **Adaugă produs** pe pagina principală.
+2. Completează numele și identificatorul `slug`. Acesta apare în adresa produsului: de exemplu, `costa-rica`. Folosește litere mici, cifre și cratime, fără spații sau diacritice. Identificatorul trebuie să fie unic.
+3. Alege categoria: **Boabe**, **Măcinată**, **Solubilă** sau **Alternative**.
+4. Completează colecția, gramajul și descrierea. Gramajul se introduce în grame: `250`, `500` sau `1000` pentru 1 kg.
+5. Completează prețul și stocul, apoi selectează imaginea.
+6. Adaugă, dacă sunt disponibile, notele de degustare, originea, altitudinea, varietatea, procesarea și prăjirea.
+7. Bifează **Vizibil în magazin** pentru publicare și apasă **Salvează**.
+8. Deschide magazinul și verifică pagina produsului, imaginea, prețul și gramajul.
 
-Copiază `.env.example` în `.env.local` și completează valorile. Generează `PAYLOAD_SECRET` cu minimum 32 de octeți aleatori (de exemplu `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`). Setează `APP_URL` la originea aplicației, fără slash final.
+Dacă produsul nu este încă pregătit pentru publicare, lasă **Vizibil în magazin** debifat. Modificarea identificatorului unui produs deja publicat schimbă adresa paginii; discută cu echipa tehnică înainte de a-l schimba.
 
-Instalare și dezvoltare:
+## Prețurile și stocul
 
-```
-npm install
-npm run cms:types
-npm run cms:importmap
-npm run cms:bootstrap
-npm run dev
-```
+**Prețul produsului se introduce în lei**, cu maximum două zecimale. Pentru un preț de 45,50 lei, introdu `45.50`, nu `4550`. Dacă lași prețul gol, magazinul afișează **Preț la cerere**, iar produsul nu poate fi plătit online.
 
-Bootstrapul cere `ADMIN_EMAIL` și `ADMIN_PASSWORD` de minimum 16 caractere doar dacă nu există administrator. Crearea publică a primului administrator este blocată. Elimină parola de bootstrap din mediu după rulare. La `/admin`, adaugă prețurile reale în RON, cu TVA inclus, stocul fizic și fotografiile. Importul păstrează prețurile neconfirmate goale și stocul la zero; rerularea nu suprascrie produsele existente.
+**Stoc fizic (ambalaje)** reprezintă numărul total de ambalaje existente, inclusiv cele rezervate pentru plăți în curs. Introdu numere întregi: de exemplu, `12` pentru 12 pungi. Când primești marfă, actualizează totalul fizic, nu doar cantitatea nouă.
 
-## 4. Stripe
+**Rezervat pentru plăți în curs** este calculat automat și nu poate fi modificat manual. De exemplu, din 12 ambalaje fizice și 2 rezervate, magazinul afișează 10 disponibile. Nu poți seta stocul fizic sub cantitatea rezervată.
 
-Începe cu chei TEST. Setează `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, plus `SHIPPING_PRICE_BANI` (integer; 2000 înseamnă 20 RON, 0 înseamnă transport gratuit). Transportul nu se presupune automat.
+La o plată confirmată, stocul scade automat. Nu îl scădea încă o dată manual pentru aceeași comandă. O sesiune de plată are o rezervare de aproximativ 35 de minute. La anularea sau expirarea confirmată a sesiunii, rezervarea se eliberează; actualizarea poate apărea după procesarea confirmării sau reîncărcarea catalogului.
 
-Webhook: `https://<domeniu>/api/stripe/webhook`, evenimente `checkout.session.completed` și `checkout.session.expired`. Pentru local se poate folosi Stripe CLI: `stripe listen --forward-to localhost:3000/api/stripe/webhook`. Folosește secretul webhook afișat de CLI pentru local; cel din Dashboard pentru producție.
+La stoc disponibil zero, produsul rămâne vizibil și poate fi comandat **la cerere**. Clientul completează numele, telefonul și e-mailul, iar solicitarea apare în **Comenzi**, fără plată imediată. Dacă un coș conține atât produse din stoc, cât și produse la cerere, întreaga comandă se confirmă telefonic. Pentru a retrage complet un produs, debifează **Vizibil în magazin** și salvează.
 
-Plata folosește Stripe Checkout în RON, carduri și livrare în România. Serverul citește prețurile din PostgreSQL, nu din browser. Prețurile, denumirile și cantitățile sunt salvate ca snapshot al comenzii. Stocul este rezervat 35 de minute; după confirmarea plății se scade stocul fizic și se eliberează rezervarea. Webhookul și pagina de confirmare procesează idempotent aceeași comandă. La expirare se eliberează rezervarea. La următoarea încercare de checkout sunt reconciliate și rezervările expirate pentru care webhookul nu a ajuns. Un abandon nu golește coșul.
+## Comenzile la cerere și linkul de plată
 
-Dashboardul permite vizualizarea comenzilor și plăților; starea financiară nu este editabilă manual. Activează chitanțele prin email în Stripe dacă clientul le dorește. Payload nu are încă un furnizor de email pentru recuperarea parolelor; administratorul poate actualiza parola din cont sau prin intervenție tehnică. Facturarea, AWB, rambursările automatizate și abonamentele recurente nu sunt incluse.
+1. Deschide comanda marcată **La cerere / producție**, cu statusul plății **De confirmat telefonic**.
+2. Contactează clientul folosind telefonul din comandă. Confirmă produsele, prețul, transportul și termenul de pregătire.
+3. În panoul **Confirmare telefonică și plată**, completează prețul unitar al fiecărui produs și transportul în lei. Prețurile inițiale sunt estimative; produsele fără preț necesită completare.
+4. Apasă **Generează link de plată**. Copiază linkul și transmite-l clientului pe canalul agreat. Linkul nu este trimis automat prin e-mail.
+5. Cât timp linkul este activ, prețurile sunt blocate și generările repetate folosesc același link. Valabilitatea este afișată în panou, aproximativ 23 de ore. După expirare, reîncarcă/verifică linkul, apoi generează unul nou.
+6. După confirmarea Stripe, statusul plății devine **Plătită**. Poți trece comanda în **În pregătire** și începe producția.
 
-## 5. Producție / Vercel
+Comenzile la cerere nu rezervă și nu scad stocul fizic existent, inclusiv pentru un coș mixt: reprezintă produse pregătite după confirmare și plată. Nu le trata ca livrări automate din stoc. Sistemul blochează trecerea în pregătire/expediere/livrare înainte de plată. Dacă generarea linkului întâmpină o eroare, reîncearcă fără a schimba prețurile; aceeași încercare este recuperată.
 
-Configurează variabilele server în Vercel, separat pentru Production și Preview. Nu pune secrete în `NEXT_PUBLIC_*`. Planul Vercel pentru producția comercială trebuie ales conform condițiilor furnizorului.
+## Încărcarea fotografiilor
 
-Schema se actualizează prin migrări, nu prin schema push în producție:
+1. Deschide **Imagini** și creează o imagine nouă sau folosește câmpul de imagine din formularul produsului.
+2. Selectează fotografia. Sunt acceptate JPG, PNG, WebP și AVIF, până la **3 MB**.
+3. Completează **Descriere imagine**, de exemplu „Pungă de cafea Costa Rica, 250 g”.
+4. Apasă **Salvează** în bara de sus a formularului sau a panoului deschis.
+5. Selectează imaginea în produs și salvează și produsul.
 
-```
-npm run cms:migrate
-npm run build
-```
+Folosește fotografii clare și un fundal consecvent. Biblioteca de imagini este publică: încarcă doar fotografii de produs, fără documente sau date personale. Evită ștergerea imaginilor folosite de produse; înlocuiește mai întâi imaginea din produs.
 
-Rulează migrările o singură dată pe baza corectă înainte de publicare. După aceea rulează bootstrapul pe baza de producție dintr-un mediu local securizat. Nu activa plata live până nu verifici o comandă Stripe TEST, expirarea, stocurile, accesul administratorului și încărcarea/ștergerea unei imagini R2.
+## Vizualizarea și gestionarea comenzilor
 
-Fără `DATABASE_URL` și `PAYLOAD_SECRET`, site-ul păstrează catalogul de prezentare, `/admin` explică configurarea, iar API-urile de administrare/plată răspund cu 503. După conectarea bazei, erorile nu sunt mascate prin produse/prețuri statice; checkoutul este oprit când catalogul nu poate fi actualizat.
+Deschide **Comenzi** și selectează o comandă. Pagina afișează clientul, datele de contact, adresa de livrare, produsele, cantitățile, transportul și totalul în lei.
 
-## 6. Mutarea pe VPS
+Există două statusuri diferite:
 
-Publică aplicația Next.js și aceleași variabile; pentru build standalone setează `NEXT_OUTPUT_STANDALONE=true` și pornește `.next/standalone/server.js`. Păstrează Neon și R2 pentru o mutare fără transfer de date. Pentru mutarea PostgreSQL folosește `pg_dump` / `pg_restore`, apoi schimbă `DATABASE_URL` și verifică secvențele și migrările. Pentru mutarea fișierelor copiază bucketul și schimbă adaptorul S3/domeniul public; păstrează denumirile fișierelor. Actualizează `APP_URL` și webhookul Stripe dacă domeniul se schimbă. Backupurile bazei și imaginilor trebuie ținute separat de server.
+- **Status plată** se actualizează automat: De confirmat telefonic (comenzi la cerere), În așteptarea plății, Plătită, Expirată sau Eșuată. Nu poate fi modificat manual.
+- **Status comandă** se modifică de tine: Nouă → În pregătire → Expediată → Livrată. Selectează etapa potrivită și apasă **Salvează**.
 
-## 7. Verificări locale
+Pentru o comandă obișnuită:
 
-`npm run test:commerce` folosește exclusiv baza locală `makeon_test`, pe portul 55432, și șterge produsele/comenzile din acea bază la început. Stripe este simulat; testele nu efectuează plăți reale. Pentru un mediu de test separat:
+1. Verifică dacă statusul plății este **Plătită**.
+2. Verifică produsele și adresa, apoi trece comanda în **În pregătire**.
+3. După predarea coletului curierului, selectează **Expediată**.
+4. După confirmarea livrării, selectează **Livrată**.
 
-```
-docker run --name makeon-postgres-test -e POSTGRES_PASSWORD=makeon-local-test-only -e POSTGRES_DB=makeon_test -p 127.0.0.1:55432:5432 -d postgres:17-alpine
-npm run test:commerce
-```
+Nu expedia o comandă doar pentru că apare în listă: poate fi încă neplătită. Dacă plata pare neclară, verifică situația în contul Stripe și contactează echipa tehnică înainte de a cere clientului să plătească din nou.
 
-Cu aplicația pornită pe portul 3000, `npm run test:e2e` verifică interfața în Chrome. Testele de checkout din browser folosesc un catalog și răspunsuri API simulate.
+Actualizarea statusului comenzii nu generează automat un AWB, o factură sau un mesaj către client. Rambursările se gestionează separat în Stripe; ele nu readuc automat produsele în stoc și nu sunt reflectate printr-un status de rambursare în acest dashboard. Pentru retururi, confirmă situația cu echipa tehnică și actualizează stocul fizic după recepția mărfii.
 
-Revenirea prin butonul de anulare Stripe eliberează rezervarea și păstrează coșul. Rezervările expirate sunt reconciliate și la încărcarea catalogului, pentru a recupera stocul dacă webhookul de expirare nu a ajuns.
+## Solicitările de ofertă
 
-## 8. Concurență și idempotență
+Formularul de pe site trimite solicitările la adresa de e-mail configurată pentru magazin. În prezent, destinatarul este **contact@code-lab.ro**; la predare, confirmă adresa la care vrei să le primești.
 
-Rezervarea folosește un UPDATE condiționat în PostgreSQL (`stock - reserved >= cantitate`), cu blocare pe rând. Toate produsele unei comenzi sunt rezervate într-o singură tranzacție; dacă unul nu este disponibil, întreaga operație este anulată. Cantitățile se validează și în serviciul server, nu doar în ruta HTTP.
+E-mailul include numele, adresa de e-mail, soluția dorită, dimensiunea echipei și detaliile opționale completate. Poți răspunde direct la e-mail pentru a contacta solicitantul. Aceste solicitări nu apar în lista de comenzi și nu rezervă stoc. Telefonul și WhatsApp rămân alternative de contact.
 
-Referința comenzii este unică și este folosită drept cheie de idempotență Stripe. O blocare tranzacțională pe comandă sincronizează retry-urile, crearea/salvarea sesiunii Stripe și procesarea webhookurilor, inclusiv între instanțe Vercel. Retry-ul reia aceeași sesiune; nu creează o comandă sau o rezervare nouă. Erorile de rețea păstrează rezervarea pentru recuperare. Comportamentul cheii Stripe este descris în [documentația oficială](https://docs.stripe.com/api/idempotent_requests).
+## Dacă întâmpini o problemă
 
-Confirmarea plății verifică sesiunea, suma și moneda, apoi scade stocul și marchează comanda plătită în aceeași tranzacție. Livrarea repetată sau simultană a aceleiași confirmări nu scade stocul din nou. O eroare de salvare anulează și modificarea de stoc. Constrângerile bazei blochează stocul negativ și scăderea stocului fizic sub rezervările active; migrațiile trebuie aplicate înainte de activarea plăților.
+- **Produsul nu apare:** verifică opțiunea **Vizibil în magazin**, salvează și reîncarcă pagina magazinului.
+- **Nu se poate cumpăra:** verifică prețul și stocul disponibil. Dacă sunt corecte, contactează echipa tehnică pentru verificarea plăților.
+- **Imaginea nu se salvează:** verifică formatul, limita de 3 MB și descrierea imaginii. Dacă eroarea persistă, trimite mesajul afișat echipei tehnice.
+- **Stocul nu poate fi redus:** verifică ambalajele rezervate pentru plăți în curs; stocul fizic trebuie să le acopere.
+- **O comandă are o problemă de plată:** notează referința comenzii și contactează echipa tehnică. Nu modifica stocul pentru a corecta o plată neclară.
 
-Editarea unui produs în dashboard blochează rândul înainte de citirea documentului și păstrează rezervările controlate de server. Editările în masă ale produselor sunt blocate; produsele se editează individual pentru a păstra această protecție.
-
-## 9. Originea dashboardului
-
-Dashboardul trimite cererile API la aceeași origine unde este deschis, prin URL-uri relative. `APP_URL` rămâne adresa canonică a site-ului și o origine permisă pentru autentificarea cu cookie. Dacă adminul se testează local în timp ce `APP_URL` indică domeniul public, setează `ADMIN_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000` în mediul local. Pentru acces de pe telefon, adaugă originea LAN exactă, inclusiv protocolul și portul. În producție, permite doar originile folosite efectiv de administrator; nu folosi wildcarduri. După modificări, repornește aplicația.
-
-Imaginea se salvează din butonul „Salvează” din bara de sus a formularului sau a panoului deschis din produs. Selectează fișierul și completează descrierea imaginii înainte de salvare.
+Când ceri ajutor, trimite pagina pe care apare problema, mesajul de eroare și, dacă este necesar, referința comenzii. Nu trimite parole sau date de card.

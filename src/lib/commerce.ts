@@ -28,11 +28,11 @@ export function stripeClient() {
 }
 
 /** Share Payload's transaction connection so raw SQL and Local API writes commit together. */
-function transactionDB(cms: Payload, id: number | string) {
+export function transactionDB(cms: Payload, id: number | string) {
   return (cms.db as unknown as PostgresAdapter).sessions[String(id)].db;
 }
 
-async function transaction<T>(
+export async function transaction<T>(
   cms: Payload,
   operation: (id: number | string) => Promise<T>,
 ): Promise<T> {
@@ -49,7 +49,11 @@ async function transaction<T>(
 }
 
 // Serializes retries for the same order, including separate serverless instances.
-async function lockOrder(cms: Payload, id: number | string, reference: string) {
+export async function lockOrder(
+  cms: Payload,
+  id: number | string,
+  reference: string,
+) {
   await transactionDB(cms, id).execute(
     sql`SELECT pg_advisory_xact_lock(hashtext(${reference}))`,
   );
@@ -86,6 +90,13 @@ export async function applySession(
       req,
     });
     const order = found.docs[0];
+    // Expiration retries from an older production link may arrive after regeneration.
+    if (
+      order?.orderType === "production" &&
+      order.stripeSessionId !== session.id &&
+      target === "expired"
+    )
+      return;
     if (!order || order.stripeSessionId !== session.id)
       throw new Error("Unknown checkout session.");
     if (
@@ -98,7 +109,9 @@ export async function applySession(
     if (order.status !== "pending") throw new Error("Conflicting order state.");
     const db = transactionDB(cms, id);
     const quantities = new Map<number, number>();
-    for (const line of order.items) {
+    // Production orders represent goods made after payment, not existing inventory.
+    // Never reserve or deduct physical stock for this explicitly separate flow.
+    for (const line of order.orderType === "production" ? [] : order.items) {
       const productID =
         typeof line.product === "number" ? line.product : line.product.id;
       quantities.set(
@@ -128,12 +141,12 @@ export async function applySession(
           typeof session.payment_intent === "string"
             ? session.payment_intent
             : session.payment_intent?.id,
-        customerEmail: session.customer_details?.email,
-        customerName: session.customer_details?.name,
-        customerPhone: session.customer_details?.phone,
+        customerEmail: session.customer_details?.email || order.customerEmail,
+        customerName: session.customer_details?.name || order.customerName,
+        customerPhone: session.customer_details?.phone || order.customerPhone,
         shippingAddress: session.collected_information?.shipping_details
           ? { ...session.collected_information.shipping_details }
-          : null,
+          : (order.shippingAddress ?? null),
       },
     });
   });
@@ -154,7 +167,7 @@ async function failDraft(cms: Payload, reference: string) {
     const order = docs[0];
     if (!order || order.status !== "pending" || order.stripeSessionId) return;
     const quantities = new Map<number, number>();
-    for (const line of order.items) {
+    for (const line of order.orderType === "production" ? [] : order.items) {
       const productID =
         typeof line.product === "number" ? line.product : line.product.id;
       quantities.set(
@@ -215,7 +228,11 @@ export async function reconcileExpired(cms: Payload, stripe: Stripe) {
  * A network timeout may hide a successful request, so its reservation stays
  * retryable. The order lock covers both creation and persistence of the session ID.
  */
-async function sessionForOrder(order: Order, stripe: Stripe, cms: Payload) {
+export async function sessionForOrder(
+  order: Order,
+  stripe: Stripe,
+  cms: Payload,
+) {
   try {
     return await transaction(cms, async (id) => {
       await lockOrder(cms, id, order.reference);
@@ -241,6 +258,9 @@ async function sessionForOrder(order: Order, stripe: Stripe, cms: Payload) {
           allowed_payment_method_types: ["card"],
           client_reference_id: order.reference,
           metadata: { orderReference: order.reference },
+          ...(order.orderType === "production"
+            ? { customer_email: order.customerEmail || undefined }
+            : {}),
           line_items: order.items.map((line) => ({
             quantity: line.quantity,
             price_data: {
@@ -261,11 +281,19 @@ async function sessionForOrder(order: Order, stripe: Stripe, cms: Payload) {
           shipping_address_collection: { allowed_countries: ["RO"] },
           phone_number_collection: { enabled: true },
           success_url: `${process.env.APP_URL}/comanda?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${process.env.APP_URL}/comanda?anulata=1`,
+          cancel_url: `${process.env.APP_URL}/comanda?anulata=1${order.orderType === "production" ? "&la_cerere=1" : ""}`,
           expires_at:
-            Math.floor(new Date(order.createdAt).getTime() / 1000) + 35 * 60,
+            order.orderType === "production"
+              ? Math.floor(new Date(order.expiresAt!).getTime() / 1000)
+              : Math.floor(new Date(order.createdAt).getTime() / 1000) +
+                35 * 60,
         },
-        { idempotencyKey: order.reference },
+        {
+          idempotencyKey:
+            order.orderType === "production"
+              ? `${order.reference}:production:${order.paymentAttempt}`
+              : order.reference,
+        },
       );
       await cms.update({
         collection: "orders",
@@ -273,6 +301,9 @@ async function sessionForOrder(order: Order, stripe: Stripe, cms: Payload) {
         req,
         data: {
           stripeSessionId: session.id,
+          ...(order.orderType === "production"
+            ? { paymentUrl: session.url }
+            : {}),
           expiresAt: new Date(session.expires_at * 1000).toISOString(),
         },
       });
@@ -331,6 +362,7 @@ export async function createCheckout(
       const doc = existing.docs[0];
       if (
         fingerprint(doc.items) !== fingerprint(lines) ||
+        doc.orderType === "production" ||
         doc.status !== "pending"
       )
         throw new CommerceError("Coșul s-a modificat. Reîncearcă plata.", 409);

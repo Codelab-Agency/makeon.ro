@@ -36,7 +36,9 @@ Fonturile variabile Manrope și DM Sans sunt găzduite local prin Fontsource, in
 
 ## Magazin cafea
 
-Magazinul este pregătit pentru Payload CMS (`/admin`), PostgreSQL în Neon, imagini Cloudflare R2 și Stripe Checkout. Configurarea serviciilor, inițializarea administratorului, importul catalogului și migrările sunt documentate în [docs/commerce-setup.md](docs/commerce-setup.md). Fără variabilele externe, funcționează catalogul de prezentare; prețurile și stocurile nu sunt inventate.
+Produsele fără stoc pot fi comandate la cerere. Coșurile mixte intră integral în confirmare telefonică. Administratorul confirmă prețurile în RON și generează un link Stripe individual; pregătirea comenzii este permisă după plata confirmată. Aceste comenzi nu afectează inventarul fizic. Noua schemă necesită migrarea `20261005_113310_production_orders` înainte de publicare.
+
+Magazinul este pregătit pentru Payload CMS (`/admin`), PostgreSQL în Neon, imagini Cloudflare R2 și Stripe Checkout. [Ghidul pentru client](docs/commerce-setup.md) explică administrarea produselor, imaginilor, stocului și comenzilor. Configurarea serviciilor, inițializarea administratorului, importul catalogului și migrările sunt documentate separat în [ghidul tehnic](docs/commerce-development.md). Fără variabilele externe, funcționează catalogul de prezentare; prețurile și stocurile nu sunt inventate.
 
 `/cafea` include 17 produse extrase din catalog: Intense, Noblesse, Armonia, Exotic Blend, Etiopia, Brazilia, Columbia, Guatemala, India, Costa Rica, Kenia, Indonezia, Organic, Decaff, Solubilă Peru BIO, Chicory și Kopi Luwak. Fiecare are pagină proprie la `/cafea/[slug]`, gramajul din catalog, note aromatice și, unde sunt documentate, origine, altitudine, varietate, procesare și prăjire. Sunt disponibile filtre pe categorie, căutare și sortare alfabetică.
 

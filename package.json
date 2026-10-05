@@ -17,6 +17,7 @@
     "cms:types": "payload generate:types",
     "cms:importmap": "payload generate:importmap",
     "cms:migrate": "payload migrate",
+    "cms:migrate:verify": "node --env-file=.env --conditions=react-server --import tsx scripts/verify-migrations.mjs",
     "cms:migrate:create": "payload migrate:create",
     "cms:bootstrap": "tsx scripts/bootstrap-commerce.ts",
     "test:commerce": "node --conditions=react-server --import tsx --test --test-force-exit tests/commerce/*.test.ts"

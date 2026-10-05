@@ -56,7 +56,6 @@ export function CoffeeProductCard({ product }: { product: CoffeeProduct }) {
           ) : (
             <button
               className="shop-add"
-              disabled={product.stock === 0}
               onClick={() =>
                 add(
                   product.slug,
@@ -65,7 +64,7 @@ export function CoffeeProductCard({ product }: { product: CoffeeProduct }) {
               }
               aria-label={`Adaugă ${product.name} în coș`}
             >
-              {product.stock === 0 ? "Stoc epuizat" : "Adaugă"}
+              {product.stock === 0 ? "La cerere" : "Adaugă"}
               <ShoppingBag size={16} />
             </button>
           )}

@@ -52,8 +52,11 @@ export default buildConfig({
       max: 10,
       connectionTimeoutMillis: 10000,
     },
-    // Development may synchronize the schema; production requires reviewed migrations.
-    push: process.env.NODE_ENV !== "production",
+    // Schema push can remove custom SQL constraints. Opt in only for disposable
+    // development databases; shared databases always use reviewed migrations.
+    push:
+      process.env.NODE_ENV !== "production" &&
+      process.env.PAYLOAD_DB_PUSH === "true",
     migrationDir: path.resolve(process.cwd(), "src/migrations"),
   }),
   sharp,

@@ -224,8 +224,13 @@ export interface Order {
    * Alege etapa comenzii și apasă Salvează. Statusul plății este actualizat automat.
    */
   fulfillmentStatus: 'new' | 'processing' | 'shipped' | 'delivered';
+  orderType?: ('stock' | 'production') | null;
+  requestFingerprint?: string | null;
+  customerNote?: string | null;
+  paymentAttempt?: number | null;
+  paymentUrl?: string | null;
   reference: string;
-  status: 'pending' | 'paid' | 'expired' | 'failed';
+  status: 'requested' | 'pending' | 'paid' | 'expired' | 'failed';
   stripeSessionId?: string | null;
   paymentIntentId?: string | null;
   expiresAt?: string | null;
@@ -433,6 +438,11 @@ export interface ProductsSelect<T extends boolean = true> {
  */
 export interface OrdersSelect<T extends boolean = true> {
   fulfillmentStatus?: T;
+  orderType?: T;
+  requestFingerprint?: T;
+  customerNote?: T;
+  paymentAttempt?: T;
+  paymentUrl?: T;
   reference?: T;
   status?: T;
   stripeSessionId?: T;

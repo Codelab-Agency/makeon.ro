@@ -259,8 +259,37 @@ export const Orders: CollectionConfig = {
         );
       },
     ],
+    beforeValidate: [
+      ({ data, originalDoc }) => {
+        if (
+          originalDoc?.orderType === "production" &&
+          data?.fulfillmentStatus &&
+          data.fulfillmentStatus !== "new" &&
+          originalDoc.status !== "paid"
+        ) {
+          throw new Error(
+            "Comanda la cerere poate fi pregătită numai după confirmarea plății.",
+          );
+        }
+        return data;
+      },
+    ],
   },
   fields: [
+    {
+      name: "orderType",
+      label: "Tip comandă",
+      type: "select",
+      defaultValue: "stock",
+      options: [
+        { value: "stock", label: "Din stoc" },
+        { value: "production", label: "La cerere / producție" },
+      ],
+    },
+    { name: "requestFingerprint", type: "text" },
+    { name: "customerNote", label: "Mesaj client", type: "textarea" },
+    { name: "paymentAttempt", type: "number", defaultValue: 0 },
+    { name: "paymentUrl", type: "text" },
     {
       name: "reference",
       label: "Referință",
@@ -275,6 +304,7 @@ export const Orders: CollectionConfig = {
       required: true,
       defaultValue: "pending",
       options: [
+        { value: "requested", label: "De confirmat telefonic" },
         { value: "pending", label: "În așteptarea plății" },
         { value: "paid", label: "Plătită" },
         { value: "expired", label: "Expirată" },

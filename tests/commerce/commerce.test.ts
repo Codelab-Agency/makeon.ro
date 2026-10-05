@@ -32,6 +32,7 @@ const fakeStripe = { checkout: { sessions: {
 before(async () => {
   // This suite is deliberately restricted to an isolated local database.
   process.env.DATABASE_URL = 'postgresql://postgres:makeon-local-test-only@127.0.0.1:55432/makeon_test';
+  process.env.PAYLOAD_DB_PUSH = 'true';
   process.env.PAYLOAD_SECRET = 'local-integration-test-secret-not-for-production';
   process.env.STRIPE_SECRET_KEY = 'sk_test_local_mock'; process.env.STRIPE_WEBHOOK_SECRET = 'whsec_local_mock';
   process.env.APP_URL = 'http://localhost:3000'; process.env.SHIPPING_PRICE_BANI = '2000';
@@ -75,6 +76,31 @@ test('admin order edits preserve payment snapshots and concurrent stock settleme
   assert.equal(saved.totalBani, order.totalBani); assert.equal(saved.shippingAddress, null);
   const inventory = await cms.findByID({ collection: 'products', id: p.id });
   assert.equal(inventory.stock, 2); assert.equal(inventory.reserved, 0);
+});
+
+test('constraint repair preserves data, is repeatable, and rejects invalid inventory', async () => {
+  const adapter = cms.db as unknown as PostgresAdapter;
+  const repair = await import('../../src/migrations/20261005_120000_restore_inventory_constraints');
+  const p = await product(3);
+  await adapter.drizzle.execute(sql`ALTER TABLE products DROP CONSTRAINT products_inventory_valid;
+    ALTER TABLE products DROP CONSTRAINT products_price_valid;`);
+  await adapter.drizzle.execute(sql`UPDATE products SET stock = -1 WHERE id = ${p.id}`);
+  await assert.rejects(adapter.drizzle.transaction(async (db) => {
+    await repair.up({ db } as unknown as Parameters<typeof repair.up>[0]);
+  }));
+  const invalid = await cms.findByID({ collection: 'products', id: p.id });
+  assert.equal(invalid.stock, -1);
+  await adapter.drizzle.execute(sql`UPDATE products SET stock = 3 WHERE id = ${p.id}`);
+  await adapter.drizzle.transaction(async (db) => {
+    await repair.up({ db } as unknown as Parameters<typeof repair.up>[0]);
+    await repair.up({ db } as unknown as Parameters<typeof repair.up>[0]);
+  });
+  const saved = await cms.findByID({ collection: 'products', id: p.id });
+  assert.equal(saved.stock, 3);
+  assert.equal(saved.name, p.name);
+  assert.equal(saved.price, p.price);
+  await assert.rejects(adapter.drizzle.execute(sql`UPDATE products SET reserved = 4 WHERE id = ${p.id}`));
+  await assert.rejects(adapter.drizzle.execute(sql`UPDATE products SET price = -1 WHERE id = ${p.id}`));
 });
 
 test('validates cart input and ignores client-supplied prices', () => {
@@ -282,4 +308,67 @@ test('an admin edit waits for the inventory row lock and preserves server reserv
   await edit;
   const updated = await cms.findByID({ collection: 'products', id: p.id });
   assert.equal(updated.reserved, 1); assert.equal(updated.price, 59.99);
+});
+
+test('production requests and payment retries are idempotent without consuming physical inventory',async()=>{
+  const {parseProductionRequest,createProductionRequest,generateProductionPayment}=await import('../../src/lib/production-orders');
+  const empty=await product(0),available=await product(5), key=randomUUID(), beforeCreates=creates;
+  const input=parseProductionRequest({key,name:'Client test',email:'client@example.test',phone:'+40744123456',items:[
+    {slug:empty.slug,grind:'Boabe',quantity:2},{slug:available.slug,grind:'Boabe',quantity:1}],note:'Confirmare telefonică'});
+  await Promise.all(Array.from({length:5},()=>createProductionRequest(input,cms)));
+  const found=await cms.find({collection:'orders',where:{reference:{equals:`MK-${key}`}},depth:0});
+  assert.equal(found.docs.length,1);const order=found.docs[0];assert.equal(order.status,'requested');
+  assert.equal(creates,beforeCreates);
+  await assert.rejects(createProductionRequest({...input,phone:'+40744999999'},cms));
+  await assert.rejects(cms.update({collection:'orders',id:order.id,data:{fulfillmentStatus:'processing'}}));
+  await assert.rejects(generateProductionPayment(order.id,{unitPrices:[0,40],shipping:20},fakeStripe,cms));
+  await Promise.all(Array.from({length:8},()=>generateProductionPayment(order.id,{unitPrices:[50,40],shipping:20},fakeStripe,cms)));
+  assert.equal(creates,beforeCreates+1);
+  const pending=await cms.findByID({collection:'orders',id:order.id});assert.equal(pending.totalBani,16000);
+  await generateProductionPayment(order.id,{unitPrices:[1,1],shipping:0},fakeStripe,cms);
+  assert.equal((await cms.findByID({collection:'orders',id:order.id})).totalBani,16000);
+  const session=sessions.get(pending.stripeSessionId!)!;session.status='complete';session.payment_status='paid';
+  await assert.rejects(commerce.applySession({...session,amount_total:1},cms));
+  await Promise.all(Array.from({length:5},()=>commerce.applySession(session,cms)));
+  const paid=await cms.findByID({collection:'orders',id:order.id});assert.equal(paid.status,'paid');assert.equal(paid.customerPhone,input.phone);
+  await assert.rejects(generateProductionPayment(order.id,{unitPrices:[50,40],shipping:20},fakeStripe,cms));
+  await cms.update({collection:'orders',id:order.id,data:{fulfillmentStatus:'processing'}});
+  for(const p of [empty,available]) {
+    const unchanged=await cms.findByID({collection:'products',id:p.id});assert.equal(unchanged.stock,p.stock);assert.equal(unchanged.reserved,0);
+  }
+});
+
+test('production link regeneration ignores old expiration webhooks and recovers lost Stripe responses',async()=>{
+  const {parseProductionRequest,createProductionRequest,generateProductionPayment}=await import('../../src/lib/production-orders');
+  const p=await product(0),key=randomUUID();
+  await createProductionRequest(parseProductionRequest({key,name:'Client test',email:'client@example.test',phone:'+40744123456',items:[{slug:p.slug,grind:'Boabe',quantity:1}]}),cms);
+  const order=(await cms.find({collection:'orders',where:{reference:{equals:`MK-${key}`}},depth:0})).docs[0];
+  let interrupted=true;
+  const networkStripe={checkout:{sessions:{...fakeStripe.checkout.sessions,create:async(params:Stripe.Checkout.SessionCreateParams,options:{idempotencyKey:string})=>{
+    const result=await fakeStripe.checkout.sessions.create(params,options);if(interrupted){interrupted=false;throw new Error('lost response');}return result;
+  }}}} as unknown as Stripe;
+  const beforeCreates=creates;
+  await assert.rejects(generateProductionPayment(order.id,{unitPrices:[50],shipping:20},networkStripe,cms));
+  await generateProductionPayment(order.id,{unitPrices:[1],shipping:0},networkStripe,cms);
+  let saved=await cms.findByID({collection:'orders',id:order.id});assert.equal(saved.totalBani,7000);assert.equal(creates,beforeCreates+1);
+  const old=sessions.get(saved.stripeSessionId!)!;old.status='expired';await commerce.applySession(old,cms);
+  await Promise.all(Array.from({length:5},()=>generateProductionPayment(order.id,{unitPrices:[60],shipping:20},fakeStripe,cms)));
+  saved=await cms.findByID({collection:'orders',id:order.id});assert.equal(saved.paymentAttempt,2);assert.equal(creates,beforeCreates+2);
+  await commerce.applySession(old,cms);assert.equal((await cms.findByID({collection:'orders',id:order.id})).status,'pending');
+});
+
+test('production HTTP requests validate contact data, reject foreign origins, and deduplicate retries',async()=>{
+  const {POST}=await import('../../src/app/api/orders/request/route');
+  const p=await product(0),input={key:randomUUID(),name:'Client test',email:'client@example.test',phone:'+40744123456',items:[{slug:p.slug,grind:'Boabe',quantity:1}]};
+  const request=(body:unknown,origin='http://localhost:3000')=>new Request('http://localhost:3000/api/orders/request',{method:'POST',headers:{origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  assert.equal((await POST(request(input,'https://foreign.example'))).status,403);
+  for(const change of [{phone:''},{email:'bad'},{name:'x'},{website:'spam'},{items:[{slug:p.slug,grind:'Boabe',quantity:0}]}])assert.equal((await POST(request({...input,...change}))).status,400);
+  for(let i=0;i<2;i++){const response=await POST(request(input));assert.equal(response.status,200);assert.deepEqual(await response.json(),{reference:`MK-${input.key}`});}
+  assert.equal((await cms.find({collection:'orders',where:{reference:{equals:`MK-${input.key}`}}})).docs.length,1);
+});
+
+test('production payment-link endpoint requires an authenticated administrator',async()=>{
+  const {POST}=await import('../../src/app/api/orders/payment-link/route');
+  const response=await POST(new Request('http://localhost:3000/api/orders/payment-link',{method:'POST',headers:{origin:'http://localhost:3000','Content-Type':'application/json'},body:JSON.stringify({orderID:1,unitPrices:[0.01],shipping:0})}));
+  assert.equal(response.status,401);
 });

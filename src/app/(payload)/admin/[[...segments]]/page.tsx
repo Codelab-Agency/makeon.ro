@@ -28,7 +28,7 @@ export default function Page(args: Args) {
           PAYLOAD_SECRET pentru a-l activa.
         </p>
         <p>
-          Instrucțiunile sunt în docs/commerce-setup.md. Catalogul de prezentare
+          Instrucțiunile tehnice sunt în docs/commerce-development.md. Catalogul de prezentare
           rămâne disponibil.
         </p>
         <a href="/">Înapoi la site</a>

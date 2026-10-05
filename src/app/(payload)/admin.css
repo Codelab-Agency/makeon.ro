@@ -383,6 +383,22 @@ html[data-theme="dark"] .collections__label {
   }
 }
 /* Compact order details, with readable snapshots instead of technical fields. */
+.production-payment-fields { display: grid; gap: 16px; margin: 20px 0; }
+.production-payment-fields label { display: flex; flex-direction: column; gap: 8px; }
+.production-payment-fields label span { font-size: 12px; opacity: .75; }
+.production-payment input { width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--theme-elevation-150); border-radius: 8px; color: var(--theme-text); background: var(--theme-elevation-50); font-size: 16px; }
+.production-payment-link { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; overflow-wrap: anywhere; }
+.production-payment-link input, .production-payment-link p { flex-basis: 100%; }
+.production-payment p { line-height: 1.6; }
+.production-payment button {
+  min-height: 44px; padding: 12px 16px; border: 1px solid var(--theme-elevation-150);
+  border-radius: 8px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.production-payment > button { background: #33452f; color: #fff; }
+.production-payment button:disabled { opacity: .6; cursor: wait; }
+.production-payment-link button { background: var(--theme-elevation-100); color: var(--theme-text); }
+@media (max-width: 600px) { .production-payment > button { width: 100%; } }
+.production-payment [role="alert"] { color: var(--theme-error-500); }
 .makeon-order {
   display: grid;
   gap: 20px;

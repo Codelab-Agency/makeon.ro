@@ -45,3 +45,19 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+.production-request-form, .production-request-success {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.production-request-form h3 { font-size: 20px; margin: 0 0 12px; }
+.production-request-form fieldset { display: flex; flex-direction: column; gap: 8px; border: 0; padding: 0; margin: 18px 0; min-width: 0; }
+.production-request-form label { font-size: 12px; margin-top: 6px; }
+.production-request-form input, .production-request-form textarea {
+  width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--line);
+  border-radius: 6px; background: transparent; color: var(--ink); font: inherit; font-size: 16px;
+}
+.production-request-form textarea { resize: vertical; }
+.production-request-form .primary-button, .production-request-success .primary-button { width: 100%; }
+.production-request-success { overflow-wrap: anywhere; }
+.production-request-success > svg { display: block; margin-bottom: 12px; }

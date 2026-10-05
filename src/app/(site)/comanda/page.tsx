@@ -11,10 +11,15 @@ export const metadata = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ session_id?: string; anulata?: string }>;
+  searchParams: Promise<{
+    session_id?: string;
+    anulata?: string;
+    la_cerere?: string;
+  }>;
 }) {
   const params = await searchParams;
   let paid = false,
+    production = params.la_cerere === "1",
     reference: string | undefined;
   if (
     checkoutConfigured() &&
@@ -28,6 +33,7 @@ export default async function Page({
       );
       const order = await applySession(session);
       paid = order?.status === "paid";
+      if (order) production = order.orderType === "production";
       if (paid) reference = order?.reference;
     } catch {
       /* A webhook retry will reconcile a transient failure. */
@@ -39,6 +45,7 @@ export default async function Page({
         paid={paid}
         reference={reference}
         cancelled={params.anulata === "1"}
+        production={production}
       />
     </ShopShell>
   );

@@ -21,6 +21,12 @@ import { useCart } from "./cart-provider";
 import { CoffeeProductCard } from "./coffee-shop";
 import { useCatalog } from "./catalog-provider";
 
+const grindDescriptions: Record<string, string> = {
+  Ibric: "Măcinare foarte fină, pentru cafeaua preparată la ibric, direct în apă.",
+  Moka: "Măcinare fină, puțin mai grosieră decât pentru espresso, pentru cafetiera moka de pe aragaz.",
+  Espresso: "Măcinare fină, pentru prepararea sub presiune la espressorul cu portafiltru.",
+};
+
 export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
   const { products: coffeeProducts } = useCatalog();
   const [quantity, setQuantity] = useState(1),
@@ -89,16 +95,21 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
                 {product.category === "macinata" ? "Măcinare pentru" : "Format"}
               </label>
               {product.category === "macinata" ? (
-                <CustomSelect
-                  id="grind"
-                  label="Măcinare pentru"
-                  value={grind}
-                  onChange={setGrind}
-                  options={["Ibric", "Moka", "Espresso"].map((value) => ({
-                    value,
-                    label: value,
-                  }))}
-                />
+                <>
+                  <CustomSelect
+                    id="grind"
+                    label="Măcinare pentru"
+                    value={grind}
+                    onChange={setGrind}
+                    options={["Ibric", "Moka", "Espresso"].map((value) => ({
+                      value,
+                      label: value,
+                    }))}
+                  />
+                  <p className="grind-description" aria-live="polite" aria-atomic="true">
+                    {grindDescriptions[grind]}
+                  </p>
+                </>
               ) : (
                 <span className="pack-size-option">{grind}</span>
               )}
@@ -138,16 +149,15 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
             </div>
             <button
               className="primary-button"
-              disabled={product.stock === 0 || (product.stock != null && quantity > product.stock)}
               onClick={() => add(product.slug, grind, quantity)}
             >
-              {product.stock === 0 ? "Stoc epuizat" : "Adaugă în coș"}
+              {product.stock != null && quantity > product.stock ? "Comandă la cerere" : "Adaugă în coș"}
               <ShoppingBag size={18} />
             </button>
           </div>
           <p className="detail-order-note">
             {product.price == null ? "Adaugă cafelele preferate și solicită oferta pentru selecția ta." : "Adaugă cafeaua în coș și finalizează cumpărăturile prin Stripe."}
-            {product.stock != null && <span className="stock-note">{product.stock > 0 ? `${product.stock} ambalaje disponibile` : "Momentan indisponibilă"}</span>}
+            {product.stock != null && <span className="stock-note">{product.stock > 0 ? `${product.stock} ambalaje disponibile` : "Disponibilă la cerere. Te contactăm telefonic pentru confirmare; pregătirea începe după plată."}</span>}
           </p>
           <div className="detail-ritual">
             <Coffee size={19} />

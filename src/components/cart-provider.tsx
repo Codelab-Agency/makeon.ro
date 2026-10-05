@@ -23,6 +23,7 @@ import { money } from "@/lib/coffee-catalog";
 import { useCatalog } from "./catalog-provider";
 import CoffeePack from "./coffee-pack";
 import useDialogMotion from "./use-dialog-motion";
+import ProductionRequestForm from "./production-request-form";
 
 /** Persist selections only; the server resolves current prices and reserves inventory. */
 export type CartLine = { slug: string; grind: string; quantity: number };
@@ -166,6 +167,18 @@ export default function CartProvider({
         (p?.stock != null && p.stock >= quantity)
       );
     });
+  const needsRequest =
+    catalog.managed &&
+    catalog.ready &&
+    !catalog.unavailable &&
+    items.some((line) => {
+      const p = productBySlug(line.slug);
+      const requested = items
+        .filter((item) => item.slug === line.slug)
+        .reduce((sum, item) => sum + item.quantity, 0);
+      return p && (p.price == null || (p.stock != null && p.stock < requested));
+    }) &&
+    checkoutKey.current?.fingerprint !== JSON.stringify(items);
   async function pay() {
     if (paying || !canPay) return;
     setPaying(true);
@@ -389,17 +402,30 @@ export default function CartProvider({
                   </strong>
                 </div>
                 <p>
-                  {catalog.checkout && completePrices
-                    ? `Transport: ${money((catalog.shippingBani ?? 0) / 100)}. Total: ${money(total + (catalog.shippingBani ?? 0) / 100)}.`
-                    : completePrices
-                      ? "Livrarea și disponibilitatea se confirmă la comandă."
-                      : "Solicită prețurile și disponibilitatea pentru cafelele alese."}
+                  {needsRequest
+                    ? "Preț estimativ. Confirmăm telefonic totalul, transportul și termenul înainte de plată."
+                    : catalog.checkout && completePrices
+                      ? `Transport: ${money((catalog.shippingBani ?? 0) / 100)}. Total: ${money(total + (catalog.shippingBani ?? 0) / 100)}.`
+                      : completePrices
+                        ? "Livrarea și disponibilitatea se confirmă la comandă."
+                        : "Solicită prețurile și disponibilitatea pentru cafelele alese."}
                 </p>
                 <button className="copy-selection" onClick={copySelection}>
                   {copied ? <Check size={16} /> : <ShoppingBag size={16} />}{" "}
                   {copied ? "Selecție copiată" : "Copiază selecția"}
                 </button>
-                {catalog.checkout && completePrices ? (
+                {needsRequest ? (
+                  <ProductionRequestForm
+                    items={items}
+                    onComplete={(snapshot) => {
+                      setItems((previous) =>
+                        JSON.stringify(previous) === snapshot ? [] : previous,
+                      );
+                      setOpened(false);
+                      catalog.refresh();
+                    }}
+                  />
+                ) : catalog.checkout && completePrices ? (
                   <button
                     className="primary-button cart-phone"
                     disabled={!canPay || paying}
@@ -418,20 +444,25 @@ export default function CartProvider({
                     <ArrowUpRight size={18} />
                   </a>
                 )}
-                {catalog.checkout && completePrices && !canPay && (
-                  <p className="checkout-error">
-                    Verifică disponibilitatea și cantitățile din coș.
-                  </p>
-                )}
+                {!needsRequest &&
+                  catalog.checkout &&
+                  completePrices &&
+                  !canPay && (
+                    <p className="checkout-error">
+                      Verifică disponibilitatea și cantitățile din coș.
+                    </p>
+                  )}
                 {paymentError && (
                   <p className="checkout-error" role="alert">
                     {paymentError}
                   </p>
                 )}
                 <span className="cart-summary-note">
-                  {catalog.checkout && completePrices
-                    ? "Plata este procesată securizat de Stripe."
-                    : "+40 744 524 728 · Nicio comandă nu este trimisă automat."}
+                  {needsRequest
+                    ? "Plata se face prin link după confirmarea telefonică."
+                    : catalog.checkout && completePrices
+                      ? "Plata este procesată securizat de Stripe."
+                      : "+40 744 524 728 · Nicio comandă nu este trimisă automat."}
                 </span>
               </div>
             </>

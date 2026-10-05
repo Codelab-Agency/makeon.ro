@@ -826,6 +826,13 @@
   font-size: 10px;
   color: #94816a;
 }
+.grind-description {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--ink);
+  opacity: .75;
+}
 .pack-size-option,
 .detail-options select {
   border: 1px solid #d8c9b4;

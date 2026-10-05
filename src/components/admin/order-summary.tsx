@@ -3,8 +3,10 @@
 import { useDocumentInfo } from "@payloadcms/ui";
 import { MapPin, Package, UserRound, CreditCard } from "lucide-react";
 import type { Order } from "@/payload-types";
+import ProductionPayment from "./production-payment";
 
 const paymentLabels = {
+  requested: "De confirmat telefonic",
   pending: "În așteptarea plății",
   paid: "Plătită",
   expired: "Expirată",
@@ -55,6 +57,9 @@ export function OrderSummary() {
         <div>
           <span className="makeon-order-eyebrow">REZUMAT COMANDĂ</span>
           <h2>Comanda #{order.id}</h2>
+          {order.orderType === "production" && (
+            <strong>La cerere / producție</strong>
+          )}
           <p>
             {new Intl.DateTimeFormat("ro-RO", {
               dateStyle: "long",
@@ -73,6 +78,12 @@ export function OrderSummary() {
           Referință: {order.reference}
         </div>
       </section>
+      {order.orderType === "production" && (
+        <ProductionPayment
+          key={`${order.id}-${order.status}-${order.paymentAttempt}`}
+          order={order}
+        />
+      )}
       <div className="makeon-order-details">
         <section className="makeon-order-panel">
           <h3>
@@ -108,11 +119,16 @@ export function OrderSummary() {
               <div>
                 <strong>{item.name}</strong>
                 <p>
-                  {item.grind} · {money(item.unitPriceBani)} / buc.
+                  {item.grind} ·{" "}
+                  {item.unitPriceBani > 0
+                    ? `${money(item.unitPriceBani)} / buc.`
+                    : "Preț de confirmat"}
                 </p>
               </div>
               <strong className="makeon-order-item-total">
-                {money(item.unitPriceBani * item.quantity)}
+                {item.unitPriceBani > 0
+                  ? money(item.unitPriceBani * item.quantity)
+                  : "La cerere"}
               </strong>
             </div>
           ))}
@@ -127,7 +143,11 @@ export function OrderSummary() {
             <dd>{money(order.shippingBani)}</dd>
           </div>
           <div className="makeon-order-grand-total">
-            <dt>Total comandă</dt>
+            <dt>
+              {order.status === "requested"
+                ? "Total estimativ"
+                : "Total comandă"}
+            </dt>
             <dd>{money(order.totalBani)}</dd>
           </div>
         </dl>
