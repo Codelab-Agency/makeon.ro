@@ -1,3 +1,39 @@
+.hero-service-label {
+  color: var(--element);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.6;
+  margin: 14px 0 0;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 22px;
+}
+
+.hero-actions .primary-button {
+  order: 0;
+}
+
+.hero .hero-description {
+  color: #ddd8d0;
+}
+
+.hero-shop-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  color: var(--paper);
+  font-size: 12px;
+}
+
+.hero-shop-link:hover {
+  color: var(--element);
+}
+
 .heading-star svg,
 .closing-star svg,
 .shop-banner-star svg {
@@ -64,6 +100,24 @@
 }
 
 @media (max-width: 620px) {
+  .hero-service-label {
+    order: 2;
+    margin: 8px 0 0;
+  }
+  .hero .hero-description {
+    order: 3;
+    margin: 0 0 8px;
+  }
+  .hero-actions {
+    order: 7;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .hero-shop-link {
+    justify-content: center;
+  }
   .hero {
     grid-template-columns: minmax(0, 1fr);
   }

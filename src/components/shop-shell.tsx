@@ -2,6 +2,7 @@ import { ArrowUpRight, Coffee, Droplets } from "lucide-react";
 import SiteHeader from "./site-header";
 import BrandLogo from "./brand-logo";
 import LegalFooter from "./legal-footer";
+import Link from "next/link";
 
 export default function ShopShell({ children }: { children: React.ReactNode }) {
   return (
@@ -14,8 +15,9 @@ export default function ShopShell({ children }: { children: React.ReactNode }) {
           <Coffee size={15} />
           SwitchMorn Coffee
           <span className="shop-footer-dot" />
-          <Droplets size={15} />
-          Vero Aqua
+          <Link href="/apa" className="footer-water-link">
+            <Droplets size={15} /> Vero Aqua
+          </Link>
         </span>
         <a href="tel:+40744524728">
           +40 744 524 728

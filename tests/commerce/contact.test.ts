@@ -6,6 +6,7 @@ import {
   sendContact,
 } from "../../src/lib/contact-request";
 import { POST } from "../../src/app/api/contact/route";
+import { eventServices } from "../../src/lib/service-options";
 
 const input = {
   name: "Client Test",
@@ -36,6 +37,14 @@ test("email escapes HTML and replies to the customer", () => {
   assert.equal(email.reply_to, input.email);
   assert.ok(email.html.includes("&lt;script&gt;"));
   assert.ok(!email.html.includes("<script>"));
+});
+test("event formats are accepted and email describes guests instead of an office team", () => {
+  for (const interest of Object.values(eventServices)) {
+    const email = contactEmail(parseContact({ ...input, interest, message: "Data și localitatea evenimentului" }));
+    assert.ok(email.subject.includes(interest));
+    assert.ok(email.text.includes("Invitați: 11–30 persoane"));
+    assert.ok(!email.text.includes("Echipă:"));
+  }
 });
 test("provider configuration is server-side and identical retries share an idempotency key", async () => {
   process.env.RESEND_API_KEY = "unit-test-secret";

@@ -10,12 +10,31 @@ import useDialogMotion from "./use-dialog-motion";
 const links = [
   { label: "Universul Makeon", href: "/#ecosistem" },
   { label: "Magazin cafea", href: "/cafea" },
+  { label: "Apă filtrată", href: "/apa" },
   { label: "Soluții", href: "/#solutii" },
   { label: "Servicii", href: "/#servicii" },
-  { label: "Pentru companii", href: "/#abonamente" },
+  { label: "Cafea pentru birouri", href: "/#abonamente" },
 ];
 
-export default function SiteHeader({ onOffer }: { onOffer?: () => void }) {
+export default function SiteHeader({
+  onOffer,
+  sectionBase = "/",
+}: {
+  onOffer?: () => void;
+  sectionBase?: "/" | "/apa";
+}) {
+  // Section links stay on the dedicated landing; the brand overview stays home.
+  const navigation = links.map((link) =>
+    link.href.startsWith("/#") && link.href !== "/#ecosistem"
+      ? {
+          ...link,
+          href: `${sectionBase}${link.href.slice(1)}`,
+          label: sectionBase === "/apa" && link.href === "/#abonamente"
+            ? "Apă pentru birouri"
+            : link.label,
+        }
+      : link,
+  );
   const [mobileMenu, setMobileMenu] = useState(false);
   const menu = useRef<HTMLDialogElement>(null);
   useDialogMotion(menu, mobileMenu, "menu");
@@ -31,7 +50,7 @@ export default function SiteHeader({ onOffer }: { onOffer?: () => void }) {
     <header className="header">
       <BrandLogo priority />
       <nav className="desktop-nav" aria-label="Navigație principală">
-        {links.map((link) => (
+        {navigation.map((link) => (
           <Link key={link.href} href={link.href}>
             {link.label}
             {link.label === "Soluții" && <span className="nav-plus">+</span>}
@@ -46,7 +65,7 @@ export default function SiteHeader({ onOffer }: { onOffer?: () => void }) {
             <ArrowUpRight size={17} />
           </button>
         ) : (
-          <Link className="offer-button" href="/#abonamente">
+          <Link className="offer-button" href={`${sectionBase}#abonamente`}>
             Hai să vorbim
             <ArrowUpRight size={17} />
           </Link>
@@ -87,7 +106,7 @@ export default function SiteHeader({ onOffer }: { onOffer?: () => void }) {
           className="mobile-menu-nav"
           aria-label="Navigație mobilă"
         >
-          {links.map((link, i) => (
+          {navigation.map((link, i) => (
             <Link
               className="mobile-menu-link"
               key={link.href}

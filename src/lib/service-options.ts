@@ -1,3 +1,11 @@
+export const eventServices = {
+  trailer: "Evenimente private — rulotă",
+  bar: "Evenimente private — bar mobil",
+};
+
+export const isEventService = (selection: string) =>
+  Object.values(eventServices).includes(selection);
+
 export const serviceOptions = [
   "Cafea + apă",
   "Cafea și espressoare",
@@ -10,6 +18,7 @@ export const serviceOptions = [
   "Consultanță pentru filtrarea apei",
   "Instalare sistem de filtrare",
   "Schimb filtre și mentenanță",
+  ...Object.values(eventServices),
 ];
 
 export function normalizeService(selection: string): string {

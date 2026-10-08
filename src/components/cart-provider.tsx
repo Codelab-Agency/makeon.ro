@@ -26,6 +26,7 @@ import useDialogMotion from "./use-dialog-motion";
 import ProductionRequestForm from "./production-request-form";
 import OrderLegalAcknowledgement from "./order-legal-acknowledgement";
 import { legal } from "@/lib/legal";
+import { packageLabel } from "@/lib/product-format";
 
 /** Persist selections only; the server resolves current prices and reserves inventory. */
 export type CartLine = { slug: string; grind: string; quantity: number };
@@ -94,7 +95,7 @@ export default function CartProvider({
                 typeof v.slug === "string" &&
                 /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v.slug) &&
                 typeof v.grind === "string" &&
-                ["Boabe", "Ibric", "Moka", "Espresso", "Instant"].includes(
+                ["Boabe", "Ibric", "Moka", "Espresso", "Instant", "Standard"].includes(
                   v.grind,
                 ) &&
                 Number.isInteger(v.quantity) &&
@@ -337,8 +338,7 @@ export default function CartProvider({
                           {p.name}
                         </Link>
                         <span>
-                          {p.grams === 1000 ? "1 kg" : `${p.grams} g`} ·{" "}
-                          {line.grind}
+                          {packageLabel(p)}{p.category !== "complementare" && ` · ${line.grind}`}
                         </span>
                         <small>
                           {p.price == null ? "Preț la cerere" : money(p.price)}

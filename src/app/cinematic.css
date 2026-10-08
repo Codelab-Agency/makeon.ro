@@ -51,8 +51,8 @@
       rgba(var(--element-rgb), 0.09),
       transparent 55%
     ),
-    var(--dark);
-  color: var(--cinematic-text);
+    var(--paper);
+  color: var(--ink);
   padding-block: 90px;
   border-top: 1px solid #ffffff10;
 }
@@ -79,10 +79,16 @@
   opacity: 0.65;
 }
 .ecosystem .ecosystem-heading h2 span {
-  color: var(--element);
+  color: var(--world);
 }
 .ecosystem .ecosystem-heading > p {
-  color: var(--cinematic-muted);
+  color: var(--muted);
+}
+.ecosystem .eyebrow {
+  color: var(--world);
+}
+.ecosystem .section-index {
+  color: var(--muted);
 }
 .ecosystem .brand-cards {
   gap: 24px;

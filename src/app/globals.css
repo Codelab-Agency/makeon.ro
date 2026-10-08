@@ -1419,7 +1419,7 @@ h2 {
   font-size: 10px;
   color: #667958;
 }
-.footer-brands > span {
+.footer-brands > span, .footer-brands > a {
   display: flex;
   gap: 8px;
   align-items: center;

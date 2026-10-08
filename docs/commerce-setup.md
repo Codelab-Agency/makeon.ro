@@ -16,12 +16,12 @@ Păstrează datele de acces private. Dacă ai uitat parola, contactează echipa 
 
 1. Deschide **Produse** și apasă **Creați unul nou** sau **Adaugă produs** pe pagina principală.
 2. Completează numele și identificatorul `slug`. Acesta apare în adresa produsului: de exemplu, `costa-rica`. Folosește litere mici, cifre și cratime, fără spații sau diacritice. Identificatorul trebuie să fie unic.
-3. Alege categoria: **Boabe**, **Măcinată**, **Solubilă** sau **Alternative**.
-4. Completează colecția, gramajul și descrierea. Gramajul se introduce în grame: `250`, `500` sau `1000` pentru 1 kg.
+3. Alege categoria: **Boabe**, **Măcinată**, **Solubilă**, **Alternative**, **Decaff** sau **Complementare**. Pentru Decaff, alege și formatul: boabe sau măcinată.
+4. Pentru cafea, completează colecția, gramajul și descrierea. Gramajul se introduce în grame: `250`, `500` sau `1000` pentru 1 kg. Pentru Complementare, completează în schimb **Unitate / ambalaj**, de exemplu „1 ceașcă”, „set de 6” sau „cutie de 100 buc.”; câmpurile de cafea sunt ascunse.
 5. Completează prețul și stocul, apoi selectează imaginea.
 6. Adaugă, dacă sunt disponibile, notele de degustare, originea, altitudinea, varietatea, procesarea și prăjirea.
 7. Bifează **Vizibil în magazin** pentru publicare și apasă **Salvează**.
-8. Deschide magazinul și verifică pagina produsului, imaginea, prețul și gramajul.
+8. Deschide magazinul și verifică pagina produsului, imaginea, prețul și gramajul sau unitatea de vânzare. Pentru accesoriile complementare, prețul și stocul se referă la unitatea / ambalajul introdus.
 
 Dacă produsul nu este încă pregătit pentru publicare, lasă **Vizibil în magazin** debifat. Modificarea identificatorului unui produs deja publicat schimbă adresa paginii; discută cu echipa tehnică înainte de a-l schimba.
 
@@ -29,7 +29,7 @@ Dacă produsul nu este încă pregătit pentru publicare, lasă **Vizibil în ma
 
 **Prețul produsului se introduce în lei**, cu maximum două zecimale. Pentru un preț de 45,50 lei, introdu `45.50`, nu `4550`. Dacă lași prețul gol, magazinul afișează **Preț la cerere**, iar produsul nu poate fi plătit online.
 
-**Stoc fizic (ambalaje)** reprezintă numărul total de ambalaje existente, inclusiv cele rezervate pentru plăți în curs. Introdu numere întregi: de exemplu, `12` pentru 12 pungi. Când primești marfă, actualizează totalul fizic, nu doar cantitatea nouă.
+**Stoc fizic (unități / ambalaje)** reprezintă numărul total de unități de vânzare existente, inclusiv cele rezervate pentru plăți în curs. Pentru o cutie de 100 de bețișoare, stocul `5` înseamnă 5 cutii, nu 5 bețișoare. Când primești marfă, actualizează totalul fizic, nu doar cantitatea nouă.
 
 **Rezervat pentru plăți în curs** este calculat automat și nu poate fi modificat manual. De exemplu, din 12 ambalaje fizice și 2 rezervate, magazinul afișează 10 disponibile. Nu poți seta stocul fizic sub cantitatea rezervată.
 

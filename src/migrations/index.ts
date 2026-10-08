@@ -5,6 +5,7 @@ import * as migration_20261002_134255 from './20261002_134255';
 import * as migration_20261005_113310_production_orders from './20261005_113310_production_orders';
 import * as migration_20261005_120000_restore_inventory_constraints from './20261005_120000_restore_inventory_constraints';
 import * as migration_20261005_144420_order_legal_acceptance from './20261005_144420_order_legal_acceptance';
+import * as migration_20261007_132345 from './20261007_132345';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20261005_144420_order_legal_acceptance.up,
     down: migration_20261005_144420_order_legal_acceptance.down,
-    name: '20261005_144420_order_legal_acceptance'
+    name: '20261005_144420_order_legal_acceptance',
+  },
+  {
+    up: migration_20261007_132345.up,
+    down: migration_20261007_132345.down,
+    name: '20261007_132345'
   },
 ];

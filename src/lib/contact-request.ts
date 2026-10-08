@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { serviceOptions } from "./service-options";
+import { serviceOptions, isEventService } from "./service-options";
 
 export const teamOptions = [
   "1–10 persoane",
@@ -76,7 +76,7 @@ export function contactEmail(data: ReturnType<typeof parseContact>) {
     ["E-mail", data.email],
     ["Telefon", data.phone || "—"],
     ["Soluție", data.interest],
-    ["Echipă", data.team],
+    [isEventService(data.interest) ? "Invitați" : "Echipă", data.team],
     ["Mesaj", data.message || "—"],
   ];
   return {

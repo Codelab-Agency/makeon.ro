@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import CustomSelect from "./custom-select";
-import { serviceOptions } from "@/lib/service-options";
+import { serviceOptions, isEventService } from "@/lib/service-options";
 import { legal } from "@/lib/legal";
 
 const teams = [
@@ -21,6 +21,7 @@ export default function ContactRequestForm({
   interest: string;
   onInterestChange: (value: string) => void;
 }) {
+  const eventRequest = isEventService(interest);
   const [team, setTeam] = useState(teams[1]);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
@@ -148,10 +149,10 @@ export default function ContactRequestForm({
             onChange={onInterestChange}
             options={serviceOptions.map((value) => ({ value, label: value }))}
           />
-          <label htmlFor="team">Câți oameni sunt în echipă?</label>
+          <label htmlFor="team">{eventRequest ? "Câți invitați estimezi?" : "Câți oameni sunt în echipă?"}</label>
           <CustomSelect
             id="team"
-            label="Câți oameni sunt în echipă?"
+            label={eventRequest ? "Câți invitați estimezi?" : "Câți oameni sunt în echipă?"}
             value={team}
             onChange={setTeam}
             options={teams.map((value) => ({ value, label: value }))}
@@ -164,6 +165,7 @@ export default function ContactRequestForm({
             name="message"
             rows={3}
             maxLength={3000}
+            placeholder={eventRequest ? "Data evenimentului, localitatea și alte detalii utile…" : undefined}
           />
           <div className="contact-trap" aria-hidden="true">
             <label htmlFor="contact-website">Website</label>
@@ -200,7 +202,7 @@ export default function ContactRequestForm({
         className="text-link contact-whatsapp"
         target="_blank"
         rel="noopener noreferrer"
-        href={`https://wa.me/40744524728?text=${encodeURIComponent(`Bună! Mă interesează: ${interest}. Echipa: ${team}. Aș dori o ofertă Makeon.`)}`}
+        href={`https://wa.me/40744524728?text=${encodeURIComponent(`Bună! Mă interesează: ${interest}. ${eventRequest ? "Invitați" : "Echipa"}: ${team}. Aș dori o ofertă Makeon.`)}`}
       >
         Preferi WhatsApp? <ArrowUpRight size={15} />
       </a>

@@ -21,6 +21,7 @@ import CoffeePack from "./coffee-pack";
 import CustomSelect from "./custom-select";
 import { useCart } from "./cart-provider";
 import { useCatalog } from "./catalog-provider";
+import { defaultProductFormat, isGroundCoffee, packageLabel } from "@/lib/product-format";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,7 +39,7 @@ export function CoffeeProductCard({ product }: { product: CoffeeProduct }) {
       <div className="shop-product-info">
         <div className="shop-product-meta">
           <span>{categoryLabel(product.category)}</span>
-          <span>{product.grams === 1000 ? "1 kg" : `${product.grams} g`}</span>
+          <span>{packageLabel(product)}</span>
         </div>
         <Link href={`/cafea/${product.slug}`}>
           <h3>{product.name}</h3>
@@ -48,7 +49,7 @@ export function CoffeeProductCard({ product }: { product: CoffeeProduct }) {
           <span>
             {product.price == null ? "Preț la cerere" : money(product.price)}
           </span>
-          {product.category === "macinata" ? (
+          {isGroundCoffee(product) ? (
             <Link href={`/cafea/${product.slug}`} className="shop-add">
               Alege măcinarea
               <ArrowUpRight size={16} />
@@ -59,7 +60,7 @@ export function CoffeeProductCard({ product }: { product: CoffeeProduct }) {
               onClick={() =>
                 add(
                   product.slug,
-                  product.category === "boabe" ? "Boabe" : "Instant",
+                  defaultProductFormat(product),
                 )
               }
               aria-label={`Adaugă ${product.name} în coș`}

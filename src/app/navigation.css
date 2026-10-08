@@ -69,3 +69,12 @@
     height: 43px;
   }
 }
+.footer-water-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.footer-brands > a:hover, .footer-water-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}

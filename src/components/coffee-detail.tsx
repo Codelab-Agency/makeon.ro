@@ -20,32 +20,19 @@ import CustomSelect from "./custom-select";
 import { useCart } from "./cart-provider";
 import { CoffeeProductCard } from "./coffee-shop";
 import { useCatalog } from "./catalog-provider";
-
-const grindDescriptions: Record<string, string> = {
-  Ibric: "Măcinare foarte fină, pentru cafeaua preparată la ibric, direct în apă.",
-  Moka: "Măcinare fină, puțin mai grosieră decât pentru espresso, pentru cafetiera moka de pe aragaz.",
-  Espresso: "Măcinare fină, pentru prepararea sub presiune la espressorul cu portafiltru.",
-};
+import { defaultProductFormat, isGroundCoffee, isWholeBean, packageLabel } from "@/lib/product-format";
+import GrindGuide, { grindDescriptions } from "./grind-guide";
 
 export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
   const { products: coffeeProducts } = useCatalog();
   const [quantity, setQuantity] = useState(1),
-    [grind, setGrind] = useState(
-      product.category === "boabe"
-        ? "Boabe"
-        : product.category === "macinata"
-          ? "Espresso"
-          : "Instant",
-    );
+    [grind, setGrind] = useState(defaultProductFormat(product));
+  const complementary = product.category === "complementare";
   const { add } = useCart();
   const specs = [
     ["Format", categoryLabel(product.category)],
-    ["Cantitate", product.grams === 1000 ? "1 kg" : `${product.grams} g`],
-    ["Origine", product.origin],
-    ["Altitudine", product.altitude],
-    ["Varietate", product.variety],
-    ["Procesare", product.processing],
-    ["Prăjire", product.roast],
+    ["Cantitate", packageLabel(product)],
+    ...(!complementary ? [["Origine", product.origin], ["Altitudine", product.altitude], ["Varietate", product.variety], ["Procesare", product.processing], ["Prăjire", product.roast]] : []),
   ].filter((row): row is [string, string] => !!row[1]);
   const related = coffeeProducts
     .filter((p) => p.slug !== product.slug && p.category === product.category)
@@ -55,7 +42,7 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
       <div className="product-breadcrumb section-padding">
         <Link href="/cafea">
           <ArrowLeft size={15} />
-          Toate cafelele
+          Toate produsele
         </Link>
         <span>SwitchMorn / {product.name}</span>
       </div>
@@ -66,7 +53,7 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
         </div>
         <div className="detail-copy">
           <span className="eyebrow">
-            SWITCHMORN COFFEE / {categoryLabel(product.category)}
+            {complementary ? "MAKEON" : "SWITCHMORN COFFEE"} / {categoryLabel(product.category)}
           </span>
           <h1>{product.name}</h1>
           <div className="detail-notes">
@@ -79,7 +66,7 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
             {product.price == null ? "Preț la cerere" : money(product.price)}
             <small>
               {product.price == null
-                ? "Solicită prețul și disponibilitatea pentru această cafea."
+                ? "Solicită prețul și disponibilitatea pentru acest produs."
                 : "Preț pe ambalaj, cu TVA inclus."}
             </small>
           </div>
@@ -87,14 +74,14 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
             <div>
               <label>Cantitate / ambalaj</label>
               <span className="pack-size-option">
-                {product.grams === 1000 ? "1 kg" : `${product.grams} g`}
+                {packageLabel(product)}
               </span>
             </div>
-            <div>
+            {!complementary && <div>
               <label htmlFor="grind">
-                {product.category === "macinata" ? "Măcinare pentru" : "Format"}
+                {isGroundCoffee(product) ? "Măcinare pentru" : "Format"}
               </label>
-              {product.category === "macinata" ? (
+              {isGroundCoffee(product) ? (
                 <>
                   <CustomSelect
                     id="grind"
@@ -109,11 +96,12 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
                   <p className="grind-description" aria-live="polite" aria-atomic="true">
                     {grindDescriptions[grind]}
                   </p>
+                  <GrindGuide selected={grind} onSelect={setGrind}/>
                 </>
               ) : (
                 <span className="pack-size-option">{grind}</span>
               )}
-            </div>
+            </div>}
           </div>
           <div className="detail-add-row">
             <div className="quantity-control">
@@ -156,15 +144,15 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
             </button>
           </div>
           <p className="detail-order-note">
-            {product.price == null ? "Adaugă cafelele preferate și solicită oferta pentru selecția ta." : "Adaugă cafeaua în coș și finalizează cumpărăturile prin Stripe."}
-            {product.stock != null && <span className="stock-note">{product.stock > 0 ? `${product.stock} ambalaje disponibile` : "Disponibilă la cerere. Te contactăm telefonic pentru confirmare; pregătirea începe după plată."}</span>}
+            {product.price == null ? "Adaugă produsele preferate și solicită oferta pentru selecția ta." : "Adaugă produsul în coș și finalizează cumpărăturile prin Stripe."}
+            {product.stock != null && <span className="stock-note">{product.stock > 0 ? `${product.stock} unități / ambalaje disponibile` : "Disponibil la cerere. Te contactăm telefonic pentru confirmare; pregătirea începe după plată."}</span>}
           </p>
           <div className="detail-ritual">
             <Coffee size={19} />
             <span>
-              {product.category === "macinata"
+              {complementary ? "Accesorii și consumabile pentru ritualul tău." : isGroundCoffee(product)
                 ? "Măcinată pentru ibric, moka sau espresso."
-                : product.category === "boabe"
+                : isWholeBean(product)
                   ? "Cafea boabe. Măcinarea face parte din ritual."
                   : "Un ritual simplu, cu apă sau lapte."}
             </span>
@@ -173,11 +161,9 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
       </section>
       <section className="detail-specs section-padding">
         <div>
-          <span className="eyebrow">CUNOAȘTE-ȚI CAFEAUA</span>
+          <span className="eyebrow">{complementary ? "DETALII PRODUS" : "CUNOAȘTE-ȚI CAFEAUA"}</span>
           <h2>
-            Fiecare origine
-            <br />
-            are povestea ei.
+            {complementary ? "Lucrurile mici completează ritualul." : <>Fiecare origine<br/>are povestea ei.</>}
           </h2>
         </div>
         <dl>

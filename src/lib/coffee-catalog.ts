@@ -1,4 +1,5 @@
-export type CoffeeCategory = "boabe" | "macinata" | "solubila" | "alternative";
+export type CoffeeCategory = "boabe" | "macinata" | "solubila" | "alternative" | "decaff" | "complementare";
+export type DecaffFormat = "boabe" | "macinata";
 export type CoffeeProduct = {
   id?: number;
   stock?: number;
@@ -8,7 +9,9 @@ export type CoffeeProduct = {
   name: string;
   category: CoffeeCategory;
   collection: string;
-  grams: number;
+  grams?: number | null;
+  unitLabel?: string | null;
+  decaffFormat?: DecaffFormat | null;
   description: string;
   notes: string[];
   color: string;
@@ -236,7 +239,8 @@ export const coffeeProducts: CoffeeProduct[] = [
   {
     slug: "decaff",
     name: "Decaff",
-    category: "macinata",
+    category: "decaff",
+    decaffFormat: "macinata",
     collection: "Fără cofeină",
     grams: 250,
     description:
@@ -306,6 +310,8 @@ export const categories: { value: "all" | CoffeeCategory; label: string }[] = [
   { value: "macinata", label: "Cafea măcinată" },
   { value: "solubila", label: "Solubilă" },
   { value: "alternative", label: "Alternative" },
+  { value: "decaff", label: "Decaff" },
+  { value: "complementare", label: "Complementare" },
 ];
 export const categoryLabel = (category: CoffeeCategory) =>
   categories.find((c) => c.value === category)?.label ?? category;

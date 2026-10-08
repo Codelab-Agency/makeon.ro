@@ -1,5 +1,7 @@
 import type { CoffeeCategory } from "./coffee-catalog";
 import { legal } from "./legal";
+import { defaultProductFormat, isGroundCoffee } from "./product-format";
+import type { DecaffFormat } from "./coffee-catalog";
 
 export type CheckoutLine = { slug: string; grind: string; quantity: number };
 export class CommerceError extends Error {
@@ -47,7 +49,7 @@ export function parseLines(body: unknown): CheckoutLine[] {
       !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(raw.slug) ||
       raw.slug.length > 150 ||
       typeof raw.grind !== "string" ||
-      !["Boabe", "Ibric", "Moka", "Espresso", "Instant"].includes(raw.grind) ||
+      !["Boabe", "Ibric", "Moka", "Espresso", "Instant", "Standard"].includes(raw.grind) ||
       !Number.isInteger(raw.quantity) ||
       raw.quantity < 1 ||
       raw.quantity > 99
@@ -66,12 +68,9 @@ export function parseLines(body: unknown): CheckoutLine[] {
   }
   return [...combined.values()];
 }
-export function validGrind(category: CoffeeCategory, grind: string) {
-  return category === "boabe"
-    ? grind === "Boabe"
-    : category === "macinata"
-      ? ["Ibric", "Moka", "Espresso"].includes(grind)
-      : grind === "Instant";
+export function validGrind(category: CoffeeCategory, grind: string, decaffFormat?: DecaffFormat | null) {
+  const product = {category, decaffFormat};
+  return isGroundCoffee(product) ? ["Ibric", "Moka", "Espresso"].includes(grind) : grind === defaultProductFormat(product);
 }
 /** Convert a CMS price in RON to integer bani; missing prices cannot enter checkout. */
 export function priceBani(price: number | null | undefined): number {

@@ -10,6 +10,7 @@ import type { Payload } from "payload";
 import type { Order } from "@/payload-types";
 import { getCMS } from "./cms";
 import { checkoutConfigured } from "./commerce-env";
+import { packageLabel } from "./product-format";
 import {
   CommerceError,
   parseLines,
@@ -397,13 +398,13 @@ export async function createCheckout(
       const p = bySlug.get(line.slug);
       if (!p || !p.active)
         throw new CommerceError("Un produs nu mai este disponibil.", 409);
-      if (!validGrind(p.category, line.grind))
+      if (!validGrind(p.category, line.grind, p.decaffFormat))
         throw new CommerceError("Formatul cafelei este invalid.");
       quantities.set(p.id, (quantities.get(p.id) ?? 0) + line.quantity);
       return {
         ...line,
         product: p.id,
-        name: `${p.name} · ${p.grams} g`,
+        name: `${p.name} · ${packageLabel(p)}`,
         unitPriceBani: priceBani(p.price),
       };
     });

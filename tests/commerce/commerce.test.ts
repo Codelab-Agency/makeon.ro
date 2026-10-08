@@ -30,6 +30,38 @@ const fakeStripe = { checkout: { sessions: {
   },
 } } } as unknown as Stripe;
 
+test('complementary products require a unit, not grams; payment preserves inventory idempotency', async () => {
+  const slug = `accessory-${randomUUID()}`;
+  const data = {slug, name:'Cești test', category:'complementare' as const, description:'Set de cești', price:30, stock:2, reserved:0};
+  await assert.rejects(cms.create({collection:'products',data}), /unitatea/);
+  const accessory = await cms.create({collection:'products',data:{...data,unitLabel:'Set de 6'}});
+  assert.equal(accessory.grams,null);
+  assert.equal(accessory.collection,'Complementare');
+  await assert.rejects(cms.update({collection:'products',id:accessory.id,data:{unitLabel:null}}), /unitatea/);
+  const key = randomUUID();
+  await commerce.createCheckout([{slug,grind:'Standard',quantity:1}],key,fakeStripe,cms);
+  const order = (await cms.find({collection:'orders',where:{reference:{equals:`MK-${key}`}}})).docs[0];
+  assert.equal(order.items[0].name,'Cești test · Set de 6');
+  assert.equal((await cms.findByID({collection:'products',id:accessory.id})).reserved,1);
+  const session = keys.get(`MK-${key}`)!;
+  const paid = {...session,status:'complete',payment_status:'paid'} as Stripe.Checkout.Session;
+  await commerce.applySession(paid,cms);await commerce.applySession(paid,cms);
+  const saved = await cms.findByID({collection:'products',id:accessory.id});
+  assert.equal(saved.stock,1);assert.equal(saved.reserved,0);
+  await assert.rejects(commerce.createCheckout([{slug,grind:'Espresso',quantity:1}],randomUUID(),fakeStripe,cms));
+});
+
+test('decaff formats and complementary selections reject incompatible grinds', () => {
+  assert.equal(validGrind('decaff','Boabe','boabe'),true);
+  assert.equal(validGrind('decaff','Espresso','boabe'),false);
+  assert.equal(validGrind('decaff','Moka','macinata'),true);
+  assert.equal(validGrind('decaff','Boabe','macinata'),false);
+  assert.equal(validGrind('complementare','Standard'),true);
+  assert.equal(validGrind('complementare','Instant'),false);
+  assert.equal(validGrind('boabe','Standard'),false);
+  assert.deepEqual(parseLines({items:[{slug:'cesti',grind:'Standard',quantity:2}]}),[{slug:'cesti',grind:'Standard',quantity:2}]);
+});
+
 before(async () => {
   // This suite is deliberately restricted to an isolated local database.
   process.env.DATABASE_URL = 'postgresql://postgres:makeon-local-test-only@127.0.0.1:55432/makeon_test';

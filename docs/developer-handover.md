@@ -55,6 +55,26 @@ Business copy and catalog fallback data also live in `src/lib/coffee-catalog.ts`
 and the relevant public components. Product data from the CMS takes precedence
 once the CMS is configured.
 
+The company landing is shared through `src/components/makeon-landing.tsx`.
+The `/` route starts with coffee and retains the coffee/water switches. The
+`/apa` route renders water from the initial response, removes those switches,
+and reuses the water equipment, services, business offer, FAQ, and contact form.
+Its offer form defaults to water filtration. `SiteHeader.sectionBase` keeps
+section links on the current landing; the brand overview links back to `/`.
+Both routes reuse the existing Three.js scenes and animation lifecycle.
+
+The homepage prioritizes office coffee enquiries: its primary hero action opens
+the contact form with the coffee subscription selected, while the secondary
+action links to `/cafea`. The business offer appears immediately after the brand
+overview, followed by solutions, roasting services, private events, and the store. Product cards
+link to shopping for beans and to an enquiry for equipment or subscriptions.
+
+`PrivateEvents` presents the caravan and mobile bar only in the coffee world;
+switching to water removes it, and the standalone water page does not show it. Its SVGs are illustrative,
+not photographs of the client's actual equipment. Each enquiry preselects its
+own entry in `eventServices`; the shared contact form and email use guest counts
+for these entries. Date and location are collected through the message field.
+
 ## 3. Accounts, access, and environment
 
 The owner should retain access to the Git repository, Vercel project, Neon
@@ -210,6 +230,20 @@ be retried/reconciled; do not manually mark an order paid or release a reservati
 without checking its actual Stripe session.
 
 ## 7. Schema migrations
+
+Product categories include `decaff` and `complementare` since migration
+`20261007_132345`. Decaff uses `decaffFormat` (`boabe` or `macinata`).
+Complementary products have a required selling-unit description (`unitLabel`)
+and nullable grams; coffee-only fields are hidden in the admin. Coffee still
+requires grams and collection through server validation. These conditions apply
+to partial updates as well as creation.
+
+`src/lib/product-format.ts` centralizes display units and selection rules.
+Complementary cart/order lines use the internal `Standard` discriminator in the
+existing `grind` field; it is not a grinding option. Both payment flows validate
+this against the server product and snapshot the selling unit in the order name.
+Product pages for ground coffee, including ground Decaff, expose the accessible
+grinding guide. Existing historical order snapshots remain unchanged.
 
 Schema push is disabled by default in both development and production. It can
 remove custom SQL constraints; enable it only on a disposable local database.

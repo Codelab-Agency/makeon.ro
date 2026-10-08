@@ -10,6 +10,7 @@ const protectedAccess = {
 };
 const integer = (value: number | null | undefined) =>
   value == null || Number.isSafeInteger(value) || "Introdu un număr întreg.";
+const coffeeOnly = (_: unknown, siblingData: Record<string, unknown>) => siblingData.category !== "complementare";
 
 export const Users: CollectionConfig = {
   slug: "users",
@@ -106,16 +107,27 @@ export const Products: CollectionConfig = {
         { label: "Măcinată", value: "macinata" },
         { label: "Solubilă", value: "solubila" },
         { label: "Alternative", value: "alternative" },
+        { label: "Decaff", value: "decaff" },
+        { label: "Complementare", value: "complementare" },
       ],
     },
-    { name: "collection", label: "Colecție", type: "text", required: true },
+    {
+      name: "decaffFormat", label: "Format Decaff", type: "select", defaultValue: "macinata",
+      options: [{label:"Măcinată",value:"macinata"},{label:"Boabe",value:"boabe"}],
+      admin: {condition: (_, siblingData) => siblingData.category === "decaff"},
+    },
+    { name: "collection", label: "Colecție", type: "text", admin: {condition: coffeeOnly} },
+    {
+      name: "unitLabel", label: "Unitate / ambalaj", type: "text", maxLength: 80,
+      admin: {condition: (_, siblingData) => siblingData.category === "complementare", description:"De exemplu: 1 ceașcă, set de 6, cutie de 100 buc. Prețul și stocul se referă la această unitate."},
+    },
     {
       name: "grams",
       label: "Gramaj",
       type: "number",
-      required: true,
       min: 1,
       validate: integer,
+      admin: {condition: coffeeOnly},
     },
     {
       name: "price",
@@ -134,7 +146,7 @@ export const Products: CollectionConfig = {
     },
     {
       name: "stock",
-      label: "Stoc fizic (ambalaje)",
+      label: "Stoc fizic (unități / ambalaje)",
       type: "number",
       required: true,
       min: 0,
@@ -167,6 +179,7 @@ export const Products: CollectionConfig = {
       name: "notes",
       label: "Note de degustare",
       type: "array",
+      admin: {condition: coffeeOnly},
       fields: [{ name: "note", type: "text", required: true }],
     },
     {
@@ -174,6 +187,7 @@ export const Products: CollectionConfig = {
       label: "Culoare ambalaj ilustrat",
       type: "text",
       defaultValue: "#b5934a",
+      admin: {condition: coffeeOnly},
       validate: (value: string | null | undefined) =>
         !value ||
         /^#[0-9a-f]{6}$/i.test(value) ||
@@ -185,7 +199,7 @@ export const Products: CollectionConfig = {
       variety: "Varietate",
       processing: "Procesare",
       roast: "Prăjire",
-    }).map(([name, label]) => ({ name, label, type: "text" as const })),
+    }).map(([name, label]) => ({ name, label, type: "text" as const, admin: {condition: coffeeOnly} })),
   ],
   hooks: {
     beforeOperation: [
@@ -211,6 +225,18 @@ export const Products: CollectionConfig = {
     ],
     beforeValidate: [
       ({ data, originalDoc }) => {
+        const category = data?.category ?? originalDoc?.category;
+        if (data && category === "complementare") {
+          data.grams = null;
+          data.collection = "Complementare";
+          const unit = data.unitLabel !== undefined ? data.unitLabel : originalDoc?.unitLabel;
+          if (!unit?.trim()) throw new Error("Completează unitatea / ambalajul produsului complementar.");
+        } else if (data) {
+          const grams = data.grams !== undefined ? data.grams : originalDoc?.grams;
+          if (!Number.isSafeInteger(grams) || grams < 1) throw new Error("Completează un gramaj întreg, de minimum 1 g.");
+          const collection = data.collection !== undefined ? data.collection : originalDoc?.collection;
+          if (!collection?.trim()) throw new Error("Completează colecția cafelei.");
+        }
         if (data?.stock != null && data.stock < (originalDoc?.reserved ?? 0))
           throw new Error(
             "Stocul nu poate fi mai mic decât cantitatea rezervată.",

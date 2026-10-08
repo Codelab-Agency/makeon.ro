@@ -188,9 +188,14 @@ export interface Product {
   name: string;
   slug: string;
   active?: boolean | null;
-  category: 'boabe' | 'macinata' | 'solubila' | 'alternative';
-  collection: string;
-  grams: number;
+  category: 'boabe' | 'macinata' | 'solubila' | 'alternative' | 'decaff' | 'complementare';
+  collection?: string | null;
+  decaffFormat?: ('macinata' | 'boabe') | null;
+  /**
+   * De exemplu: 1 ceașcă, set de 6, cutie de 100 buc. Prețul și stocul se referă la această unitate.
+   */
+  unitLabel?: string | null;
+  grams?: number | null;
   /**
    * Lăsat gol: preț la cerere. Plata se activează doar cu preț și stoc disponibile.
    */
@@ -413,6 +418,8 @@ export interface ProductsSelect<T extends boolean = true> {
   active?: T;
   category?: T;
   collection?: T;
+  decaffFormat?: T;
+  unitLabel?: T;
   grams?: T;
   price?: T;
   stock?: T;

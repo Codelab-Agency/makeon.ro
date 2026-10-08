@@ -1,4 +1,5 @@
-import { Coffee, Leaf } from "lucide-react";
+import { Coffee, Leaf, Package } from "lucide-react";
+import { isGroundCoffee, isWholeBean, packageLabel } from "@/lib/product-format";
 import type { CSSProperties } from "react";
 import type { CoffeeProduct } from "@/lib/coffee-catalog";
 
@@ -8,21 +9,22 @@ export default function CoffeePack({ product }: { product: CoffeeProduct }) {
       <div className="coffee-pack-art product-photo">
         <img
           src={product.imageUrl}
-          alt={product.imageAlt || `${product.name}, ${product.grams} g`}
+          alt={product.imageAlt || `${product.name}, ${packageLabel(product)}`}
           loading="lazy"
         />
       </div>
     );
+  if (product.category === "complementare") return <div className="coffee-pack-art complementary-placeholder" role="img" aria-label={`Produs complementar: ${product.name}`}><Package size={72} strokeWidth={1}/><strong>{product.name}</strong><span>{packageLabel(product)}</span></div>;
   const tin =
     product.category === "solubila" ||
     product.category === "alternative" ||
     product.slug === "kopi-luwak";
-  const origin = product.category === "macinata";
+  const origin = isGroundCoffee(product);
   return (
     <div
       className={`coffee-pack-art ${tin ? "pack-tin" : ""} ${origin ? "pack-origin" : ""}`}
       style={{ "--pack-color": product.color } as CSSProperties}
-      aria-label={`Reprezentare de prezentare a ambalajului ${product.name}, ${product.grams} g`}
+      aria-label={`Reprezentare de prezentare a ambalajului ${product.name}, ${packageLabel(product)}`}
       role="img"
     >
       <div className="pack-shadow" />
@@ -41,12 +43,12 @@ export default function CoffeePack({ product }: { product: CoffeeProduct }) {
           <strong>{product.name}</strong>
           <div className="pack-rule" />
           <span className="pack-weight">
-            {product.grams === 1000 ? "1 kg" : `${product.grams} g`}
+            {packageLabel(product)}
           </span>
           <span className="pack-type">
-            {product.category === "boabe"
+            {isWholeBean(product)
               ? "WHOLE BEANS"
-              : product.category === "macinata"
+              : isGroundCoffee(product)
                 ? "GROUND COFFEE"
                 : "INSTANT RITUAL"}
           </span>

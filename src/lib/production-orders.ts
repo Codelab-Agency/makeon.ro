@@ -4,6 +4,7 @@ import type { Payload } from "payload";
 import type Stripe from "stripe";
 import { getCMS } from "./cms";
 import { checkoutConfigured } from "./commerce-env";
+import { packageLabel } from "./product-format";
 import {
   CommerceError,
   parseLines,
@@ -111,7 +112,7 @@ export async function createProductionRequest(
     ).docs;
     const items = input.lines.map((line) => {
       const product = products.find((p) => p.slug === line.slug);
-      if (!product?.active || !validGrind(product.category, line.grind))
+      if (!product?.active || !validGrind(product.category, line.grind, product.decaffFormat))
         throw new CommerceError(
           "Un produs sau format nu mai este disponibil.",
           409,
@@ -119,7 +120,7 @@ export async function createProductionRequest(
       return {
         ...line,
         product: product.id,
-        name: `${product.name} · ${product.grams} g`,
+        name: `${product.name} · ${packageLabel(product)}`,
         unitPriceBani: product.price == null ? 0 : priceBani(product.price),
       };
     });
