@@ -65,7 +65,7 @@ Both routes reuse the existing Three.js scenes and animation lifecycle.
 
 The homepage prioritizes office coffee enquiries: its primary hero action opens
 the contact form with the coffee subscription selected, while the secondary
-action links to `/cafea`. The business offer appears immediately after the brand
+action scrolls to the `#magazin` preview on the same page. The business offer appears immediately after the brand
 overview, followed by solutions, roasting services, private events, and the store. Product cards
 link to shopping for beans and to an enquiry for equipment or subscriptions.
 

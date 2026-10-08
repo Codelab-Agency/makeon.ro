@@ -455,9 +455,9 @@ export default function MakeonLanding({
                     Solicită ofertă pentru birou
                     <ArrowUpRight size={20} />
                   </button>
-                  <Link className="hero-shop-link" href="/cafea">
+                  <a className="hero-shop-link" href="#magazin">
                     Cumpără cafea <ArrowUpRight size={18} />
-                  </Link>
+                  </a>
                 </>
               ) : (
                 <a className="primary-button" href="#solutii">

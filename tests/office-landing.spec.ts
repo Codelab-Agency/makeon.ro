@@ -13,7 +13,7 @@ for (const width of [320, 390, 430, 768, 1280]) {
     await page.goto("/");
     const hero = page.locator(".hero");
     await expect(hero.locator(".hero-service-label")).toHaveText("Cafea și espressoare pentru birouri");
-    await expect(hero.getByRole("link", { name: "Cumpără cafea" })).toHaveAttribute("href", "/cafea");
+    await expect(hero.getByRole("link", { name: "Cumpără cafea" })).toHaveAttribute("href", "#magazin");
     await expect(page.locator('.product-beans').locator('..').getByRole('link', {name:'Vezi cafelele'})).toHaveAttribute('href','/cafea');
     expect(await page.evaluate(() => {
       const nodes = ['#ecosistem', '#abonamente', '#solutii', '#servicii', '#evenimente', '#magazin'].map(selector => document.querySelector(selector)!);
