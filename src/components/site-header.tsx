@@ -29,9 +29,10 @@ export default function SiteHeader({
       ? {
           ...link,
           href: `${sectionBase}${link.href.slice(1)}`,
-          label: sectionBase === "/apa" && link.href === "/#abonamente"
-            ? "Apă pentru birouri"
-            : link.label,
+          label:
+            sectionBase === "/apa" && link.href === "/#abonamente"
+              ? "Apă pentru birouri"
+              : link.label,
         }
       : link,
   );
@@ -125,7 +126,7 @@ export default function SiteHeader({
           <p>
             Cafea bună. Apă pură.
             <br />
-            <span>Un singur Makeon.</span>
+            <span>Un singur furnizor.</span>
           </p>
           <a href="tel:+40744524728">
             Hai să vorbim

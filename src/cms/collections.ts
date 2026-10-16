@@ -1,6 +1,7 @@
 import type { CollectionConfig, Field } from "payload";
 import { sql, type PostgresAdapter } from "@payloadcms/db-postgres";
 import { adminOnly, nobody } from "./access";
+import { queueOrderStatusEmail } from "../lib/order-status-email";
 
 const protectedAccess = {
   create: adminOnly,
@@ -269,6 +270,7 @@ export const Orders: CollectionConfig = {
     ],
   },
   hooks: {
+    afterChange: [queueOrderStatusEmail],
     beforeOperation: [
       async ({ operation, args, req }) => {
         if (operation !== "update") return;
@@ -414,7 +416,7 @@ Orders.fields = [
     defaultValue: "new",
     admin: {
       description:
-        "Alege etapa comenzii și apasă Salvează. Statusul plății este actualizat automat.",
+        "Alege etapa și apasă Salvează. La schimbarea statusului, clientul este notificat prin email. Verifică rezultatul în Notificări client.",
     },
     options: [
       { value: "new", label: "Nouă" },

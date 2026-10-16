@@ -14,16 +14,23 @@ export default function BrandLogo({
       href={href}
       aria-label="Makeon, acasă"
     >
-      <Image
-        className="brand-symbol"
-        src="/images/makeon-logo.svg"
-        alt=""
-        width={58}
-        height={58}
-        priority={priority}
-      />
-      <span className="brand-name">
-        makeon<span className="logo-dot">®</span>
+      <span className="brand-horizontal">
+        <Image
+          src="/images/makeon-horizontal-logo.webp"
+          alt=""
+          width={240}
+          height={75}
+          priority={priority}
+        />
+        {/* Separate layers align the lettering with the emblem and adapt its contrast. */}
+        <Image
+          className="brand-horizontal-contrast"
+          src="/images/makeon-horizontal-logo.webp"
+          alt=""
+          aria-hidden="true"
+          width={240}
+          height={75}
+        />
       </span>
     </Link>
   );

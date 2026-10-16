@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import WaterFiltration from "./water-filtration";
 import { ArrowUpRight, Coffee, Droplets } from "lucide-react";
 import AmbientOrbit from "./ambient-orbit";
 import gsap from "gsap";
@@ -93,6 +94,7 @@ export default function ServiceStudio({
   const root = useRef<HTMLElement>(null);
   const active = services[world][selected];
   useEffect(() => {
+    if (world === "water") return;
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const ctx = gsap.context(() => {
@@ -271,7 +273,10 @@ export default function ServiceStudio({
         </p>
       </div>
       <div className="studio-layout">
-        <div className="studio-visual">
+        <div className={`studio-visual${world === "water" ? " studio-visual-photo" : ""}`}>
+          {world === "water" ? (
+            <WaterFiltration />
+          ) : (<>
           <span className="studio-visual-label">
             {world === "coffee" ? <Coffee size={16} /> : <Droplets size={16} />}{" "}
             {active.label}
@@ -431,9 +436,6 @@ export default function ServiceStudio({
                           opacity=".25"
                         />
                       ))}
-                      <text x={x + 21} y="291">
-                        0{i + 1}
-                      </text>
                       <circle
                         className="studio-bubble"
                         cx={x + 30}
@@ -474,6 +476,7 @@ export default function ServiceStudio({
             </span>
             <span>ILUSTRAȚIE DE PROCES</span>
           </div>
+          </>)}
         </div>
         <div className="studio-services">
           <div
@@ -521,7 +524,7 @@ export default function ServiceStudio({
                   }
                 }}
               >
-                <span>0{i + 1}</span>
+                <span>{i + 1}</span>
                 <span className="studio-tab-title">{service.title}</span>
                 <ArrowUpRight size={19} />
               </button>

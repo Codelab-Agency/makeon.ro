@@ -12,6 +12,97 @@
   gap: 12px;
   flex-shrink: 0;
 }
+.footer-identity {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+.footer-identity > p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+@media (min-width: 769px) {
+  .footer .footer-top {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 40px;
+    padding-bottom: 28px;
+  }
+  .footer .footer-brands {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    justify-self: center;
+  }
+  .footer .footer-phone {
+    align-self: center;
+    justify-self: end;
+  }
+  .footer > .legal-footer {
+    margin-top: 0;
+    padding-block: 22px;
+  }
+  .footer .footer-bottom {
+    padding-top: 18px;
+    font-size: 10px;
+  }
+}
+@media (max-width: 768px) {
+  .footer-identity > p {
+    display: none;
+  }
+}
+@media (max-width: 620px) {
+  .footer-identity {
+    justify-items: center;
+  }
+}
+.brand-horizontal {
+  position: relative;
+  display: block;
+  width: 210px;
+  max-width: 100%;
+  line-height: 0;
+}
+.brand-horizontal > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.brand-horizontal > img:first-child {
+  clip-path: inset(0 68% 0 0);
+}
+.header > .brand-mark .brand-horizontal {
+  width: 180px;
+}
+.brand-horizontal > .brand-horizontal-contrast {
+  display: block;
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 0 0 32%);
+  /* The source lettering sits 29.5px below the emblem's center in a 375px canvas. */
+  transform: translateY(-7.866667%);
+}
+.footer .brand-horizontal-contrast,
+.shop-footer .brand-horizontal-contrast {
+  filter: brightness(0);
+}
+@media (max-width: 650px) {
+  .header .brand-horizontal,
+  .mobile-menu-top .brand-horizontal {
+    width: clamp(135px, 41vw, 185px);
+  }
+  .header > .brand-mark .brand-horizontal {
+    width: clamp(120px, 36vw, 160px);
+  }
+  .footer .brand-horizontal,
+  .shop-footer .brand-horizontal {
+    width: 190px;
+  }
+}
 .brand-symbol {
   width: 58px;
   height: 58px;

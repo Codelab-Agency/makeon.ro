@@ -42,33 +42,30 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  aspect-ratio: 1.65;
+  aspect-ratio: 4 / 3;
   border: 1px solid #ffb07033;
   border-radius: 16px;
   color: #ffb070;
   background: radial-gradient(ellipse at 50% 70%, #79412655, transparent 68%), #17110e;
 }
-.event-art .ambient-orbit {
-  color: #ffb070;
-  width: 75%;
-  height: auto;
-  aspect-ratio: 1;
-  opacity: .16;
+.event-photo {
+  object-fit: cover;
+  object-position: center;
+}
+.event-photo-bar {
+  object-position: center 80%;
 }
 .event-art-label {
   position: absolute;
+  z-index: 1;
   top: 22px;
   left: 24px;
   font-size: 9px;
   letter-spacing: 1.8px;
-  color: #e7c4aa;
-}
-.event-setup {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 12px 16px #0006);
+  color: #fff7ee;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #17110ecc;
 }
 .event-card-copy {
   padding: 24px 2px 0;

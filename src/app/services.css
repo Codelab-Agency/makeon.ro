@@ -43,6 +43,78 @@
   color: #93dce2;
   background: #14272a;
 }
+.service-studio .studio-visual.studio-visual-photo {
+  padding: 0;
+}
+.water-filtration {
+  padding: clamp(22px, 3vw, 36px);
+}
+.water-filtration h3 {
+  margin: 0 0 10px;
+  font-size: clamp(24px, 2.7vw, 34px);
+  font-weight: 500;
+  letter-spacing: -1px;
+  color: #f0f8f8;
+}
+.water-filtration > p {
+  margin: 0;
+  max-width: 260px;
+  color: #a4bdc4;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.water-filtration-diagram {
+  position: relative;
+  margin: 18px -10px 0;
+}
+.water-filtration-diagram > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.water-filtration-stages {
+  position: absolute;
+  inset: 73% 0 auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #e5f5f8;
+  font-size: clamp(13px, 1.2vw, 16px);
+  font-weight: 600;
+  letter-spacing: -.35px;
+  line-height: 1.4;
+}
+.water-filtration-stages li {
+  position: absolute;
+  width: 21.666667%;
+  transform: translateX(-50%);
+  text-align: center;
+  padding-inline: 0;
+  text-wrap: balance;
+}
+.water-filtration-stages li > span {
+  display: block;
+}
+@media (max-width: 600px) {
+  .water-filtration-diagram {
+    margin-inline: -22px;
+  }
+}
+@media (max-width: 360px) {
+  .water-filtration-stages {
+    font-size: 12px;
+  }
+}
+.water-filtration-stages li::before {
+  content: "";
+  display: block;
+  width: 22px;
+  height: 2px;
+  margin: 0 auto 10px;
+  border-radius: 2px;
+  background: #73d8eb;
+  box-shadow: 0 0 12px #73d8eb44;
+}
 .studio-visual-label {
   display: flex;
   align-items: center;

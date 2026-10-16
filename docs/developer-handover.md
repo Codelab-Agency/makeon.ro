@@ -359,6 +359,32 @@ Contact requests use Resend and are not stored as a separate lead collection.
 Their throttle, and the production-request throttle, are per application instance,
 not a shared distributed rate limiter. Add shared infrastructure if needed at scale.
 
+Order fulfillment notifications use `src/lib/order-status-email.ts`. The Orders
+after-change hook inserts an immutable event into the handwritten
+`order_status_emails` table in the same transaction as an administrator's actual
+status change. Next.js `after()` drains committed events after the HTTP response;
+creation, unchanged saves, and internal payment updates do not enqueue emails.
+Local API scripts must call `deliverOrderStatusEmails` after committing if they
+need immediate dispatch. The admin panel reads history and offers authenticated,
+same-origin retries through `/api/orders/status-email`.
+
+Resend uses the existing `RESEND_API_KEY` and `RESEND_FROM_EMAIL`; a verified
+sender domain is required, and the demo `resend.dev` sender is rejected before
+attempting customer sends. `CONTACT_EMAIL_TO` remains exclusive to contact
+enquiries: status notifications go to the saved customer's email. Messages and
+the first sender are snapshotted; per-event keys and atomic 90-second leases
+prevent concurrent duplicates. Ambiguous attempts older than 23 hours are
+blocked for manual provider reconciliation rather than resent outside Resend's
+24-hour idempotency window. A provider acceptance is not inbox delivery. There
+is no scheduled retry worker: failed or interrupted dispatches remain persisted
+and can be retried in admin. Earlier unresolved events are handled first.
+
+Apply migration `20261011_120000_order_status_emails` before deploying the new
+hook. Keep this SQL-owned table when reviewing future generated migrations and
+keep schema push disabled. Test against a separate migrated Neon branch with
+`node --env-file=.env --conditions=react-server --import tsx --test --test-force-exit tests/order-status-email.test.ts`;
+the suite refuses the main endpoint, mocks Resend and deletes only its fixtures.
+
 Payload password-recovery email is not configured. Order payment links are sent
 manually. Invoice issuance, shipping-label integrations, subscriptions, and
 automated refunds are not implemented. The payment flow is designed for the

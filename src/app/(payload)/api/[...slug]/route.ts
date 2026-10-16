@@ -10,6 +10,8 @@ import {
 import { cmsConfigured } from "@/lib/commerce-env";
 
 export const runtime = "nodejs";
+// Leave enough time for post-response status email dispatch on hosted instances.
+export const maxDuration = 60;
 const protect =
   (handler: ReturnType<typeof REST_GET>) =>
   async (...args: Parameters<typeof handler>) => {

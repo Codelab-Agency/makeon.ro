@@ -1,6 +1,27 @@
 type Props = { kind?: "coffee" | "water" | "both"; className?: string };
 
 export default function ProductScene({ kind = "both", className = "" }: Props) {
+  if (kind === "water") {
+    return (
+      <svg
+        className={className}
+        viewBox="0 0 700 570"
+        fill="none"
+        role="img"
+        aria-label="Aparat de apă Vero Aqua"
+      >
+        <image
+          href="/images/vero-aqua-dispenser.webp"
+          x="190"
+          y="24"
+          width="320"
+          height="470"
+          preserveAspectRatio="xMidYMid meet"
+        />
+      </svg>
+    );
+  }
+
   return (
     <svg
       className={className}
@@ -131,7 +152,7 @@ export default function ProductScene({ kind = "both", className = "" }: Props) {
           </text>
         </g>
       )}
-      {kind !== "water" && (
+      {(
         <g
           className="coffee-machine"
           transform={

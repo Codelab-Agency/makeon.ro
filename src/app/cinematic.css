@@ -131,6 +131,21 @@
 }
 .brand-card-top {
   color: var(--element);
+  min-height: 33px;
+}
+.brand-card-coffee-logo {
+  display: block;
+  width: 32px;
+  height: auto;
+  object-fit: contain;
+}
+.brand-card-water-logo {
+  display: block;
+  width: 76px;
+  height: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: .9;
 }
 .ecosystem .brand-card h3 {
   font-size: clamp(25px, 2.4vw, 35px);
@@ -232,6 +247,102 @@
 .product-art > svg {
   position: relative;
   filter: drop-shadow(0 16px 15px #0004);
+}
+.product-art > .subscription-coffee {
+  filter: hue-rotate(180deg) drop-shadow(0 16px 15px #0004);
+}
+.product-art > .coffee-machine-photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 20px;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 14px #0005);
+}
+.water-offer-art {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  color: #effaff;
+  background: radial-gradient(ellipse at 100% 100%, #168eb52b, transparent 65%);
+}
+.water-offer-brand {
+  color: #8adcf2;
+  font-size: 8px;
+  letter-spacing: 1.8px;
+}
+.water-offer-heading {
+  margin: 12px 0 8px;
+  font-size: clamp(20px, 2vw, 25px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -.6px;
+}
+.water-offer-heading > span {
+  color: #73d8eb;
+}
+.water-offer-price {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.water-offer-price > strong {
+  font-size: clamp(48px, 5vw, 64px);
+  font-weight: 500;
+  letter-spacing: -3px;
+  line-height: 1;
+}
+.water-offer-price > strong > span {
+  font-size: .6em;
+  margin-left: 4px;
+}
+.water-offer-price > span {
+  color: #c4dde5;
+  font-size: 14px;
+}
+.water-offer-price small {
+  display: block;
+  margin-top: 3px;
+  color: #85a8b5;
+  font-size: 10px;
+}
+.water-offer-benefits {
+  display: grid;
+  gap: 6px;
+  margin-top: 15px;
+  font-size: 11px;
+  color: #d2e8ee;
+}
+.water-offer-benefits > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.water-offer-benefits svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  color: #73d8eb;
+}
+.water-offer-total {
+  margin-top: 12px;
+  font-size: 8px;
+  line-height: 1.5;
+  color: #85a8b5;
+}
+@media (min-width: 621px) and (max-width: 1100px) {
+  .water-offer-art { padding: 14px; }
+  .water-offer-heading { margin-top: 8px; font-size: 18px; }
+  .water-offer-price > strong { font-size: 42px; }
+  .water-offer-benefits { margin-top: 9px; font-size: 10px; }
+  .water-offer-total { margin-top: 8px; }
 }
 .solutions .product-number {
   color: var(--element);
@@ -450,6 +561,17 @@
   height: 520px;
   opacity: 0.18;
 }
+.site .closing h2 {
+  width: auto;
+  max-width: 980px;
+  text-wrap: balance;
+}
+.site .closing .closing-star {
+  position: static;
+  display: inline-block;
+  margin-left: 12px;
+  vertical-align: middle;
+}
 .closing .eyebrow,
 .closing h2 > span:first-child,
 .closing .closing-star {
@@ -494,6 +616,30 @@
   }
 }
 @media (prefers-reduced-motion: no-preference) {
+  .water-pour .pour-stream {
+    animation: water-pour-flow 3.5s linear infinite;
+    animation-play-state: paused;
+  }
+  .water-pour .pour-ripple {
+    transform-origin: 435px 345px;
+    animation: water-pour-ripple 4s ease-out infinite;
+    animation-play-state: paused;
+  }
+  .water-pour .pour-carafe {
+    transform-origin: 252px 105px;
+    animation: water-pour-tilt 7s ease-in-out infinite alternate;
+    animation-play-state: paused;
+  }
+  .product-art.motion-visible .water-pour .pour-stream,
+  .product-art.motion-visible .water-pour .pour-ripple,
+  .product-art.motion-visible .water-pour .pour-carafe {
+    animation-play-state: running;
+  }
+  .cinematic-paused .water-pour .pour-stream,
+  .cinematic-paused .water-pour .pour-ripple,
+  .cinematic-paused .water-pour .pour-carafe {
+    animation-play-state: paused !important;
+  }
   .ambient-orbit svg {
     animation: cinematic-orbit 75s linear infinite;
     animation-play-state: paused;
@@ -513,6 +659,17 @@
   .cinematic-paused .water-brand .water-ripple {
     animation-play-state: paused !important;
   }
+}
+@keyframes water-pour-flow {
+  to { stroke-dashoffset: -68; }
+}
+@keyframes water-pour-ripple {
+  from { transform: scale(.45); opacity: .75; }
+  to { transform: scale(1.7); opacity: 0; }
+}
+@keyframes water-pour-tilt {
+  from { transform: rotate(-.8deg); }
+  to { transform: rotate(.8deg); }
 }
 @keyframes cinematic-orbit {
   to {

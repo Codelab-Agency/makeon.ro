@@ -21,7 +21,6 @@ export default function CoffeeStore() {
           <span>merită dus acasă.</span>
         </h1>
         <p>Cafeaua pe care o iubești, dincolo de pauza de la birou.</p>
-        <Starburst className="shop-banner-star" />
       </div>
       <CoffeeShop full />
     </ShopShell>

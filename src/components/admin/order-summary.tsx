@@ -4,6 +4,7 @@ import { useDocumentInfo } from "@payloadcms/ui";
 import { MapPin, Package, UserRound, CreditCard } from "lucide-react";
 import type { Order } from "@/payload-types";
 import ProductionPayment from "./production-payment";
+import OrderStatusNotifications from "./order-status-notifications";
 
 const paymentLabels = {
   requested: "De confirmat telefonic",
@@ -79,6 +80,7 @@ export function OrderSummary() {
           {order.legalAcceptedAt && <p>Termeni acceptați: versiunea {order.legalVersion}, {new Intl.DateTimeFormat("ro-RO", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Bucharest" }).format(new Date(order.legalAcceptedAt))}.</p>}
         </div>
       </section>
+      <OrderStatusNotifications orderID={order.id} updatedAt={order.updatedAt} />
       {order.orderType === "production" && (
         <ProductionPayment
           key={`${order.id}-${order.status}-${order.paymentAttempt}`}

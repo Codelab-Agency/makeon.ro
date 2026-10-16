@@ -76,7 +76,11 @@ Pentru o comandă obișnuită:
 
 Nu expedia o comandă doar pentru că apare în listă: poate fi încă neplătită. Dacă plata pare neclară, verifică situația în contul Stripe și contactează echipa tehnică înainte de a cere clientului să plătească din nou.
 
-Actualizarea statusului comenzii nu generează automat un AWB, o factură sau un mesaj către client. Rambursările se gestionează separat în Stripe; ele nu readuc automat produsele în stoc și nu sunt reflectate printr-un status de rambursare în acest dashboard. Pentru retururi, confirmă situația cu echipa tehnică și actualizează stocul fizic după recepția mărfii.
+La schimbarea statusului și salvare, clientul primește o notificare prin email. Resalvarea fără o schimbare de status nu trimite un nou mesaj. Secțiunea **Notificări client** arată rezultatul; dacă trimiterea nu a fost confirmată, folosește **Reîncearcă notificările**. „Trimis” înseamnă că serviciul de email a acceptat mesajul, nu că acesta a ajuns sigur în inbox. Dacă apare **Necesită verificare**, contactează echipa tehnică înainte de o nouă trimitere. Comenzile fără o adresă de email validă nu pot fi notificate.
+
+Notificările trebuie activate prin configurarea expeditorului de email de către echipa tehnică. Până atunci, schimbarea statusului rămâne salvată și mesajele așteaptă reîncercarea.
+
+Actualizarea statusului nu generează automat un AWB sau o factură. Rambursările se gestionează separat în Stripe; ele nu readuc automat produsele în stoc și nu sunt reflectate printr-un status de rambursare în acest dashboard. Pentru retururi, confirmă situația cu echipa tehnică și actualizează stocul fizic după recepția mărfii.
 
 ## Solicitările de ofertă
 
