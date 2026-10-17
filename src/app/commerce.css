@@ -21,6 +21,12 @@
   object-position: center;
   filter: drop-shadow(0 18px 15px #0003);
 }
+@media (max-width: 620px) {
+  .shop-product-art .product-photo img {
+    width: calc(100% - 32px);
+    height: calc(100% - 48px);
+  }
+}
 .stock-note {
   display: block;
   font-size: 12px;
