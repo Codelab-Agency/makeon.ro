@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
-import { coffeeProducts, type CoffeeProduct } from "@/lib/coffee-catalog";
+import type { CoffeeProduct } from "@/lib/coffee-catalog";
 
 type Catalog = {
   products: CoffeeProduct[];
@@ -24,7 +24,7 @@ export default function CatalogProvider({
   children: React.ReactNode;
 }) {
   const [catalog, setCatalog] = useState<Omit<Catalog, "refresh">>({
-    products: coffeeProducts,
+    products: [],
     managed: false,
     checkout: false,
     shippingBani: null,
@@ -34,6 +34,7 @@ export default function CatalogProvider({
   const [revision, setRevision] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
+    setCatalog(previous => ({ ...previous, ready: previous.products.length > 0, unavailable: false }));
     fetch("/api/catalog", { signal: controller.signal, cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) throw new Error("Catalog unavailable");

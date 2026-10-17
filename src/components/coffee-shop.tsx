@@ -76,7 +76,8 @@ export function CoffeeProductCard({ product }: { product: CoffeeProduct }) {
 }
 
 export default function CoffeeShop({ full = false }: { full?: boolean }) {
-  const { products: coffeeProducts, unavailable } = useCatalog();
+  const { products: coffeeProducts, unavailable, ready, refresh } = useCatalog();
+  const initialFailure = unavailable && coffeeProducts.length === 0;
   const root = useRef<HTMLElement>(null);
   const [category, setCategory] = useState<"all" | CoffeeCategory>("all"),
     [search, setSearch] = useState(""),
@@ -135,12 +136,13 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
       };
     });
     return () => mm.revert();
-  }, [shownKey]);
+  }, [shownKey, ready]);
   return (
     <section
       ref={root}
       className={`coffee-shop section-padding ${full ? "shop-full" : ""}`}
       id="magazin"
+      aria-busy={!ready}
     >
       <div className="section-top">
         <span className="eyebrow">SWITCHMORN COFFEE / MAGAZIN</span>
@@ -158,15 +160,16 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
             descoperit. Din catalogul SwitchMorn, pentru birou și pentru acasă.
           </p>
         </div>
-        <div className="shop-heading-count">
+        {ready && !initialFailure && <div className="shop-heading-count">
           <span>{coffeeProducts.length}</span>
           <small>
             sortimente
             <br />
             de descoperit
           </small>
-        </div>
+        </div>}
       </div>
+      {ready && !initialFailure && <>
       <div className="shop-toolbar">
         <div
           className="shop-categories"
@@ -220,7 +223,27 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
         {filtered.length} {filtered.length === 1 ? "sortiment" : "sortimente"}
         {search && ` pentru „${search}”`}
       </div>
-      {shown.length ? (
+      </>}
+      {!ready ? (
+        <div className="catalog-loading">
+          <p role="status">Se încarcă produsele…</p>
+          <div className="shop-grid" aria-hidden="true">
+            {Array.from({ length: 6 }, (_, index) => (
+              <div className="shop-loading-card" key={index}>
+                <div className="shop-product-art catalog-skeleton" />
+                <div className="catalog-skeleton catalog-skeleton-title" />
+                <div className="catalog-skeleton catalog-skeleton-line" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : initialFailure ? (
+        <div className="shop-empty" role="alert">
+          <h3>Catalogul este temporar indisponibil.</h3>
+          <p>Încearcă din nou pentru a vedea produsele și disponibilitatea lor.</p>
+          <button className="text-link" onClick={refresh}>Reîncearcă<ArrowUpRight size={17} /></button>
+        </div>
+      ) : shown.length ? (
         <div className="shop-grid">
           {shown.map((product) => (
             <CoffeeProductCard key={product.slug} product={product} />
@@ -243,7 +266,7 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
           </button>
         </div>
       )}
-      {!all && filtered.length > 6 && (
+      {ready && !all && filtered.length > 6 && (
         <div className="shop-more">
           <button className="primary-button" onClick={() => setAll(true)}>
             Descoperă toate cele {filtered.length} cafele
@@ -255,14 +278,14 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
           </Link>
         </div>
       )}
-      <div className="shop-service-line">
+      {ready && !initialFailure && <div className="shop-service-line">
         <span>
           <CoffeeIcon />
           Boabe & măcinată
         </span>
         <span>Gramaje din catalog</span>
         <span>{coffeeProducts.some(p => p.price != null) ? "Plată securizată prin Stripe" : "Prețuri și disponibilitate la cerere"}</span>
-      </div>
+      </div>}
     </section>
   );
 }

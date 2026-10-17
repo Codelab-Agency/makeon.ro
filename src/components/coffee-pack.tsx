@@ -1,19 +1,13 @@
+"use client";
+
 import { Coffee, Leaf, Package } from "lucide-react";
 import { isGroundCoffee, isWholeBean, packageLabel } from "@/lib/product-format";
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import type { CoffeeProduct } from "@/lib/coffee-catalog";
 
 export default function CoffeePack({ product }: { product: CoffeeProduct }) {
   if (product.imageUrl)
-    return (
-      <div className="coffee-pack-art product-photo">
-        <img
-          src={product.imageUrl}
-          alt={product.imageAlt || `${product.name}, ${packageLabel(product)}`}
-          loading="lazy"
-        />
-      </div>
-    );
+    return <ProductPhoto key={product.imageUrl} product={product} />;
   if (product.category === "complementare") return <div className="coffee-pack-art complementary-placeholder" role="img" aria-label={`Produs complementar: ${product.name}`}><Package size={72} strokeWidth={1}/><strong>{product.name}</strong><span>{packageLabel(product)}</span></div>;
   const tin =
     product.category === "solubila" ||
@@ -55,6 +49,24 @@ export default function CoffeePack({ product }: { product: CoffeeProduct }) {
         </div>
         <div className="pack-bottom" />
       </div>
+    </div>
+  );
+}
+
+/** Keep each photo's space reserved until it loads, including cached and failed images. */
+function ProductPhoto({ product }: { product: CoffeeProduct }) {
+  const [state, setState] = useState<"loading" | "loaded" | "failed">("loading");
+  return (
+    <div className={`coffee-pack-art product-photo photo-${state}`} aria-busy={state === "loading"}>
+      {state === "loading" && <span className="product-photo-loading catalog-skeleton" aria-hidden="true" />}
+      {state === "failed" ? <span className="product-photo-error">Imagine indisponibilă</span> : <img
+        src={product.imageUrl}
+        alt={product.imageAlt || `${product.name}, ${packageLabel(product)}`}
+        loading="lazy"
+        ref={image => { if (image?.complete && image.naturalWidth > 0) setState("loaded"); }}
+        onLoad={() => setState("loaded")}
+        onError={() => setState("failed")}
+      />}
     </div>
   );
 }
