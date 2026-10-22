@@ -176,3 +176,32 @@
 .cart-drawer[data-keyboard-focus="false"] :focus-visible {
   outline: none;
 }
+.contact-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.contact-dialog .contact-fields .custom-select { margin-bottom: 0; }
+.dialog-intro > p { font-size: .875rem; line-height: 1.7; color: var(--muted); margin: 0 0 24px; }
+.dialog-intro .dialog-phone { justify-content: flex-start; margin-top: 24px; }
+.dialog-intro .dialog-email { font-size: .8125rem; margin-top: 14px; }
+.dialog-form-panel { min-width: 0; }
+.contact-dialog { overscroll-behavior: contain; }
+@media (min-width: 900px) {
+  .contact-dialog { width: 1040px; max-width: calc(100vw - 48px); }
+  .contact-dialog .dialog-content { display: grid; grid-template-columns: minmax(0,.8fr) minmax(0,1.5fr); gap: 40px; padding: 40px; align-items: start; }
+  .contact-dialog .dialog-intro { padding-top: 8px; }
+  .contact-dialog .dialog-intro h2 { font-size: 2.75rem; line-height: 1.1; margin: 20px 0; }
+  .contact-dialog .dialog-form-panel form { margin-top: 0; gap: 12px; }
+  .contact-dialog .contact-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px 18px; }
+  .contact-dialog .contact-field-wide { grid-column: 1 / -1; }
+  .contact-dialog .contact-field label { margin: 0; font-size: .8125rem; line-height: 1.4; }
+  .contact-dialog .contact-field input { height: 44px; min-height: 44px; padding-block: 10px; }
+  .contact-dialog .contact-field textarea { min-height: 76px; height: 76px; padding-block: 10px; }
+  .contact-dialog .contact-field .custom-select-trigger { min-height: 44px; padding: 11px 12px; font-size: .8125rem; gap: 10px; }
+  .contact-dialog .contact-data-note { margin: 0; line-height: 1.5; }
+  .contact-dialog form .primary-button { margin-top: 0; min-height: 48px; padding-block: 14px; }
+  .contact-dialog .contact-whatsapp { margin-top: 14px; min-height: 32px; align-items: center; font-size: .8125rem; }
+  .contact-dialog .dialog-close { top: 12px; right: 12px; z-index: 2; }
+}
+@media (min-width: 900px) and (max-height: 740px) {
+  .contact-dialog .dialog-content { padding: 28px 32px; gap: 32px; }
+  .contact-dialog .contact-fields { gap: 12px 16px; }
+  .contact-dialog .dialog-intro h2 { font-size: 2.5rem; }
+}

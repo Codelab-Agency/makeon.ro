@@ -20,7 +20,7 @@ for (const width of [320, 390, 430, 768, 1280]) {
     await expect(page.locator("#abonamente")).toBeAttached();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 
-    if (width < 621) {
+    if (width <= 1000) {
       await page.locator(".menu-button").click();
       const menu = page.locator(".mobile-menu-dialog");
       await expect(menu).toBeVisible();

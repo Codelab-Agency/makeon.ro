@@ -1,0 +1,91 @@
+.solutions .section-top {
+  flex-wrap: wrap;
+}
+.solutions .solutions-world-switch {
+  width: 264px;
+  height: 52px;
+  margin: 0;
+  flex-shrink: 0;
+  background: #382b2406;
+  border-color: var(--line);
+  box-shadow: none;
+}
+.solutions-world-switch button {
+  justify-content: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  z-index: 1;
+}
+.solutions-world-switch button[aria-pressed="true"] {
+  color: var(--ink);
+}
+.solutions-world-switch .switch-slider {
+  background: var(--world-pale);
+  border-color: var(--line);
+}
+.site .hero.hero-elements {
+  display: grid;
+  grid-template-columns: minmax(0,1.04fr) minmax(0,1fr);
+  align-items: center;
+  gap: 48px;
+  min-height: clamp(640px,calc(100svh - 96px),784px);
+  padding-block: 64px 72px;
+  background: var(--dark);
+  overflow: hidden;
+}
+.hero-elements::before { background: radial-gradient(ellipse at 76% 45%,rgba(var(--element-rgb),.09),transparent 60%); }
+.hero-elements::after { display: none; }
+.hero-elements .hero-copy { display: block; min-width: 0; max-width: 620px; position: relative; z-index: 6; }
+.hero-elements .hero-service-label { display: flex; align-items: center; gap: 12px; margin: 0 0 24px; color: #d5c8b7; font-size: 10px; letter-spacing: .12em; }
+.hero-elements .hero-service-label::before { content: ''; width: 26px; height: 1px; flex-shrink: 0; background: var(--element); opacity: .65; }
+.site .hero.hero-elements h1 { font-size: clamp(54px,5.6vw,86px); font-weight: 450; line-height: 1.04; letter-spacing: -.035em; max-width: 620px; width: auto; margin: 0 0 26px; min-height: 0; color: #f9f3ea; }
+.hero-elements h1 em { color: #9acbd6; font-style: normal; }
+.site .hero-elements h1 .hero-energy-word { color: #e7a16d; }
+.site .hero-elements h1 .hero-combined-audience { display: block; margin-top: 18px; color: #e1d5c6; font-size: .51em; line-height: 1.2; letter-spacing: -.015em; }
+.site .hero-elements .hero-description { max-width: 420px; min-height: 54px; margin: 0 0 24px; color: #d6cfc4; font-size: 15px; line-height: 1.8; }
+.hero-elements .hero-art { height: 500px; min-height: 0; align-self: center; }
+.hero-elements .element-identity { bottom: 12px; }
+.hero-elements .element-identity strong { color: #f5eee5; }
+.hero-elements .hero-art .scene-fallback .element-fallback { width: 150px; height: 220px; border-radius: 48%; background: radial-gradient(ellipse at 30% 30%,#a97642,#563017 65%,#251307); box-shadow: inset -12px -8px 26px #160b0980; }
+.world-water .hero-elements .hero-art .scene-fallback .element-fallback { border-radius: 50% 50% 50% 50% / 85% 85% 30% 30%; background: radial-gradient(ellipse at 25% 25%,#defaff,#40b7d7 17%,#087fa2 42%,#0a334a 72%); box-shadow: inset -12px -8px 26px #2dd3ff55; }
+.hero-elements .hero-actions { margin-top: 28px; display: flex; align-items: center; gap: 10px 24px; flex-wrap: wrap; }
+.hero-elements .hero-actions > * { order: 0; }
+.hero-elements .primary-button { font-size: 12px; padding: 17px 20px; gap: 20px; }
+.hero-elements .hero-shop-link { font-size: 12px; }
+.hero-switch-wrap { position: relative; width: 362px; max-width: 100%; z-index: 10; }
+.hero-elements .hero-world-switch { width: 100%; height: 73px; margin: 0; position: relative; }
+.hero-world-switch button { position: relative; border-radius: 34px; min-width: 0; }
+.hero-world-switch button[aria-pressed="false"] { color: #d0c9bfc4; }
+.hero-world-switch button:focus-visible { outline: 2px solid #f4e7d1; outline-offset: 3px; }
+.hero-world-switch button[aria-pressed="false"]:hover { color: #f9f3ea; }
+@media (max-width: 1000px) {
+  .site .hero.hero-elements { gap: 8px; }
+  .site .hero.hero-elements h1 { font-size: clamp(48px,6.3vw,62px); }
+  .hero-elements .hero-art { height: 460px; }
+}
+@media (max-width: 700px) {
+  .site .hero.hero-elements { display: flex; flex-direction: column; align-items: stretch; min-height: 0; padding-block: 40px 32px; gap: 0; }
+  .hero-elements .hero-copy { display: contents; }
+  .hero-elements .hero-service-label { order: 2; }
+  .hero-elements h1 { order: 3; }
+  .site .hero-elements .hero-description { order: 4; }
+  .hero-elements .hero-switch-wrap { order: 5; }
+  .hero-elements .hero-art { order: 6; }
+  .hero-elements .hero-actions { order: 7; }
+  .site .hero.hero-elements h1 { font-size: clamp(46px,11.8vw,70px); margin-bottom: 20px; }
+  .hero-elements .hero-service-label { margin-bottom: 20px; font-size: 9px; }
+  .site .hero-elements .hero-description { min-height: 0; margin-bottom: 22px; font-size: 14px; }
+  .hero-elements .hero-actions { flex-direction: column; align-items: stretch; margin-top: 22px; gap: 6px; }
+  .hero-elements .hero-actions .primary-button { justify-content: space-between; }
+  .hero-elements .hero-shop-link { justify-content: center; }
+  .hero-elements .hero-art { height: 270px; margin: 20px 0 0; width: 100%; }
+  .hero-elements .hero-art .element-scene { inset: -20px 0 44px; }
+  .hero-elements .hero-art .element-orbit { width: 260px; height: 260px; top: 40%; }
+  .hero-elements .hero-art .orbit-inner { width: 190px; height: 190px; }
+  .hero-elements .element-identity { bottom: 0; }
+  .hero-elements .hero-world-switch { height: 68px; }
+  .hero-elements .hero-world-switch button { gap: 10px; font-size: 15px; }
+  .hero-elements .hero-world-switch button small { font-size: 6px; }
+  .hero-elements .hero-world-switch button svg { width: 21px; height: 21px; }
+}

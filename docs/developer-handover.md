@@ -61,17 +61,29 @@ The `/` route starts with coffee and retains the coffee/water switches. The
 and reuses the water equipment, services, business offer, FAQ, and contact form.
 Its offer form defaults to water filtration. `SiteHeader.sectionBase` keeps
 section links on the current landing; the brand overview links back to `/`.
-Both routes reuse the existing Three.js scenes and animation lifecycle.
+The standalone water hero retains its Three.js scene. The homepage also uses
+`ElementScene` again: `CombinedHero` shows the coffee bean or water drop according
+to the current world. Its hero switch uses the same world state and transition
+as the other selectors. The shared coffee/water headline remains, with a compact
+service label above it. The homepage hero omits brand logos; its copy and model
+are balanced in two columns, with a compact stacked arrangement on phones.
+The hero selector changes worlds only on activation, with no hover preview or
+pulse. The headline pairs a warm copper accent on energy with blue hydration.
+The local video experiments remain as inactive assets and build scripts.
+The navbar has a solid dark background from first render and stays sticky above
+the page. The homepage hero accounts for the navbar's normal-flow height. The
+dialog menu is used through 1000px to keep navigation from crowding on tablets.
 
-The homepage prioritizes office coffee enquiries: its primary hero action opens
-the contact form with the coffee subscription selected, while the secondary
-action scrolls to the `#magazin` preview on the same page. The business offer appears immediately after the brand
+The homepage hero presents coffee and water together: its primary action opens
+the contact form with coffee and water selected, while the secondary action
+scrolls to the `#ecosistem` overview. Service switches remain in the business
+and solutions sections. The business offer appears immediately after the brand
 overview, followed by solutions, roasting services, private events, and the store. Product cards
 link to shopping for beans and to an enquiry for equipment or subscriptions.
 
 `PrivateEvents` presents the caravan and mobile bar only in the coffee world;
-switching to water removes it, and the standalone water page does not show it. Its SVGs are illustrative,
-not photographs of the client's actual equipment. Each enquiry preselects its
+switching to water removes it, and the standalone water page does not show it.
+Its WebP photographs show the client's caravan and mobile bar. Each enquiry preselects its
 own entry in `eventServices`; the shared contact form and email use guest counts
 for these entries. Date and location are collected through the message field.
 
@@ -125,8 +137,10 @@ Configure a development database before migration. Open the site at
 `http://localhost:3000` and the dashboard at `/admin`. On Windows, `npm.cmd` can
 be used if PowerShell blocks `npm.ps1`.
 
-For a new database only, run `npm run cms:bootstrap` after migrations. It creates
-the first administrator if none exists, requiring a password of at least 16
+For a new database only, run `npm run cms:bootstrap` after migrations. The npm
+script includes `--conditions=react-server` for server-only dependencies; do not
+invoke the bootstrap with bare `tsx`. It creates the first administrator if none
+exists, requiring a password of at least 16
 characters, and imports missing product slugs. Existing products are not
 overwritten. Seed products begin with zero stock and unconfirmed prices.
 

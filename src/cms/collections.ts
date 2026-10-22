@@ -1,4 +1,4 @@
-import type { CollectionConfig, Field } from "payload";
+import { APIError, type CollectionConfig, type Field } from "payload";
 import { sql, type PostgresAdapter } from "@payloadcms/db-postgres";
 import { adminOnly, nobody } from "./access";
 import { queueOrderStatusEmail } from "../lib/order-status-email";
@@ -69,11 +69,11 @@ export const Media: CollectionConfig = {
   },
 };
 
-/** Deactivate products instead of deleting them to preserve historical order relationships. */
+/** Only products without reservations or order history can be deleted. */
 export const Products: CollectionConfig = {
   slug: "products",
   labels: { singular: "Produs", plural: "Produse" },
-  access: { ...protectedAccess, delete: nobody },
+  access: protectedAccess,
   admin: {
     useAsTitle: "name",
     group: "Magazin",
@@ -203,6 +203,22 @@ export const Products: CollectionConfig = {
     }).map(([name, label]) => ({ name, label, type: "text" as const, admin: {condition: coffeeOnly} })),
   ],
   hooks: {
+    beforeDelete: [
+      async ({ id, req }) => {
+        const transactionID = await req.transactionID;
+        if (transactionID == null)
+          throw new APIError("Ștergerea produselor necesită o tranzacție.", 409);
+        const adapter = req.payload.db as unknown as PostgresAdapter;
+        const db = adapter.sessions[String(transactionID)].db;
+        // Serialize with checkout reservations before checking order references.
+        const product = await db.execute(sql`SELECT reserved FROM products WHERE id = ${Number(id)} FOR UPDATE`);
+        if (Number(product.rows[0]?.reserved ?? 0) > 0)
+          throw new APIError("Produsul are plăți în curs și nu poate fi șters. Debifează «Vizibil în magazin» pentru a-l retrage.", 409);
+        const orders = await db.execute(sql`SELECT id FROM orders_items WHERE product_id = ${Number(id)} LIMIT 1`);
+        if (orders.rows.length)
+          throw new APIError("Produsul apare în comenzi și nu poate fi șters. Debifează «Vizibil în magazin» pentru a-l retrage.", 409);
+      },
+    ],
     beforeOperation: [
       async ({ operation, args, req }) => {
         if (operation !== "update") return;

@@ -6,7 +6,7 @@ export const legal = {
   updated: "5 octombrie 2026",
   draft: true,
   company: { name: "", cui: "", registration: "", address: "" },
-  email: "contact@makeon.ro",
+  email: "info@makeon.ro",
   phone: "+40 744 524 728",
   phoneHref: "tel:+40744524728",
   terms: "/termeni-si-conditii",

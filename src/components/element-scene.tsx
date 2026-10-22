@@ -87,9 +87,11 @@ void main(){float d=length(gl_PointCoord-.5);if(d>.5)discard;float glow=pow(1.-d
 export default function ElementScene({
   world,
   transitionId,
+  combined = false,
 }: {
   world: "coffee" | "water";
   transitionId: number;
+  combined?: boolean;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const controls = useRef<{
@@ -135,6 +137,18 @@ export default function ElementScene({
     });
     const core = new THREE.Mesh(geometry, material);
     group.add(core);
+    const waterMaterial = combined ? new THREE.ShaderMaterial({
+      uniforms: { uTime: time, uMorph: { value: 1 }, uBurst: { value: 0 } },
+      vertexShader, fragmentShader,
+    }) : null;
+    const waterCore = waterMaterial ? new THREE.Mesh(geometry, waterMaterial) : null;
+    if (waterCore) {
+      core.scale.setScalar(0.83);
+      core.position.set(-1.03, 0.05, 0.15);
+      waterCore.scale.setScalar(0.79);
+      waterCore.position.set(1.05, 0.2, -0.1);
+      group.add(waterCore);
+    }
     const satellite = new THREE.Mesh(geometry, material);
     satellite.scale.setScalar(0.24);
     satellite.position.set(1.45, -0.38, 0.15);
@@ -143,6 +157,16 @@ export default function ElementScene({
     satellite2.scale.setScalar(0.18);
     satellite2.position.set(-1.3, 0.7, -0.4);
     group.add(satellite2);
+    satellite.visible = satellite2.visible = !combined;
+    // Small orbiting shapes share the main materials and use lighter geometry.
+    const orbitGeometry = combined ? new THREE.SphereGeometry(1, 32, 24) : null;
+    const orbitingShapes = orbitGeometry && waterMaterial ? Array.from({ length: 6 }, (_, i) => {
+      const isWater = i >= 3;
+      const mesh = new THREE.Mesh(orbitGeometry, isWater ? waterMaterial : material);
+      mesh.scale.setScalar([0.18, 0.13, 0.15][i % 3]);
+      group.add(mesh);
+      return { mesh, isWater, phase: (i % 3) * Math.PI * 2 / 3 + (isWater ? 0.8 : 0.2), radius: 1.04 + (i % 3) * 0.06 };
+    }) : [];
     const count = window.innerWidth < 650 ? 380 : 850;
     const positions = new Float32Array(count * 3),
       seeds = new Float32Array(count * 3);
@@ -199,15 +223,34 @@ export default function ElementScene({
     };
     el.addEventListener("pointermove", onPointer);
     const render = () => {
-      const m = morph.value;
+      const m = combined ? 0.5 : morph.value;
       satellite.position.y = -0.38 + Math.sin(time.value * 0.65) * 0.25;
       satellite.rotation.z = time.value * 0.1;
       satellite2.position.y = 0.7 + Math.cos(time.value * 0.55) * 0.2;
       satellite2.rotation.z = -time.value * 0.12;
       group.rotation.y += (pointer.x - group.rotation.y) * 0.025;
       group.rotation.x += (pointer.y - group.rotation.x) * 0.025;
-      core.rotation.y = Math.sin(time.value * 0.3) * 0.25;
-      core.position.y = reduced.matches ? 0 : Math.sin(time.value * 0.8) * 0.06;
+      core.rotation.y = combined ? time.value * 0.22 : Math.sin(time.value * 0.3) * 0.25;
+      core.position.y = reduced.matches ? 0 : Math.sin(time.value * 0.65) * 0.06;
+      if (waterCore) {
+        waterCore.position.y = 0.2 + (reduced.matches ? 0 : Math.sin(time.value * 0.65 + 1.8) * 0.07);
+        waterCore.rotation.y = -time.value * 0.2;
+        waterCore.rotation.z = Math.sin(time.value * 0.23) * 0.06;
+      }
+      orbitingShapes.forEach(({ mesh, isWater, phase, radius }, i) => {
+        const center = isWater ? waterCore! : core;
+        const angle = phase + time.value * (isWater ? -0.17 : 0.15);
+        mesh.position.set(
+          center.position.x + Math.cos(angle) * radius,
+          center.position.y + Math.sin(angle) * radius * 0.86,
+          center.position.z + Math.sin(angle + 0.7) * 0.6,
+        );
+        mesh.rotation.set(
+          Math.sin(time.value * 0.24 + phase) * 0.25,
+          time.value * (isWater ? -0.5 : 0.46) + phase,
+          Math.sin(time.value * 0.2 + phase) * 0.2 + (isWater ? 0 : (i % 3 - 1) * 0.3),
+        );
+      });
       rings.forEach((ring, i) => {
         ring.material.color.setRGB(
           1 - m * 0.75,
@@ -220,6 +263,7 @@ export default function ElementScene({
       });
       renderer.render(scene, camera);
       el.dataset.morph = m.toFixed(3);
+      el.dataset.composition = combined ? "coffee-water" : "single";
       el.dataset.frame = String(++frame);
     };
     controls.current = { morph, burst, render };
@@ -266,7 +310,9 @@ export default function ElementScene({
       gsap.killTweensOf(burst);
       // React can remount this scene: release GPU resources, not just the canvas.
       geometry.dispose();
+      orbitGeometry?.dispose();
       material.dispose();
+      waterMaterial?.dispose();
       particlesGeo.dispose();
       particlesMat.dispose();
       rings.forEach((r) => {
@@ -276,12 +322,18 @@ export default function ElementScene({
       renderer.dispose();
       renderer.domElement.remove();
     };
-  }, []);
+  }, [combined]);
 
   useEffect(() => {
     currentWorld.current = world;
     const c = controls.current;
     if (!c) return;
+    if (combined) {
+      c.morph.value = 0;
+      c.burst.value = 0;
+      c.render();
+      return;
+    }
     gsap.killTweensOf(c.morph);
     gsap.killTweensOf(c.burst);
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -308,21 +360,22 @@ export default function ElementScene({
         onUpdate: c.render,
       },
     );
-  }, [world, transitionId]);
+  }, [world, transitionId, combined]);
 
   return (
     <div
-      className={`element-scene ${failed ? "scene-fallback" : ""}`}
+      className={`element-scene ${combined ? "element-scene-combined" : ""} ${failed ? "scene-fallback" : ""}`}
       ref={host}
       role="img"
       aria-label={
-        world === "coffee"
+        combined ? "Bob de cafea și picătură de apă, împreună într-o animație 3D" : world === "coffee"
           ? "Bob de cafea 3D animat, cu particule de aromă"
           : "Picătură 3D animată, puritatea apei"
       }
       data-engine={failed ? "css" : "three"}
     >
       <div className="element-fallback" />
+      {combined && <div className="element-fallback element-fallback-water" />}
       <span className="scene-glow" />
     </div>
   );

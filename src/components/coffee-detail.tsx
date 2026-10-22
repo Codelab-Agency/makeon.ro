@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   ArrowLeft,
+  ArrowDown,
   ArrowUpRight,
   Coffee,
   Minus,
@@ -22,6 +23,7 @@ import { CoffeeProductCard } from "./coffee-shop";
 import { useCatalog } from "./catalog-provider";
 import { defaultProductFormat, isGroundCoffee, isWholeBean, packageLabel } from "@/lib/product-format";
 import GrindGuide, { grindDescriptions } from "./grind-guide";
+import { productDescription } from '@/lib/product-description';
 
 export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
   const { products: coffeeProducts } = useCatalog();
@@ -29,6 +31,7 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
     [grind, setGrind] = useState(defaultProductFormat(product));
   const complementary = product.category === "complementare";
   const { add } = useCart();
+  const description = productDescription(product.description);
   const specs = [
     ["Format", categoryLabel(product.category)],
     ["Cantitate", packageLabel(product)],
@@ -47,9 +50,9 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
         <span>SwitchMorn / {product.name}</span>
       </div>
       <section className="coffee-detail section-padding">
-        <div className="detail-visual">
-          <span className="eyebrow">{product.collection}</span>
-          <CoffeePack product={product} />
+        <div className="detail-visual detail-product-gallery">
+          <div className="detail-gallery-header"><span className="eyebrow">{product.collection}</span></div>
+          <div className="detail-gallery-stage"><CoffeePack product={product} /></div>
         </div>
         <div className="detail-copy">
           <span className="eyebrow">
@@ -61,7 +64,8 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
               <span key={note}>{note}</span>
             ))}
           </div>
-          <p className="detail-description">{product.description}</p>
+          <p className="detail-description">{description.intro}</p>
+          {description.isLong && <a className="detail-story-link" href="#poveste-produs">Citește descrierea completă <ArrowDown size={15} aria-hidden="true" /></a>}
           <div className="detail-price">
             {product.price == null ? "Preț la cerere" : money(product.price)}
             <small>
@@ -159,6 +163,16 @@ export default function CoffeeDetail({ product }: { product: CoffeeProduct }) {
           </div>
         </div>
       </section>
+      {description.isLong && <section className="detail-story section-padding" id="poveste-produs" aria-labelledby="product-story-title" tabIndex={-1}>
+        <div className="detail-story-heading">
+          <span className="eyebrow">{product.name} / {complementary ? 'ÎN DETALIU' : 'POVESTEA CAFELEI'}</span>
+          <h2 id="product-story-title">{complementary ? 'Detaliile fac diferența.' : <>Din origine,<br />în ceașca ta.</>}</h2>
+          {product.notes.length > 0 && <div className="detail-story-notes" aria-label="Note de gust">{product.notes.map(note => <span key={note}>{note}</span>)}</div>}
+        </div>
+        <div className="detail-story-content">
+          {description.paragraphs.map((paragraph,index) => <p key={index}>{paragraph}</p>)}
+        </div>
+      </section>}
       <section className="detail-specs section-padding">
         <div>
           <span className="eyebrow">{complementary ? "DETALII PRODUS" : "CUNOAȘTE-ȚI CAFEAUA"}</span>

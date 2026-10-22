@@ -40,7 +40,7 @@ export default function SiteHeader({
   const menu = useRef<HTMLDialogElement>(null);
   useDialogMotion(menu, mobileMenu, "menu");
   useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 621px)");
+    const desktop = window.matchMedia("(min-width: 1001px)");
     const close = () => {
       if (desktop.matches) setMobileMenu(false);
     };

@@ -1,12 +1,13 @@
 .site {
-  --paper: #faf4ea;
-  --ink: #3b2d25;
-  --line: #e5dace;
-  --world: #9d4f2a;
-  --element: #ff9757;
-  --element-rgb: 255, 133, 67;
-  --dark: #120e0c;
-  --dark-two: #24150f;
+  --paper: #f9f3ea;
+  --ink: #3b2e27;
+  --muted: #746b62;
+  --line: #e3d8cb;
+  --world: #955431;
+  --element: #eea06d;
+  --element-rgb: 238, 160, 109;
+  --dark: #17110e;
+  --dark-two: #291c15;
   background: var(--paper);
   color: var(--ink);
   transition:
@@ -14,14 +15,15 @@
     color 1.5s;
 }
 .site.world-water {
-  --paper: #f0f7f7;
-  --ink: #243c48;
-  --line: #d3e3e6;
-  --world: #286478;
-  --element: #75ddf0;
-  --element-rgb: 86, 202, 235;
-  --dark: #07151d;
-  --dark-two: #0b2b3a;
+  --paper: #f0f6f7;
+  --ink: #263e49;
+  --muted: #60737c;
+  --line: #d3e1e5;
+  --world: #31677a;
+  --element: #86cfdf;
+  --element-rgb: 134, 207, 223;
+  --dark: #0a1921;
+  --dark-two: #102d3a;
 }
 .announcement {
   background: var(--dark-two);
@@ -125,6 +127,20 @@
   font-size: 9px;
   letter-spacing: 1.8px;
   margin-bottom: 18px;
+  min-height: 53px;
+}
+.hero-brand-logo {
+  display: block;
+  object-fit: contain;
+}
+.hero-brand-coffee {
+  width: 52px;
+  height: auto;
+}
+.hero-brand-water {
+  width: 116px;
+  height: auto;
+  filter: brightness(0) invert(1);
 }
 .hero-world-label > span {
   color: #ffffff38;

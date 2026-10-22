@@ -149,6 +149,8 @@ export default function CartProvider({
     [productBySlug],
   );
   const count = items.reduce((sum, i) => sum + i.quantity, 0);
+  const hasUnavailableProducts = catalog.ready && !catalog.unavailable &&
+    items.some((line) => !productBySlug(line.slug));
   const completePrices =
     items.length > 0 &&
     items.every((i) => productBySlug(i.slug)?.price != null);
@@ -302,17 +304,24 @@ export default function CartProvider({
           ) : (
             <>
               <div className="cart-lines">
-                {items.map((line) => {
+                {!catalog.ready || catalog.unavailable ? (
+                  <p className="cart-catalog-status" role="status">
+                    {catalog.unavailable ? "Nu putem verifica produsele momentan. Selecția ta este păstrată." : "Verificăm produsele din coș…"}
+                  </p>
+                ) : items.map((line) => {
                   const p = productBySlug(line.slug);
                   if (!p)
                     return (
                       <article
-                        className="cart-line"
+                        className="cart-line cart-line-unavailable"
                         key={`${line.slug}-${line.grind}`}
                       >
                         <div className="cart-line-copy">
-                          <p>Produs indisponibil: {line.slug}</p>
-                          <button onClick={() => remove(line)}>
+                          <strong>Produs indisponibil</strong>
+                          <p>{line.slug.replaceAll("-", " ")} · {line.quantity} {line.quantity === 1 ? "bucată" : "bucăți"}</p>
+                          <span>Acest produs nu mai este disponibil în magazin.</span>
+                          <button className="cart-remove-unavailable" onClick={() => remove(line)}>
+                            <Trash2 size={15} aria-hidden="true" />
                             Elimină din coș
                           </button>
                         </div>
@@ -378,6 +387,20 @@ export default function CartProvider({
                   );
                 })}
               </div>
+              {!catalog.ready || catalog.unavailable || hasUnavailableProducts ? (
+                <div className="cart-summary cart-summary-unavailable">
+                  {catalog.unavailable ? (
+                    <button className="primary-button cart-phone" onClick={catalog.refresh}>Reîncearcă verificarea</button>
+                  ) : hasUnavailableProducts ? (
+                    <>
+                      <p role="status">Elimină produsele indisponibile pentru a continua comanda.</p>
+                      <Link className="primary-button cart-phone" href="/cafea" onClick={() => setOpened(false)}>
+                        Explorează cafelele <ArrowUpRight size={18} />
+                      </Link>
+                    </>
+                  ) : null}
+                </div>
+              ) : (
               <div className="cart-summary">
                 <div className="cart-summary-total">
                   <span>
@@ -456,6 +479,7 @@ export default function CartProvider({
                       : "+40 744 524 728 · Nicio comandă nu este trimisă automat."}
                 </span>
               </div>
+              )}
             </>
           )}
         </div>

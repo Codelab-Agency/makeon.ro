@@ -94,8 +94,8 @@
   gap: 24px;
 }
 .ecosystem .brand-card {
-  --element: #ffac72;
-  --element-rgb: 255, 133, 67;
+  --element: #eea06d;
+  --element-rgb: 238, 160, 109;
   display: flex;
   flex-direction: column;
   padding: 32px;
@@ -108,7 +108,7 @@
       rgba(var(--element-rgb), 0.15),
       transparent 62%
     ),
-    #1c1511;
+    #211813;
   color: #f5eee5;
   isolation: isolate;
   box-shadow:
@@ -116,15 +116,15 @@
     0 20px 50px #00000018;
 }
 .ecosystem .water-brand {
-  --element: #91dbe8;
-  --element-rgb: 86, 202, 235;
+  --element: #86cfdf;
+  --element-rgb: 134, 207, 223;
   background:
     radial-gradient(
       ellipse at 50% 62%,
       rgba(var(--element-rgb), 0.13),
       transparent 62%
     ),
-    #0b2028;
+    #0e2530;
 }
 .ecosystem .brand-card.selected {
   border-color: rgba(var(--element-rgb), 0.5);
@@ -759,5 +759,70 @@
 @media (prefers-reduced-motion: reduce) {
   .ambient-orbit svg {
     animation: none;
+  }
+}
+/* Product artwork loops preserve card layout and pause outside the viewport. */
+@media (prefers-reduced-motion: no-preference) {
+  .solutions .product-water .water-dispenser-float {
+    animation: water-product-float 6s ease-in-out infinite;
+  }
+  .solutions .product-coffee .coffee-machine-photo {
+    animation: water-product-float 6.4s ease-in-out infinite;
+  }
+  .solutions .product-filters .cartridge-float {
+    animation: water-cartridge-float 5.6s ease-in-out infinite;
+  }
+  .solutions .product-filters g:nth-of-type(2) > .cartridge-float { animation-delay: -2.8s; }
+  .solutions .product-filters .cartridge-reflection {
+    animation: water-cartridge-reflection 5.6s ease-in-out infinite;
+  }
+  .solutions :is(.subscription-water, .subscription-coffee) .subscription-calendar-body {
+    animation: water-product-float 6.8s ease-in-out infinite;
+  }
+  .solutions :is(.subscription-water, .subscription-coffee) .subscription-cycle {
+    transform-origin: 350px 285px;
+    animation: water-subscription-cycle 24s linear infinite;
+  }
+  .solutions :is(.subscription-water, .subscription-coffee) .subscription-check {
+    stroke-dasharray: 1;
+    animation: water-subscription-check 6s ease-in-out infinite;
+  }
+  .solutions .subscription-coffee .subscription-coffee-steam {
+    animation: coffee-subscription-steam 4.8s ease-in-out infinite;
+  }
+  .solutions .product-art :is(.water-dispenser-float, .coffee-machine-photo, .cartridge-float, .cartridge-reflection, .subscription-calendar-body, .subscription-cycle, .subscription-check, .subscription-coffee-steam) {
+    animation-play-state: paused;
+  }
+  .solutions .product-art.motion-visible :is(.water-dispenser-float, .coffee-machine-photo, .cartridge-float, .cartridge-reflection, .subscription-calendar-body, .subscription-cycle, .subscription-check, .subscription-coffee-steam) {
+    animation-play-state: running;
+  }
+  .cinematic-paused .solutions .product-art.motion-visible :is(.water-dispenser-float, .coffee-machine-photo, .cartridge-float, .cartridge-reflection, .subscription-calendar-body, .subscription-cycle, .subscription-check, .subscription-coffee-steam) {
+    animation-play-state: paused;
+  }
+  @keyframes coffee-subscription-steam {
+    0%,100% { opacity: .2; transform: translateY(2px); }
+    35% { opacity: .8; }
+    70% { opacity: 0; transform: translateY(-8px); }
+    71% { opacity: 0; transform: translateY(2px); }
+  }
+  @keyframes water-product-float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+  }
+  @keyframes water-cartridge-float {
+    0%,100% { transform: translateY(2px); }
+    50% { transform: translateY(-9px); }
+  }
+  @keyframes water-cartridge-reflection {
+    0%,100% { opacity: .45; }
+    50% { opacity: 1; }
+  }
+  @keyframes water-subscription-cycle { to { transform: rotate(360deg); } }
+  @keyframes water-subscription-check {
+    0%,64%,100% { stroke-dashoffset: 0; opacity: 1; }
+    72% { stroke-dashoffset: 0; opacity: 0; }
+    76% { stroke-dashoffset: 1; opacity: 0; }
+    80% { stroke-dashoffset: 1; opacity: 1; }
+    94% { stroke-dashoffset: 0; opacity: 1; }
   }
 }

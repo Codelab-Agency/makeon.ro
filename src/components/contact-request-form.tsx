@@ -104,6 +104,7 @@ export default function ContactRequestForm({
         aria-busy={status === "sending"}
       >
         <fieldset disabled={status === "sending"} className="contact-fields">
+          <div className="contact-field">
           <label htmlFor="contact-name">Nume *</label>
           <input
             id="contact-name"
@@ -113,6 +114,8 @@ export default function ContactRequestForm({
             minLength={2}
             maxLength={100}
           />
+          </div>
+          <div className="contact-field">
           <label htmlFor="contact-company">
             Companie <span>(opțional)</span>
           </label>
@@ -122,6 +125,8 @@ export default function ContactRequestForm({
             autoComplete="organization"
             maxLength={160}
           />
+          </div>
+          <div className="contact-field">
           <label htmlFor="contact-email">E-mail *</label>
           <input
             id="contact-email"
@@ -131,6 +136,8 @@ export default function ContactRequestForm({
             required
             maxLength={254}
           />
+          </div>
+          <div className="contact-field">
           <label htmlFor="contact-phone">
             Telefon <span>(opțional)</span>
           </label>
@@ -141,6 +148,8 @@ export default function ContactRequestForm({
             autoComplete="tel"
             maxLength={40}
           />
+          </div>
+          <div className="contact-field">
           <label htmlFor="interest">Ce soluție cauți?</label>
           <CustomSelect
             id="interest"
@@ -149,6 +158,8 @@ export default function ContactRequestForm({
             onChange={onInterestChange}
             options={serviceOptions.map((value) => ({ value, label: value }))}
           />
+          </div>
+          <div className="contact-field">
           <label htmlFor="team">{eventRequest ? "Câți invitați estimezi?" : "Câți oameni sunt în echipă?"}</label>
           <CustomSelect
             id="team"
@@ -157,6 +168,8 @@ export default function ContactRequestForm({
             onChange={setTeam}
             options={teams.map((value) => ({ value, label: value }))}
           />
+          </div>
+          <div className="contact-field contact-field-wide">
           <label htmlFor="contact-message">
             Mesaj <span>(opțional)</span>
           </label>
@@ -167,6 +180,7 @@ export default function ContactRequestForm({
             maxLength={3000}
             placeholder={eventRequest ? "Data evenimentului, localitatea și alte detalii utile…" : undefined}
           />
+          </div>
           <div className="contact-trap" aria-hidden="true">
             <label htmlFor="contact-website">Website</label>
             <input

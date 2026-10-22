@@ -382,3 +382,29 @@
     transform: none;
   }
 }
+.water-filtration-photo .water-filtration-diagram { margin: 20px -12px 8px; }
+.filtration-photo-stage { position: relative; }
+.filtration-filters-photo { display: block; width: 100%; height: auto; }
+.filtration-flow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.water-filtration-photo .water-filtration-stages {
+  position: static;
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 8px;
+  margin: 0 7.5%;
+  font-size: clamp(11px,1.05vw,14px);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.water-filtration-photo .water-filtration-stages li { position: static; width: auto; transform: none; min-width: 0; text-align: center; text-wrap: balance; }
+.water-filtration-photo .water-filtration-stages li::before { display: none; }
+.water-filtration-photo .water-filtration-stages .filtration-step-number { color: #86cddd; font-size: 9px; letter-spacing: .14em; margin-bottom: 7px; }
+@media (max-width: 600px) {
+  .water-filtration-photo .water-filtration-diagram { margin-inline: -16px; }
+  .water-filtration-photo .water-filtration-stages { gap: 5px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .filtration-moving-stream { animation: filtration-water-travel 2.8s linear infinite; animation-play-state: paused; }
+  .water-filtration-photo.is-flow-visible .filtration-moving-stream { animation-play-state: running; }
+  @keyframes filtration-water-travel { to { stroke-dashoffset: -128; } }
+}

@@ -1,68 +1,56 @@
-import { test, expect } from "@playwright/test";
-import { coffeeProducts } from "../src/lib/coffee-catalog";
+import { test, expect } from '@playwright/test';
+import { coffeeProducts } from '../src/lib/coffee-catalog';
 
 test.beforeEach(async ({ page }) => {
-  await page.route("**/api/catalog", route => route.fulfill({ json: {
+  await page.route('**/api/catalog', route => route.fulfill({ json: {
     products: coffeeProducts, managed: false, checkout: false, shippingBani: 0,
   } }));
 });
 
-for (const width of [320, 390, 430, 768, 1280]) {
-  test(`office offer and shopping are distinct at ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 });
-    await page.goto("/");
-    const hero = page.locator(".hero");
-    await expect(hero.locator(".hero-service-label")).toHaveText("Cafea și espressoare pentru birouri");
-    await expect(hero.getByRole("link", { name: "Cumpără cafea" })).toHaveAttribute("href", "#magazin");
-    await expect(page.locator('.product-beans').locator('..').getByRole('link', {name:'Vezi cafelele'})).toHaveAttribute('href','/cafea');
-    expect(await page.evaluate(() => {
-      const nodes = ['#ecosistem', '#abonamente', '#solutii', '#servicii', '#evenimente', '#magazin'].map(selector => document.querySelector(selector)!);
-      return nodes.every((node, index) => index === 0 || !!(nodes[index - 1].compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING));
-    })).toBe(true);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    if (width < 621) {
-      const primary = await hero.locator('.primary-button').boundingBox();
-      expect(primary!.width).toBeGreaterThan(width * 0.85);
-      const shop = await hero.locator('.hero-shop-link').boundingBox();
-      expect(primary!.y + primary!.height).toBeLessThanOrEqual(shop!.y);
-      const description = await hero.locator('.hero-description').boundingBox();
-      const art = await hero.locator('.hero-art').boundingBox();
-      expect(description!.y).toBeLessThan(art!.y);
-    } else {
-      const nav = await page.locator('.desktop-nav').boundingBox();
-      const actions = await page.locator('.header-actions').boundingBox();
-      expect(nav!.x + nav!.width).toBeLessThanOrEqual(actions!.x);
-    }
-    await hero.getByRole('button', {name:'Solicită ofertă pentru birou'}).click();
-    await expect(page.locator('.contact-dialog #interest')).toContainText('Abonament de cafea');
-    await page.keyboard.press('Escape');
-    await hero.getByRole('button', {name:'Lumea apei', exact:true}).click();
+for (const width of [320,390,430,768,1280,1920]) {
+  test(`3D hero switches between coffee and water at ${width}px`,async ({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto('/');
+    const hero=page.locator('.hero');
+    await expect(hero.locator('h1')).toHaveText('Energie și hidratare premium pentru tine și echipa ta!');
+    await expect(hero.locator('img')).toHaveCount(0);
+    await expect(hero.locator('video')).toHaveCount(0);
+    await expect(hero.locator('.hero-art .element-scene')).toBeVisible();
+    const selector=hero.locator('.hero-world-switch');
+    await expect(selector.getByRole('button',{name:'Lumea cafelei'})).toHaveAttribute('aria-pressed','true');
+    await selector.getByRole('button',{name:'Lumea apei'}).click();
     await expect(page.locator('.site')).toHaveClass(/world-water/);
-    await expect(hero.locator('.hero-service-label')).toHaveCount(0);
-    await expect(hero.getByRole('link', {name:'Descoperă lumea apei'})).toHaveAttribute('href','#solutii');
+    await expect(selector.getByRole('button',{name:'Lumea apei'})).toHaveAttribute('aria-pressed','true');
+    await expect(hero.locator('.hero-art .element-scene')).toHaveAttribute('aria-label',/Picătură/);
+    await expect(hero.locator('.hero-world-preview')).toHaveCount(0);
+    await selector.getByRole('button',{name:'Lumea cafelei'}).click();
+    await expect(page.locator('.site')).toHaveClass(/world-coffee/);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    await hero.getByRole('button',{name:'Solicită ofertă pentru echipa ta'}).click();
+    await expect(page.locator('.contact-dialog #interest')).toContainText('Cafea + apă');
+    await page.keyboard.press('Escape');
   });
 }
 
-for (const width of [390, 1280]) {
-  test(`hero actions stay visible after animations and world changes at ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 });
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
+test('navigation has a solid background and stays visible on scroll',async({page})=>{
+  await page.goto('/');
+  const header=page.locator('.site > header');
+  await expect(header).toHaveCSS('background-color','rgb(23, 17, 14)');
+  await expect(header).toHaveCSS('position','sticky');
+  await page.locator('#ecosistem').scrollIntoViewIfNeeded();
+  expect((await header.boundingBox())!.y).toBe(0);
+});
+
+for(const viewport of [{width:390,height:844},{width:844,height:390}]) {
+  test(`navigation menu opens and restores focus at ${viewport.width}px`,async({page})=>{
+    await page.setViewportSize(viewport);
     await page.goto('/');
-    const actions = page.locator('.hero-actions');
-    // Check the settled state: overlapping entrance tweens used to hide these again.
-    await page.waitForTimeout(2200);
-    await expect(actions).toHaveCSS('opacity', '1');
-    await expect(actions).toHaveCSS('filter', 'blur(0px)');
-    await expect(actions.getByRole('button')).toBeVisible();
-    await expect(actions.getByRole('link')).toBeVisible();
-    await page.locator('.world-switch button').nth(1).click();
-    await page.waitForTimeout(1800);
-    await expect(actions).toHaveCSS('opacity', '1');
-    await expect(page.locator('#evenimente')).toHaveCount(0);
-    await page.locator('.world-switch button').nth(0).click();
-    await page.waitForTimeout(1800);
-    await expect(actions).toHaveCSS('opacity', '1');
-    await expect(actions.getByRole('button')).toBeVisible();
-    await expect(page.locator('#evenimente')).toBeAttached();
+    const button=page.getByRole('button',{name:'Deschide meniul',exact:true});
+    await button.click();
+    const menu=page.getByRole('dialog',{name:'Meniul Makeon'});
+    await expect(menu).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(menu).not.toBeVisible();
+    await expect(button).toBeFocused();
   });
 }

@@ -42,14 +42,16 @@ export default function PageMotion({ world }: { world: "coffee" | "water" }) {
                   ".bag, .filter-cylinder, .subscription-pass, .water-glass",
                 )
               : [];
-            if (objects.length)
+            if (objects.length) {
+              const coffeePacks = el.matches('.product-beans');
               loop.to(objects, {
-                y: -12,
-                rotation: 2,
-                duration: 3.2,
-                stagger: 0.3,
+                y: coffeePacks ? -8 : -12,
+                rotation: coffeePacks ? '+=1.2' : 2,
+                duration: coffeePacks ? 3.8 : 3.2,
+                stagger: coffeePacks ? 0.4 : 0.3,
                 ease: "sine.inOut",
               });
+            }
             const observer = new IntersectionObserver(([entry]) => {
               el.classList.toggle("motion-visible", entry.isIntersecting);
               if (entry.isIntersecting && !document.hidden) loop.play();

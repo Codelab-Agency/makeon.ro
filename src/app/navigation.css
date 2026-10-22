@@ -4,6 +4,13 @@
   z-index: 100;
   box-shadow: 0 6px 24px #00000012;
 }
+.header :is(.mobile-menu-top,.mobile-menu-bottom) { flex-shrink: 0; }
+.header .mobile-menu-nav { flex: 1 0 auto; min-height: min-content; }
+@media (max-width: 1000px) {
+  .header .desktop-nav { display: none; }
+  .header .menu-button { display: flex; }
+  .header .offer-button { display: none; }
+}
 .header .mobile-nav {
   top: calc(100% - 1px);
 }
@@ -83,8 +90,9 @@
   position: absolute;
   inset: 0;
   clip-path: inset(0 0 0 32%);
-  /* The source lettering sits 29.5px below the emblem's center in a 375px canvas. */
+  /* Align the wordmark's visual center with the emblem. */
   transform: translateY(-7.866667%);
+  filter: brightness(0) invert(1);
 }
 .footer .brand-horizontal-contrast,
 .shop-footer .brand-horizontal-contrast {

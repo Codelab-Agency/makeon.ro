@@ -11,6 +11,7 @@ export default function ProductScene({ kind = "both", className = "" }: Props) {
         aria-label="Aparat de apă Vero Aqua"
       >
         <image
+          className="water-dispenser-float"
           href="/images/vero-aqua-dispenser.webp"
           x="190"
           y="24"

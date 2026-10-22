@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import "@fontsource-variable/manrope";
 import "@fontsource-variable/dm-sans";
+import "@fontsource-variable/cormorant-garamond";
 import "../globals.css";
 import "../elements.css";
 import "../shop.css";
@@ -13,6 +13,9 @@ import "../cinematic.css";
 import "../events.css";
 import "../commerce.css";
 import "../legal.css";
+import "../typography.css";
+import "../layout-spacing.css";
+import "../hero-combined.css";
 import CartProvider from "@/components/cart-provider";
 import CatalogProvider from "@/components/catalog-provider";
 

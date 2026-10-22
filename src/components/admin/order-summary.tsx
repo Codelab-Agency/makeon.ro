@@ -5,6 +5,7 @@ import { MapPin, Package, UserRound, CreditCard } from "lucide-react";
 import type { Order } from "@/payload-types";
 import ProductionPayment from "./production-payment";
 import OrderStatusNotifications from "./order-status-notifications";
+import OrderShipping from "./order-shipping";
 
 const paymentLabels = {
   requested: "De confirmat telefonic",
@@ -81,6 +82,7 @@ export function OrderSummary() {
         </div>
       </section>
       <OrderStatusNotifications orderID={order.id} updatedAt={order.updatedAt} />
+      <OrderShipping key={`${order.id}-${order.updatedAt}`} order={order} />
       {order.orderType === "production" && (
         <ProductionPayment
           key={`${order.id}-${order.status}-${order.paymentAttempt}`}

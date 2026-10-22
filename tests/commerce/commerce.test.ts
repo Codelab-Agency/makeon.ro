@@ -79,6 +79,10 @@ before(async () => {
   await adapter.drizzle.execute(sql`ALTER TABLE products DROP CONSTRAINT IF EXISTS products_inventory_valid;
     ALTER TABLE products DROP CONSTRAINT IF EXISTS products_price_valid;`);
   await constraints.up({ db: adapter.drizzle } as Parameters<typeof constraints.up>[0]);
+  // This SQL-only table is not created by Payload's schema push.
+  const notifications = await import('../../src/migrations/20261011_120000_order_status_emails');
+  await adapter.drizzle.execute(sql`DROP TABLE IF EXISTS order_status_emails`);
+  await notifications.up({ db: adapter.drizzle } as Parameters<typeof notifications.up>[0]);
   commerce = await import('../../src/lib/commerce');
 });
 after(async () => { if (cms) {
@@ -91,6 +95,30 @@ async function product(stock = 5) {
   return cms.create({ collection: 'products', data: { slug: `test-${randomUUID()}`, name: 'Cafea test', category: 'boabe',
     collection: 'Teste', grams: 500, description: 'Produs pentru verificarea comenzilor.', price: 49.99, stock, reserved: 0, active: true } });
 }
+
+test('only admins can delete unused products; order history and reservations prevent deletion', async () => {
+  const user = { id: 999, collection: 'users' as const, email: 'admin@example.test' };
+  const unused = await product();
+  await assert.rejects(cms.delete({ collection: 'products', id: unused.id, overrideAccess: false }));
+  await cms.delete({ collection: 'products', id: unused.id, overrideAccess: false, user });
+  assert.equal((await cms.find({ collection: 'products', where: { id: { equals: unused.id } } })).totalDocs, 0);
+
+  const reserved = await product();
+  const adapter = cms.db as unknown as PostgresAdapter;
+  await adapter.drizzle.execute(sql`UPDATE products SET reserved = 1 WHERE id = ${reserved.id}`);
+  await assert.rejects(cms.delete({ collection: 'products', id: reserved.id, overrideAccess: false, user }), /plăți în curs/);
+  await adapter.drizzle.execute(sql`UPDATE products SET reserved = 0 WHERE id = ${reserved.id}`);
+
+  const key = randomUUID();
+  await commerce.createCheckout([{ slug: reserved.slug, grind: 'Boabe', quantity: 1 }], key, fakeStripe, cms);
+  const session = keys.get(`MK-${key}`)!;
+  await commerce.applySession({ ...session, status: 'complete', payment_status: 'paid' }, cms);
+  await assert.rejects(cms.delete({ collection: 'products', id: reserved.id, overrideAccess: false, user }), /apare în comenzi/);
+  assert.equal((await cms.findByID({ collection: 'products', id: reserved.id })).stock, 4);
+  const order = (await cms.find({ collection: 'orders', where: { reference: { equals: `MK-${key}` } }, depth: 0 })).docs[0];
+  assert.equal(order.items[0].product, reserved.id);
+  await cms.update({ collection: 'products', id: reserved.id, overrideAccess: false, user, data: { active: false } });
+});
 
 test('admin order edits preserve payment snapshots and concurrent stock settlement', async () => {
   const p = await product(3); const key = randomUUID();

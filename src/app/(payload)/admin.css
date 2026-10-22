@@ -716,6 +716,39 @@ body:has(.makeon-order) .doc-header__title {
   }
 }
 /* Status email history stays compact and wraps safely on phone screens. */
+.makeon-shipping { margin-block: 18px; }
+.makeon-shipping p { font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.makeon-shipping-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.makeon-shipping-legend { padding: 0 0 14px; font-weight: 600; }
+.makeon-shipping-fields label, .makeon-shipping-recovery {
+  display: flex; flex-direction: column; gap: 8px; min-width: 0; font-size: 13px;
+}
+.makeon-shipping input, .makeon-shipping select {
+  width: 100%; min-width: 0; min-height: 44px; box-sizing: border-box;
+  padding: 10px 12px; font: inherit; color: var(--theme-text);
+  background: var(--theme-input-bg); border: 1px solid var(--theme-elevation-200); border-radius: 4px;
+}
+.makeon-shipping input:focus-visible, .makeon-shipping select:focus-visible {
+  outline: 2px solid var(--theme-text); outline-offset: 2px;
+}
+.makeon-shipping .btn {
+  min-height: 44px; max-width: 100%; margin: 8px 12px 0 0; padding: 12px 18px;
+  font: inherit; font-size: 14px; white-space: normal; text-align: center;
+}
+.makeon-shipping-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.makeon-shipping-recovery { max-width: 420px; }
+@media (max-width: 650px) {
+  .makeon-shipping-fields { grid-template-columns: minmax(0, 1fr); }
+  .makeon-shipping input, .makeon-shipping select { font-size: 16px; }
+}
 .makeon-status-emails {
   margin-block: 18px;
 }

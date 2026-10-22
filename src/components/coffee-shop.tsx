@@ -21,7 +21,11 @@ import CoffeePack from "./coffee-pack";
 import CustomSelect from "./custom-select";
 import { useCart } from "./cart-provider";
 import { useCatalog } from "./catalog-provider";
-import { defaultProductFormat, isGroundCoffee, packageLabel } from "@/lib/product-format";
+import {
+  defaultProductFormat,
+  isGroundCoffee,
+  packageLabel,
+} from "@/lib/product-format";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -57,12 +61,7 @@ export function CoffeeProductCard({ product }: { product: CoffeeProduct }) {
           ) : (
             <button
               className="shop-add"
-              onClick={() =>
-                add(
-                  product.slug,
-                  defaultProductFormat(product),
-                )
-              }
+              onClick={() => add(product.slug, defaultProductFormat(product))}
               aria-label={`Adaugă ${product.name} în coș`}
             >
               {product.stock === 0 ? "La cerere" : "Adaugă"}
@@ -76,7 +75,12 @@ export function CoffeeProductCard({ product }: { product: CoffeeProduct }) {
 }
 
 export default function CoffeeShop({ full = false }: { full?: boolean }) {
-  const { products: coffeeProducts, unavailable, ready, refresh } = useCatalog();
+  const {
+    products: coffeeProducts,
+    unavailable,
+    ready,
+    refresh,
+  } = useCatalog();
   const initialFailure = unavailable && coffeeProducts.length === 0;
   const root = useRef<HTMLElement>(null);
   const [category, setCategory] = useState<"all" | CoffeeCategory>("all"),
@@ -101,11 +105,14 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const cards = root.current?.querySelectorAll(".shop-product-card") ?? [];
-      const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => entry.target.classList.toggle("motion-visible", entry.isIntersecting));
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) =>
+          entry.target.classList.toggle("motion-visible", entry.isIntersecting),
+        );
       });
-      cards.forEach(card => observer.observe(card));
-      const visibility = () => root.current?.classList.toggle("cinematic-paused", document.hidden);
+      cards.forEach((card) => observer.observe(card));
+      const visibility = () =>
+        root.current?.classList.toggle("cinematic-paused", document.hidden);
       visibility();
       document.addEventListener("visibilitychange", visibility);
       const ctx = gsap.context(() => {
@@ -130,7 +137,7 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
       return () => {
         ctx.revert();
         observer.disconnect();
-        cards.forEach(card => card.classList.remove("motion-visible"));
+        cards.forEach((card) => card.classList.remove("motion-visible"));
         document.removeEventListener("visibilitychange", visibility);
         root.current?.classList.remove("cinematic-paused");
       };
@@ -160,70 +167,81 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
             descoperit. Din catalogul SwitchMorn, pentru birou și pentru acasă.
           </p>
         </div>
-        {ready && !initialFailure && <div className="shop-heading-count">
-          <span>{coffeeProducts.length}</span>
-          <small>
-            sortimente
-            <br />
-            de descoperit
-          </small>
-        </div>}
-      </div>
-      {ready && !initialFailure && <>
-      <div className="shop-toolbar">
-        <div
-          className="shop-categories"
-          role="group"
-          aria-label="Filtrează cafeaua"
-        >
-          {categories.map((c) => (
-            <button
-              key={c.value}
-              aria-pressed={category === c.value}
-              onClick={() => {
-                setCategory(c.value);
-                setAll(full);
-              }}
-            >
-              {c.label}
-              <span>
-                {c.value === "all"
-                  ? coffeeProducts.length
-                  : coffeeProducts.filter((p) => p.category === c.value).length}
-              </span>
-            </button>
-          ))}
-        </div>
-        <div className="shop-search-row">
-          <label className="shop-search">
-            <Search size={17} />
-            <span className="sr-only">Caută cafeaua</span>
-            <input
-              placeholder="Caută o origine, o aromă..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </label>
-          <div className="shop-sort">
-            <SlidersHorizontal size={15} />
-            <CustomSelect
-              label="Sortează cafelele"
-              value={sort}
-              onChange={setSort}
-              options={[
-                { value: "featured", label: "Selecția noastră" },
-                { value: "name", label: "Nume A–Z" },
-              ]}
-            />
+        {ready && !initialFailure && (
+          <div className="shop-heading-count">
+            <span>{coffeeProducts.length}</span>
+            <small>
+              sortimente
+              <br />
+              de descoperit
+            </small>
           </div>
-        </div>
+        )}
       </div>
-      <div className="shop-result-count" aria-live="polite">
-        {unavailable && <p>Catalogul nu poate fi actualizat acum. Reîncearcă în câteva momente.</p>}
-        {filtered.length} {filtered.length === 1 ? "sortiment" : "sortimente"}
-        {search && ` pentru „${search}”`}
-      </div>
-      </>}
+      {ready && !initialFailure && (
+        <>
+          <div className="shop-toolbar">
+            <div
+              className="shop-categories"
+              role="group"
+              aria-label="Filtrează cafeaua"
+            >
+              {categories.map((c) => (
+                <button
+                  key={c.value}
+                  aria-pressed={category === c.value}
+                  onClick={() => {
+                    setCategory(c.value);
+                    setAll(full);
+                  }}
+                >
+                  {c.label}
+                  <span>
+                    {c.value === "all"
+                      ? coffeeProducts.length
+                      : coffeeProducts.filter((p) => p.category === c.value)
+                          .length}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="shop-search-row">
+              <label className="shop-search">
+                <Search size={17} />
+                <span className="sr-only">Caută cafeaua</span>
+                <input
+                  placeholder="Caută o origine, o aromă..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </label>
+              <div className="shop-sort">
+                <SlidersHorizontal size={15} />
+                <CustomSelect
+                  label="Sortează cafelele"
+                  value={sort}
+                  onChange={setSort}
+                  options={[
+                    { value: "featured", label: "Selecția noastră" },
+                    { value: "name", label: "Nume A–Z" },
+                  ]}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="shop-result-count" aria-live="polite">
+            {unavailable && (
+              <p>
+                Catalogul nu poate fi actualizat acum. Reîncearcă în câteva
+                momente.
+              </p>
+            )}
+            {filtered.length}{" "}
+            {filtered.length === 1 ? "sortiment" : "sortimente"}
+            {search && ` pentru „${search}”`}
+          </div>
+        </>
+      )}
       {!ready ? (
         <div className="catalog-loading">
           <p role="status">Se încarcă produsele…</p>
@@ -240,8 +258,13 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
       ) : initialFailure ? (
         <div className="shop-empty" role="alert">
           <h3>Catalogul este temporar indisponibil.</h3>
-          <p>Încearcă din nou pentru a vedea produsele și disponibilitatea lor.</p>
-          <button className="text-link" onClick={refresh}>Reîncearcă<ArrowUpRight size={17} /></button>
+          <p>
+            Încearcă din nou pentru a vedea produsele și disponibilitatea lor.
+          </p>
+          <button className="text-link" onClick={refresh}>
+            Reîncearcă
+            <ArrowUpRight size={17} />
+          </button>
         </div>
       ) : shown.length ? (
         <div className="shop-grid">
@@ -278,14 +301,6 @@ export default function CoffeeShop({ full = false }: { full?: boolean }) {
           </Link>
         </div>
       )}
-      {ready && !initialFailure && <div className="shop-service-line">
-        <span>
-          <CoffeeIcon />
-          Boabe & măcinată
-        </span>
-        <span>Gramaje din catalog</span>
-        <span>{coffeeProducts.some(p => p.price != null) ? "Plată securizată prin Stripe" : "Prețuri și disponibilitate la cerere"}</span>
-      </div>}
     </section>
   );
 }

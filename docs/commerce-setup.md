@@ -27,6 +27,8 @@ Dacă produsul nu este încă pregătit pentru publicare, lasă **Vizibil în ma
 
 ## Prețurile și stocul
 
+Pentru a șterge un produs adăugat din greșeală, deschide produsul și alege **Șterge** din meniul de acțiuni. Ștergerea este permisă doar administratorilor și doar dacă produsul nu apare în comenzi și nu are plăți în curs. Pentru produsele cu istoric, debifează **Vizibil în magazin** și salvează. Imaginea rămâne în bibliotecă și poate fi reutilizată.
+
 **Prețul produsului se introduce în lei**, cu maximum două zecimale. Pentru un preț de 45,50 lei, introdu `45.50`, nu `4550`. Dacă lași prețul gol, magazinul afișează **Preț la cerere**, iar produsul nu poate fi plătit online.
 
 **Stoc fizic (unități / ambalaje)** reprezintă numărul total de unități de vânzare existente, inclusiv cele rezervate pentru plăți în curs. Pentru o cutie de 100 de bețișoare, stocul `5` înseamnă 5 cutii, nu 5 bețișoare. Când primești marfă, actualizează totalul fizic, nu doar cantitatea nouă.
@@ -82,9 +84,21 @@ Notificările trebuie activate prin configurarea expeditorului de email de cătr
 
 Actualizarea statusului nu generează automat un AWB sau o factură. Rambursările se gestionează separat în Stripe; ele nu readuc automat produsele în stoc și nu sunt reflectate printr-un status de rambursare în acest dashboard. Pentru retururi, confirmă situația cu echipa tehnică și actualizează stocul fizic după recepția mărfii.
 
+## AWB Sameday
+
+În detaliul unei comenzi plătite, secțiunea **Livrare Sameday · AWB** permite emiterea unui AWB pentru un singur colet, cu livrare la adresă în România. Verifică numele, telefonul, adresa și județul (denumirea completă), apoi introdu greutatea coletului ambalat în kg. Punctul de ridicare și serviciul 24H sunt încărcate din contul Sameday. Plata este deja încasată online: AWB-ul are ramburs zero. Nu sunt incluse harta easybox, livrările internaționale sau retururile.
+
+După emitere poți descărca eticheta PDF A4 sau A6. Statusul comenzii nu se schimbă automat; marchează expedierea când predai coletul. Anulările și solicitările de ridicare se gestionează în eAWB.
+
+Dacă emiterea nu este confirmată, verifică referința comenzii în eAWB înainte să continui. Sistemul blochează o nouă emitere pentru a evita dublurile. Dacă găsești AWB-ul, folosește **Asociază AWB existent** (după minimum cinci minute pentru o cerere rămasă în curs). Verifică atent că numărul aparține comenzii respective. Dacă nu găsești nicio expediere, cere verificarea tehnică a încercării înainte de deblocare.
+
+Configurare server: `SAMEDAY_ENV=production` (sau `sandbox`), `SAMEDAY_USERNAME`, `SAMEDAY_PASSWORD`. Credențialele de test sunt diferite de cele de producție. Nu se folosesc variabile `NEXT_PUBLIC_`. Rulează `npm run cms:migrate` înainte de publicare pentru migrarea `20261022_120000_sameday_shipments`, care adaugă doar tabelul `order_shipments`. Păstrează `PAYLOAD_DB_PUSH=false`. Configurează aceleași trei variabile în Vercel și publică o versiune nouă.
+
+Implementarea urmează [SDK-ul oficial Sameday](https://github.com/sameday-courier/php-sdk): autentificare `/api/authenticate`, servicii/puncte de ridicare `/api/client/*`, emitere `/api/awb`, PDF `/api/awb/download/{number}/{format}`. Nu există reîncercare automată a unei emiteri cu rezultat incert. Istoricul AWB-ului rămâne în baza de date, inclusiv după schimbarea credențialelor; utilizarea pe alt cont sau mediu este blocată.
+
 ## Solicitările de ofertă
 
-Formularul de pe site trimite solicitările la adresa de e-mail configurată pentru magazin. În prezent, destinatarul este **contact@code-lab.ro**; la predare, confirmă adresa la care vrei să le primești.
+Formularul trimite solicitările prin Resend de la **Makeon <info@makeon.ro>** către **mariusmachedon@ymail.com**. `Reply-To` este adresa clientului, pentru răspuns direct la solicitare. Aceleași valori pentru `RESEND_FROM_EMAIL` și `CONTACT_EMAIL_TO` trebuie configurate și în mediul de producție, apoi publicată o versiune nouă. Primirea și redirecționarea mesajelor trimise direct la `info@makeon.ro` se configurează separat la furnizorul de email/DNS.
 
 E-mailul include numele, adresa de e-mail, soluția dorită, dimensiunea echipei și detaliile opționale completate. Poți răspunde direct la e-mail pentru a contacta solicitantul. Aceste solicitări nu apar în lista de comenzi și nu rezervă stoc. Telefonul și WhatsApp rămân alternative de contact.
 

@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import FooterBrands from "./footer-brands";
+import CombinedHero from "./combined-hero";
 import FilterCartridges from "./filter-cartridges";
 import SubscriptionArtwork from "./subscription-artwork";
 import {
@@ -257,7 +258,8 @@ export default function MakeonLanding({
           stagger: 0.11,
           ease: "power3.out",
         });
-        gsap.from(".hero-art", {
+        const heroArt = root.current?.querySelector(".hero-art");
+        if (heroArt) gsap.from(heroArt, {
           y: 35,
           opacity: 0,
           duration: 1.3,
@@ -303,7 +305,7 @@ export default function MakeonLanding({
         },
       );
       gsap.fromTo(
-        ".hero-world-heading",
+        ".hero:not(.hero-combined) .hero-world-heading",
         { y: 45, opacity: 0, filter: "blur(12px)" },
         {
           y: 0,
@@ -346,7 +348,7 @@ export default function MakeonLanding({
     if (dedicatedWater) return;
     if (activeWorld.current === value) return;
     const localSwitch = source?.closest<HTMLElement>(
-      ".business-switch, .mini-switch",
+      ".business-switch, .mini-switch, .solutions-world-switch",
     );
     scrollAnchor.current = localSwitch
       ? { element: localSwitch, top: localSwitch.getBoundingClientRect().top }
@@ -404,75 +406,57 @@ export default function MakeonLanding({
       />
 
       <main>
-        <section className="hero" aria-labelledby="hero-title">
+        {!dedicatedWater ? <CombinedHero world={world} transitionId={transitionId} onChange={changeWorld} onOffer={() => openOffer("Cafea + apă")} /> : <section className="hero" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <div className="hero-world-label world-copy">
-              {world === "coffee" ? (
-                <Coffee size={15} />
-              ) : (
-                <Droplets size={15} />
-              )}{" "}
-              {data.brand}
+            <div className={`hero-world-label${dedicatedWater ? " world-copy" : " hero-brand-pair"}`}>
+              {!dedicatedWater && (
+                <Image
+                  src="/images/switchmorn-coffee-logo.webp"
+                  alt="SwitchMORN Coffee"
+                  width={52}
+                  height={53}
+                  className="hero-brand-logo hero-brand-coffee"
+                  priority
+                />
+              )}
+              {!dedicatedWater && <span className="hero-brand-divider" aria-hidden="true" />}
+              {(
+                <Image
+                  src="/images/vero-aqua-logo.webp"
+                  alt="Vero Aqua"
+                  width={116}
+                  height={44}
+                  className="hero-brand-logo hero-brand-water"
+                  priority
+                />
+              )}
             </div>
-            {world === "coffee" && (
-              <p className="hero-service-label world-copy">
-                Cafea și espressoare pentru birouri
+            {!dedicatedWater && (
+              <p className="hero-service-label">
+                Cafea de specialitate · Apă filtrată · Soluții pentru birouri
               </p>
             )}
             <h1 id="hero-title" className="hero-world-heading">
-              {world === "coffee" ? "Ritualul cafelei" : "Hidratare bună."}
-              <br />
-              <span>{world === "coffee" ? "energia zilei." : "zi de zi."}</span>
+              {dedicatedWater ? <>Hidratare bună.<br /><span>zi de zi.</span></> : <>
+                <span className="hero-energy-word">Energie</span> și <em>hidratare</em> premium{" "}
+                <span className="hero-combined-audience">pentru tine și echipa ta!</span>
+              </>}
             </h1>
-            <p className="hero-description world-copy">{data.description}</p>
-            {!dedicatedWater && (
-              <div
-                className="world-switch hero-reveal"
-                role="group"
-                aria-label="Alege lumea Makeon"
-              >
-                <span className={`switch-slider ${world}`} />
-                <button
-                  onClick={(event) =>
-                    changeWorld("coffee", event.currentTarget)
-                  }
-                  aria-label="Lumea cafelei"
-                  aria-pressed={world === "coffee"}
-                >
-                  <Coffee size={21} />
-                  <span>
-                    Cafea<small>AROMĂ & ENERGIE</small>
-                  </span>
-                </button>
-                <button
-                  onClick={(event) => changeWorld("water", event.currentTarget)}
-                  aria-label="Lumea apei"
-                  aria-pressed={world === "water"}
-                >
-                  <Droplets size={21} />
-                  <span>
-                    Apă<small>PURITATEA APEI</small>
-                  </span>
-                </button>
-              </div>
-            )}
-            {!dedicatedWater && (
-              <p className="switch-hint">
-                <span /> Schimbă elementul. Simte transformarea.
-              </p>
-            )}
-            <div className="hero-actions world-copy">
-              {world === "coffee" ? (
+            <p className={`hero-description${dedicatedWater ? " world-copy" : ""}`}>
+              {dedicatedWater ? data.description : "De la prima cafea la fiecare pahar de apă. Un singur partener pentru confortul echipei tale."}
+            </p>
+            <div className={`hero-actions${dedicatedWater ? " world-copy" : ""}`}>
+              {!dedicatedWater ? (
                 <>
                   <button
                     className="primary-button"
-                    onClick={() => openOffer("Abonament de cafea")}
+                    onClick={() => openOffer("Cafea + apă")}
                   >
-                    Solicită ofertă pentru birou
+                    Solicită ofertă pentru echipa ta
                     <ArrowUpRight size={20} />
                   </button>
-                  <a className="hero-shop-link" href="#magazin">
-                    Cumpără cafea <ArrowUpRight size={18} />
+                  <a className="hero-shop-link" href="#ecosistem">
+                    Descoperă soluțiile <ArrowUpRight size={18} />
                   </a>
                 </>
               ) : (
@@ -496,16 +480,16 @@ export default function MakeonLanding({
               <span>Zile mai bune.</span>
             </div>
           </div>
-          <div className="hero-art">
+          {dedicatedWater && <div className="hero-art">
             <div className="art-kicker">
               <span>THE ELEMENTS OF A BETTER DAY.</span>
               <span>INTERACTIVE EXPERIENCE</span>
             </div>
             <div className="element-orbit" />
             <div className="element-orbit orbit-inner" />
-            <ElementScene world={world} transitionId={transitionId} />
+            <ElementScene world={dedicatedWater ? world : "coffee"} transitionId={dedicatedWater ? transitionId : 0} combined={!dedicatedWater} />
             <span className="element-side-label">
-              {world === "coffee"
+              {!dedicatedWater ? "DOUĂ ELEMENTE. ACELAȘI ECHILIBRU." : world === "coffee"
                 ? "FROM BEAN TO YOUR EVERYDAY"
                 : "LET THE GOOD FLOW"}
             </span>
@@ -513,20 +497,20 @@ export default function MakeonLanding({
               <span>45° 56′ N</span>
               <span>25° 00′ E</span>
             </div>
-            <div className="element-identity world-copy">
-              <span>{world === "coffee" ? "CAFEA" : "APĂ"}</span>
+            <div className={`element-identity${dedicatedWater ? " world-copy" : ""}`}>
+              <span>{!dedicatedWater ? "SWITCHMORN COFFEE + VERO AQUA" : "APĂ"}</span>
               <strong>
-                {world === "coffee"
+                {!dedicatedWater ? "Împreună, pentru o zi mai bună." : world === "coffee"
                   ? "Totul începe cu un bob."
                   : "Echilibru, în fiecare picătură."}
               </strong>
               <p>
-                {world === "coffee"
+                {!dedicatedWater ? "Energia cafelei. Prospețimea apei." : world === "coffee"
                   ? "O origine. O aromă. Ritualul tău."
                   : "Un gest simplu. Un ritm mai bun."}
               </p>
             </div>
-          </div>
+          </div>}
           <a
             className="scroll-cue"
             href={dedicatedWater ? "#solutii" : "#ecosistem"}
@@ -541,7 +525,7 @@ export default function MakeonLanding({
               ? "APĂ FILTRATĂ. ZI DE ZI."
               : "CAFEA & APĂ. ÎN ECHILIBRU."}
           </span>
-        </section>
+        </section>}
 
         <div className="benefits-strip">
           <span>
@@ -857,8 +841,10 @@ export default function MakeonLanding({
           <div className="section-top reveal">
             <span className="eyebrow world-copy">{data.brand}</span>
             {!dedicatedWater && (
-              <div className="mini-switch">
+              <div className="world-switch solutions-world-switch" role="group" aria-label="Alege lumea Makeon">
+                <span className={`switch-slider ${world}`} aria-hidden="true" />
                 <button
+                  aria-label="Lumea cafelei"
                   aria-pressed={world === "coffee"}
                   onClick={(event) =>
                     changeWorld("coffee", event.currentTarget)
@@ -868,6 +854,7 @@ export default function MakeonLanding({
                   Cafea
                 </button>
                 <button
+                  aria-label="Lumea apei"
                   aria-pressed={world === "water"}
                   onClick={(event) => changeWorld("water", event.currentTarget)}
                 >
@@ -1084,6 +1071,7 @@ export default function MakeonLanding({
       <dialog
         ref={dialog}
         className="contact-dialog"
+        aria-labelledby="contact-dialog-title"
         onCancel={() => setModal(false)}
         onClick={(e) => {
           if (e.target === e.currentTarget) setModal(false);
@@ -1097,8 +1085,9 @@ export default function MakeonLanding({
           >
             <X size={22} />
           </button>
+          <div className="dialog-intro">
           <span className="eyebrow">HAI SĂ NE CUNOAȘTEM</span>
-          <h2>
+          <h2 id="contact-dialog-title">
             O soluție bună
             <br />
             începe cu tine.
@@ -1108,21 +1097,24 @@ export default function MakeonLanding({
               ? "Spune-ne despre evenimentul tău și lasă-ne datele de contact. Verificăm disponibilitatea și pregătim o ofertă potrivită."
               : "Spune-ne ce cauți și lasă-ne datele de contact. Îți pregătim o ofertă potrivită echipei tale."}
           </p>
+          <a className="dialog-phone" href="tel:+40744524728">
+            <Phone size={18} />
+            +40 744 524 728
+            <ArrowUpRight size={18} />
+          </a>
+          <a className="dialog-email text-link" href="mailto:info@makeon.ro">
+            info@makeon.ro
+            <ArrowUpRight size={16} />
+          </a>
+          </div>
+          <div className="dialog-form-panel">
           {modal && (
             <ContactRequestForm
               interest={interest}
               onInterestChange={setInterest}
             />
           )}
-          <a className="dialog-phone" href="tel:+40744524728">
-            <Phone size={18} />
-            +40 744 524 728
-            <ArrowUpRight size={18} />
-          </a>
-          <a className="dialog-email text-link" href="mailto:contact@makeon.ro">
-            contact@makeon.ro
-            <ArrowUpRight size={16} />
-          </a>
+          </div>
         </div>
       </dialog>
     </div>
