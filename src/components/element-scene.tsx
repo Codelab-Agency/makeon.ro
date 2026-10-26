@@ -88,10 +88,12 @@ export default function ElementScene({
   world,
   transitionId,
   combined = false,
+  automatic = false,
 }: {
   world: "coffee" | "water";
   transitionId: number;
   combined?: boolean;
+  automatic?: boolean;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const controls = useRef<{
@@ -122,7 +124,7 @@ export default function ElementScene({
     renderer.domElement.setAttribute("aria-hidden", "true");
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(37, 1, 0.1, 30);
-    camera.position.set(0, 0.25, 7.2);
+    camera.position.set(0, 0.25, automatic ? 6.1 : 7.2);
     const group = new THREE.Group();
     scene.add(group);
     const morph = { value: currentWorld.current === "water" ? 1 : 0 },
@@ -223,6 +225,14 @@ export default function ElementScene({
     };
     el.addEventListener("pointermove", onPointer);
     const render = () => {
+      if (automatic && !reduced.matches) {
+        const phase = time.value % 13.6;
+        const smooth = (value: number) => { const t = THREE.MathUtils.clamp(value, 0, 1); return t * t * (3 - 2 * t); };
+        const target = phase < 6.8 ? smooth((phase - 5) / 1.8) : 1 - smooth((phase - 11.8) / 1.8);
+        morph.value = target;
+        const moving = phase >= 5 && phase <= 6.8 || phase >= 11.8;
+        burst.value = moving ? Math.sin(Math.PI * (phase % 6.8 - 5) / 1.8) * .7 : 0;
+      }
       const m = combined ? 0.5 : morph.value;
       satellite.position.y = -0.38 + Math.sin(time.value * 0.65) * 0.25;
       satellite.rotation.z = time.value * 0.1;
@@ -262,6 +272,7 @@ export default function ElementScene({
         );
       });
       renderer.render(scene, camera);
+      if (automatic) el.closest<HTMLElement>('.hero')?.style.setProperty('--hero-water', `${(m * 100).toFixed(2)}%`);
       el.dataset.morph = m.toFixed(3);
       el.dataset.composition = combined ? "coffee-water" : "single";
       el.dataset.frame = String(++frame);
@@ -322,12 +333,13 @@ export default function ElementScene({
       renderer.dispose();
       renderer.domElement.remove();
     };
-  }, [combined]);
+  }, [combined, automatic]);
 
   useEffect(() => {
     currentWorld.current = world;
     const c = controls.current;
     if (!c) return;
+    if (automatic) return;
     if (combined) {
       c.morph.value = 0;
       c.burst.value = 0;
@@ -360,7 +372,7 @@ export default function ElementScene({
         onUpdate: c.render,
       },
     );
-  }, [world, transitionId, combined]);
+  }, [world, transitionId, combined, automatic]);
 
   return (
     <div
@@ -368,7 +380,7 @@ export default function ElementScene({
       ref={host}
       role="img"
       aria-label={
-        combined ? "Bob de cafea și picătură de apă, împreună într-o animație 3D" : world === "coffee"
+        automatic ? "Un bob de cafea se transformă lent într-o picătură de apă și înapoi" : combined ? "Bob de cafea și picătură de apă, împreună într-o animație 3D" : world === "coffee"
           ? "Bob de cafea 3D animat, cu particule de aromă"
           : "Picătură 3D animată, puritatea apei"
       }

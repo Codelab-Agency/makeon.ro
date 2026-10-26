@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const width of [320,390,430,768,1280,1920]) {
-  test(`3D hero switches between coffee and water at ${width}px`,async ({page})=>{
+  test(`shared hero presents both services at ${width}px`,async ({page})=>{
     await page.setViewportSize({width,height:900});
     await page.goto('/');
     const hero=page.locator('.hero');
@@ -16,15 +16,9 @@ for (const width of [320,390,430,768,1280,1920]) {
     await expect(hero.locator('img')).toHaveCount(0);
     await expect(hero.locator('video')).toHaveCount(0);
     await expect(hero.locator('.hero-art .element-scene')).toBeVisible();
-    const selector=hero.locator('.hero-world-switch');
-    await expect(selector.getByRole('button',{name:'Lumea cafelei'})).toHaveAttribute('aria-pressed','true');
-    await selector.getByRole('button',{name:'Lumea apei'}).click();
-    await expect(page.locator('.site')).toHaveClass(/world-water/);
-    await expect(selector.getByRole('button',{name:'Lumea apei'})).toHaveAttribute('aria-pressed','true');
-    await expect(hero.locator('.hero-art .element-scene')).toHaveAttribute('aria-label',/Picătură/);
-    await expect(hero.locator('.hero-world-preview')).toHaveCount(0);
-    await selector.getByRole('button',{name:'Lumea cafelei'}).click();
-    await expect(page.locator('.site')).toHaveClass(/world-coffee/);
+    await expect(hero.locator('.hero-world-switch')).toHaveCount(0);
+    await expect(hero.locator('.hero-description')).toContainText('Espressoare, dozatoare');
+    await expect(hero.locator('.element-identity')).toContainText('SwitchMORN Coffee \u00b7 Vero Aqua');
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
     await hero.getByRole('button',{name:'Solicită ofertă pentru echipa ta'}).click();
     await expect(page.locator('.contact-dialog #interest')).toContainText('Cafea + apă');

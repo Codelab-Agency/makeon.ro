@@ -406,7 +406,7 @@ export default function MakeonLanding({
       />
 
       <main>
-        {!dedicatedWater ? <CombinedHero world={world} transitionId={transitionId} onChange={changeWorld} onOffer={() => openOffer("Cafea + apă")} /> : <section className="hero" aria-labelledby="hero-title">
+        {!dedicatedWater ? <CombinedHero onOffer={() => openOffer("Cafea + apă")} /> : <section className="hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <div className={`hero-world-label${dedicatedWater ? " world-copy" : " hero-brand-pair"}`}>
               {!dedicatedWater && (
