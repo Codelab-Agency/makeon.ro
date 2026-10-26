@@ -124,7 +124,7 @@ export default function ElementScene({
     renderer.domElement.setAttribute("aria-hidden", "true");
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(37, 1, 0.1, 30);
-    camera.position.set(0, 0.25, automatic ? 6.1 : 7.2);
+    camera.position.set(0, automatic ? -0.15 : 0.25, automatic ? 6.9 : 7.2);
     const group = new THREE.Group();
     scene.add(group);
     const morph = { value: currentWorld.current === "water" ? 1 : 0 },
