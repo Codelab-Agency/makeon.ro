@@ -5,7 +5,8 @@ import { legal } from "@/lib/legal";
 export default function LegalFooter() {
   return (
     <div className="legal-footer">
-      <nav className="legal-footer-links" aria-label="Informații legale">
+      <nav className="legal-footer-links" aria-label="Despre Makeon și informații legale">
+        <Link href="/#despre">Despre noi</Link>
         <Link href={legal.terms}>Termeni și condiții</Link>
         <Link href={legal.privacy}>Confidențialitate</Link>
         <Link href={legal.cookies}>Cookie-uri</Link>

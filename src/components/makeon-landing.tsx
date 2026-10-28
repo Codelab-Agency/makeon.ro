@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import FooterBrands from "./footer-brands";
 import CombinedHero from "./combined-hero";
+import FooterIdentity from "./footer-identity";
 import FilterCartridges from "./filter-cartridges";
 import SubscriptionArtwork from "./subscription-artwork";
 import {
@@ -91,7 +92,7 @@ const content = {
       ],
       [
         "Ce sortimente de cafea sunt disponibile?",
-        "Magazinul include 17 sortimente din catalogul SwitchMorn: blenduri de cafea boabe, cafele de origine măcinate, Organic, Decaff, Solubilă Peru BIO, Chicory și Kopi Luwak. Gramajele, aromele și detaliile fiecărei cafele sunt disponibile pe pagina produsului.",
+        "Selecția de cafele se actualizează în magazin. Acolo găsești sortimentele disponibile, iar pe pagina fiecărui produs poți consulta gramajul, notele aromatice și detaliile de preparare. Dacă nu știi ce să alegi, te ajutăm să găsești cafeaua potrivită gustului și aparatului tău.",
       ],
       [
         "Pot combina cafeaua cu un abonament de apă?",
@@ -188,9 +189,11 @@ function Filters() {
 export default function MakeonLanding({
   initialWorld = "coffee",
   dedicatedWater = false,
+  dedicatedCoffee = false,
 }: {
   initialWorld?: World;
   dedicatedWater?: boolean;
+  dedicatedCoffee?: boolean;
 }) {
   const [world, setWorld] = useState<World>(
     dedicatedWater ? "water" : initialWorld,
@@ -202,7 +205,7 @@ export default function MakeonLanding({
   const [faq, setFaq] = useState<number | null>(0);
   const [modal, setModal] = useState(false);
   const [interest, setInterest] = useState(
-    dedicatedWater ? "Consultanță pentru filtrarea apei" : "Cafea + apă",
+    dedicatedWater ? "Consultanță pentru filtrarea apei" : dedicatedCoffee ? "Cafea și espressoare" : "Cafea + apă",
   );
   const root = useRef<HTMLDivElement>(null);
   const scrollAnchor = useRef<{ element: HTMLElement; top: number } | null>(
@@ -337,7 +340,7 @@ export default function MakeonLanding({
   function openOffer(
     selection = dedicatedWater
       ? "Consultanță pentru filtrarea apei"
-      : "Cafea + apă",
+      : dedicatedCoffee ? "Cafea și espressoare" : "Cafea + apă",
   ) {
     setInterest(normalizeService(selection));
     setModal(true);
@@ -345,7 +348,7 @@ export default function MakeonLanding({
   // Anchor section-local switches in viewport space because world-specific content
   // changes page height. The layout effect restores that anchor after React commits.
   function changeWorld(value: World, source?: HTMLElement) {
-    if (dedicatedWater) return;
+    if (dedicatedWater || dedicatedCoffee) return;
     if (activeWorld.current === value) return;
     const localSwitch = source?.closest<HTMLElement>(
       ".business-switch, .mini-switch, .solutions-world-switch",
@@ -406,7 +409,18 @@ export default function MakeonLanding({
       />
 
       <main>
-        {!dedicatedWater ? <CombinedHero onOffer={() => openOffer("Cafea + apă")} /> : <section className="hero" aria-labelledby="hero-title">
+        {dedicatedCoffee ? <section className="hero" aria-labelledby="hero-title">
+          <div className="hero-copy">
+            <p className="eyebrow">SWITCHMORN COFFEE · CAFEAUA TA</p>
+            <h1 id="hero-title">Cafea de origine.<br /><span>La biroul tău.</span></h1>
+            <p className="hero-description">Cafea proaspăt prăjită, din prăjitorie direct la voi. Alegem cafeaua, espressorul în comodat și aprovizionarea în funcție de numărul de colegi, consum și preferințele echipei.</p>
+            <div className="hero-actions">
+              <button className="primary-button" onClick={() => openOffer("Cafea și espressoare")}>Solicită o ofertă personalizată <ArrowUpRight size={18} /></button>
+              <a className="hero-shop-link" href="#solutii">Descoperă serviciul <ArrowDown size={16} /></a>
+            </div>
+          </div>
+          <div className="hero-art"><ElementScene world="coffee" transitionId={0} /><div className="element-identity"><span>SWITCHMORN COFFEE</span><strong>Pauza de energie a echipei tale.</strong></div></div>
+        </section> : !dedicatedWater ? <CombinedHero onOffer={() => openOffer("Cafea + apă")} /> : <section className="hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <div className={`hero-world-label${dedicatedWater ? " world-copy" : " hero-brand-pair"}`}>
               {!dedicatedWater && (
@@ -549,7 +563,7 @@ export default function MakeonLanding({
           </span>
         </div>
 
-        {!dedicatedWater && (
+        {!dedicatedWater && !dedicatedCoffee && (
           <section className="ecosystem section-padding" id="ecosistem">
             <AmbientOrbit />
             <div className="section-top reveal">
@@ -666,7 +680,7 @@ export default function MakeonLanding({
                 ? "CAFEA PENTRU BIROURI"
                 : "APĂ FILTRATĂ PENTRU COMPANII"}
             </span>
-            {!dedicatedWater && (
+            {!dedicatedWater && !dedicatedCoffee && (
               <div
                 className="business-switch"
                 role="group"
@@ -840,7 +854,7 @@ export default function MakeonLanding({
         <section className="solutions section-padding" id="solutii">
           <div className="section-top reveal">
             <span className="eyebrow world-copy">{data.brand}</span>
-            {!dedicatedWater && (
+            {!dedicatedWater && !dedicatedCoffee && (
               <div className="world-switch solutions-world-switch" role="group" aria-label="Alege lumea Makeon">
                 <span className={`switch-slider ${world}`} aria-hidden="true" />
                 <button
@@ -1040,14 +1054,7 @@ export default function MakeonLanding({
 
       <footer className="footer">
         <div className="footer-top">
-          <div className="footer-identity">
-            <BrandLogo href="#" />
-            <p>
-              Grijă pentru oameni.
-              <br />
-              În fiecare ceașcă. În fiecare pahar.
-            </p>
-          </div>
+          <FooterIdentity />
           <FooterBrands />
           <a href="tel:+40744524728" className="footer-phone">
             Hai să vorbim

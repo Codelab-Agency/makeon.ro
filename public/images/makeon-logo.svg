@@ -1,35 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 260" fill="none" role="img" aria-labelledby="makeon-logo-title">
-  <title id="makeon-logo-title">Makeon — apă și cafea</title>
-  <defs>
-    <linearGradient id="makeon-gold" x1="48" y1="38" x2="196" y2="220" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#A87532"/>
-      <stop offset=".24" stop-color="#F2DDA1"/>
-      <stop offset=".47" stop-color="#BF914C"/>
-      <stop offset=".7" stop-color="#EDCF8A"/>
-      <stop offset="1" stop-color="#9D6B2D"/>
-    </linearGradient>
-    <linearGradient id="makeon-water" x1="137" y1="96" x2="101" y2="175" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#78A5B0"/>
-      <stop offset=".29" stop-color="#244552"/>
-      <stop offset="1" stop-color="#0C202A"/>
-    </linearGradient>
-    <linearGradient id="makeon-rim" x1="121" y1="91" x2="143" y2="124" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#F4EED8"/>
-      <stop offset="1" stop-color="#5D8997" stop-opacity="0"/>
-    </linearGradient>
-  </defs>
-  <!-- Open at the base, where the cup completes the circular silhouette. -->
-  <path d="M108 221C63 213 32 174 32 128C32 76 74 34 126 34C178 34 220 76 220 128C220 174 189 212 145 221" stroke="url(#makeon-gold)" stroke-width="2.8" stroke-linecap="round"/>
-  <!-- The outer flame also reads as a water drop. -->
-  <path d="M125 58C139 98 102 113 93 146C83 181 106 195 126 195C150 195 167 178 165 154C164 136 151 120 142 109C147 128 153 137 153 154C153 174 142 184 127 184C107 184 93 169 96 148C100 122 132 103 125 58Z" fill="url(#makeon-gold)"/>
-  <!-- Blue core, kept deliberately dark like the supplied mark. -->
-  <path d="M130 87C132 108 123 118 110 132C96 148 98 166 110 179C107 160 118 143 132 135C148 126 138 112 135 105C133 100 132 94 130 87Z" fill="url(#makeon-water)"/>
-  <path d="M130 88C131 99 132 105 136 113C140 122 138 127 132 132" stroke="url(#makeon-rim)" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- Coffee bean. -->
-  <path d="M143 141C153 147 151 164 142 175C134 185 123 189 117 181C110 173 115 155 124 146C131 139 138 137 143 141Z" stroke="url(#makeon-gold)" stroke-width="2.9"/>
-  <path d="M141 142C144 153 133 157 128 164C124 170 125 177 119 182" stroke="url(#makeon-gold)" stroke-width="2.5" stroke-linecap="round"/>
-  <!-- Cup and saucer, with an uninterrupted transparent interior. -->
-  <path d="M91 175H71C78 203 99 218 126 218C153 218 174 203 181 175H164" stroke="url(#makeon-gold)" stroke-width="3.1" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M82 180C91 201 107 211 126 211C145 211 161 202 170 184" stroke="url(#makeon-gold)" stroke-width="1.7" stroke-linecap="round"/>
-  <path d="M80 205C92 220 108 227 126 227C144 227 160 220 172 205" stroke="url(#makeon-gold)" stroke-width="2.2" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="125 65 450 430" fill="none">
+  <title>Makeon — cafea și apă</title>
+  <!-- The outer arc tapers to two separate ends. It never closes below the cup. -->
+  <path d="M248 472C180 438 137 369 137 290C137 174 232 80 348 80C465 80 559 174 559 290C559 369 517 437 454 470C514 427 550 362 550 290C550 181 459 93 348 93C237 93 147 181 147 290C147 363 185 429 248 472Z" fill="#B89A64"/>
+  <!-- Gold flame, with the coffee cup left open on either side. -->
+  <path d="M349 140C365 204 292 248 275 302C255 366 286 419 345 420C395 422 431 390 430 343C430 304 410 274 387 255C410 282 422 312 422 343C422 386 392 410 348 410C295 409 267 367 283 312C299 260 363 208 349 140Z" fill="#B89A64"/>
+  <!-- Water drop. -->
+  <path d="M356 198C350 244 313 266 292 298C273 326 277 358 296 379C301 384 307 382 309 374C306 343 324 323 352 308C385 291 387 263 367 224C362 214 359 205 356 198Z" fill="#21313D"/>
+  <path d="M356 207C347 250 313 272 297 301C282 326 285 351 297 365C300 334 321 313 348 298C375 283 379 261 363 227C360 220 358 213 356 207Z" fill="#2D5C87"/>
+  <!-- Roasted bean and its curved seam. -->
+  <ellipse cx="359" cy="359" rx="39" ry="51" transform="rotate(31 359 359)" fill="#B89A64"/>
+  <ellipse cx="359" cy="359" rx="29" ry="42" transform="rotate(31 359 359)" fill="#563B16"/>
+  <path d="M379 320C378 345 350 353 340 376C336 384 335 390 335 395" stroke="#B89A64" stroke-width="9"/>
+  <!-- One open cup silhouette; the circle above is not joined to its base. -->
+  <path d="M264 382H219C236 444 286 483 348 483C411 483 461 444 477 382H430L427 392H463C445 442 401 473 348 473C295 473 251 442 233 392H264V382Z" fill="#B89A64"/>
+  <path d="M239 400C258 437 297 461 351 463C302 469 259 448 239 400Z" fill="#B89A64"/>
 </svg>

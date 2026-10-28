@@ -8,12 +8,10 @@ import BrandLogo from "./brand-logo";
 import useDialogMotion from "./use-dialog-motion";
 
 const links = [
-  { label: "Universul Makeon", href: "/#ecosistem" },
-  { label: "Magazin cafea", href: "/cafea" },
-  { label: "Apă filtrată", href: "/apa" },
-  { label: "Soluții", href: "/#solutii" },
-  { label: "Servicii", href: "/#servicii" },
-  { label: "Cafea pentru birouri", href: "/#abonamente" },
+  { label: "Cafeaua ta", href: "/cafeaua-ta" },
+  { label: "Pauza ta de hidratare", href: "/apa" },
+  { label: "Prăjitoria ta", href: "/cafea" },
+  { label: "Evenimentul tău", href: "/evenimente" },
 ];
 
 export default function SiteHeader({
@@ -23,19 +21,7 @@ export default function SiteHeader({
   onOffer?: () => void;
   sectionBase?: "/" | "/apa";
 }) {
-  // Section links stay on the dedicated landing; the brand overview stays home.
-  const navigation = links.map((link) =>
-    link.href.startsWith("/#") && link.href !== "/#ecosistem"
-      ? {
-          ...link,
-          href: `${sectionBase}${link.href.slice(1)}`,
-          label:
-            sectionBase === "/apa" && link.href === "/#abonamente"
-              ? "Apă pentru birouri"
-              : link.label,
-        }
-      : link,
-  );
+  const navigation = links;
   const [mobileMenu, setMobileMenu] = useState(false);
   const menu = useRef<HTMLDialogElement>(null);
   useDialogMotion(menu, mobileMenu, "menu");
@@ -54,7 +40,6 @@ export default function SiteHeader({
         {navigation.map((link) => (
           <Link key={link.href} href={link.href}>
             {link.label}
-            {link.label === "Soluții" && <span className="nav-plus">+</span>}
           </Link>
         ))}
       </nav>

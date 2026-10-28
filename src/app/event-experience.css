@@ -1,0 +1,99 @@
+.occasion-page { --occasion-space: clamp(56px, 7vw, 112px); }
+.occasion-section { padding: var(--occasion-space) var(--page-gutter); }
+.occasion-eyebrow { margin: 0 0 24px; font-size: 9px; letter-spacing: .16em; line-height: 1.7; color: var(--muted); }
+.occasion-page h2 { font-size: clamp(40px, 4.6vw, 70px); font-weight: 450; line-height: 1.05; letter-spacing: -.035em; margin: 0; }
+.occasion-page h2 em { font-style: normal; color: var(--muted); }
+.occasion-hero { position: relative; isolation: isolate; min-height: clamp(690px, calc(100svh - 96px), 1000px); display: flex; align-items: center; overflow: hidden; color: #fff7e9; background: #1a1710; padding: 80px var(--page-gutter) 120px; }
+.occasion-hero-image { position: absolute; inset: -40px 0; z-index: -2; transform: translateY(var(--occasion-travel, 0px)); }
+.occasion-hero-image img { object-fit: cover; object-position: 65% 55%; }
+.occasion-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, #100e0bcf, #100e0b65 58%, #100e0b10), linear-gradient(0deg, #100e0bb3, transparent 40%); }
+.occasion-hero-copy { max-width: 760px; }
+.occasion-hero .occasion-eyebrow { color: #dcc09a; }
+.occasion-page .occasion-hero h1 { font-size: clamp(72px, 8vw, 130px); font-weight: 450; letter-spacing: -.035em; line-height: .95; margin: 0 0 32px; }
+.occasion-hero h1 > span { display: block; }
+.occasion-hero h1 em { display: block; color: #e0bb88; font-style: normal; }
+.occasion-hero-copy > p:not(.occasion-eyebrow) { max-width: 390px; color: #e5dccd; font-size: 15px; line-height: 1.85; }
+.occasion-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; margin-top: 30px; }
+.occasion-page .primary-button { min-height: 52px; font-size: 12px; padding: 17px 22px; gap: 24px; }
+.occasion-actions > a { display: inline-flex; gap: 14px; align-items: center; font-size: 12px; min-height: 44px; }
+.occasion-hero-bottom { position: absolute; bottom: 30px; inset-inline: var(--page-gutter); display: flex; gap: 20px; justify-content: space-between; align-items: center; padding-top: 22px; border-top: 1px solid #ffffff38; font-size: 8px; letter-spacing: .13em; }
+.occasion-hero-bottom > span:first-child { display: flex; align-items: center; gap: 12px; }
+.occasion-intro > div:first-of-type { display: grid; grid-template-columns: 1.2fr 1fr; gap: 10%; align-items: end; }
+.occasion-intro > div > p { max-width: 510px; color: var(--muted); font-size: 15px; line-height: 1.9; }
+.occasion-contexts { display: flex; flex-wrap: wrap; gap: 12px 36px; margin-top: 38px; }
+.occasion-contexts > span { font-size: 11px; padding-top: 16px; border-top: 1px solid var(--line); }
+.occasion-formats { background: #eee6d9; scroll-margin-top: 96px; }
+.occasion-format-heading { display: flex; align-items: end; justify-content: space-between; gap: 32px; margin-bottom: 42px; }
+.occasion-format-switch { display: flex; gap: 6px; padding: 5px; border: 1px solid #cec1af; border-radius: 30px; }
+.occasion-format-switch button { min-height: 44px; display: flex; align-items: center; gap: 18px; padding: 12px 18px; background: transparent; border-radius: 24px; color: #6c6153; font-size: 12px; }
+.occasion-format-switch button[aria-pressed="true"] { background: #3c3025; color: #f9f1e6; }
+.occasion-format-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 90px); align-items: center; }
+.occasion-format-photo { position: relative; height: clamp(400px, 40vw, 570px); overflow: hidden; background: #c7bcae; border-radius: 4px; }
+.occasion-format-photo img { object-fit: cover; }
+.format-bar .occasion-format-photo img { object-position: 50% 48%; }
+.occasion-format-photo > span { position: absolute; left: 22px; bottom: 22px; color: #fff7e7; background: #201b17c9; font-size: 8px; letter-spacing: .16em; padding: 12px 15px; border-radius: 2px; }
+.occasion-format-number { display: block; font-size: 12px; color: #a18a70; margin-bottom: 28px; }
+.occasion-page .occasion-format-copy h3 { font-size: clamp(33px, 3.5vw, 52px); line-height: 1.08; font-weight: 450; letter-spacing: -.025em; margin: 0 0 24px; }
+.occasion-format-copy > p { font-size: 14px; line-height: 1.9; color: #766959; }
+.occasion-format-copy ul { display: grid; gap: 16px; margin: 30px 0; padding: 0; list-style: none; }
+.occasion-format-copy li { display: flex; gap: 12px; font-size: 12px; line-height: 1.7; }
+.occasion-format-copy li svg { flex-shrink: 0; margin-top: 2px; }
+.occasion-format-copy .text-link { min-height: 44px; text-align: start; font-size: 12px; }
+.occasion-planning-lead { max-width: 510px; margin-top: 24px; color: var(--muted); font-size: 15px; line-height: 1.85; }
+.occasion-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(28px, 5vw, 76px); margin-top: 54px; }
+.occasion-steps article > div { display: flex; justify-content: space-between; align-items: center; padding-bottom: 24px; border-bottom: 1px solid var(--line); color: #a78a68; }
+.occasion-steps article > div > span { font-size: 10px; }
+.occasion-page .occasion-steps h3 { font-size: 30px; font-weight: 450; line-height: 1.15; margin: 26px 0 18px; }
+.occasion-steps p { font-size: 14px; color: var(--muted); line-height: 1.85; }
+.occasion-questions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 9%; padding-top: 0; }
+.occasion-questions details { border-top: 1px solid var(--line); }
+.occasion-questions details:last-child { border-bottom: 1px solid var(--line); }
+.occasion-questions summary { display: flex; justify-content: space-between; align-items: center; gap: 24px; cursor: pointer; list-style: none; padding: 23px 0; font-size: 14px; line-height: 1.6; }
+.occasion-questions summary::-webkit-details-marker { display: none; }
+.occasion-questions summary svg { flex-shrink: 0; }
+.occasion-questions details[open] summary svg { transform: rotate(45deg); }
+.occasion-questions details > p { font-size: 13px; line-height: 1.85; color: var(--muted); padding-bottom: 24px; max-width: 530px; }
+.occasion-closing { position: relative; text-align: center; background: #221a14; color: #f5eadb; overflow: hidden; }
+.occasion-closing .occasion-eyebrow { color: #b5a087; }
+.occasion-page .occasion-closing h2 { font-size: clamp(52px, 6vw, 90px); }
+.occasion-closing h2 em { color: #d4ac7a; }
+.occasion-closing > p:not(.occasion-eyebrow) { margin: 28px 0; font-size: 14px; line-height: 1.85; color: #c1b29f; }
+.occasion-closing > a { display: block; width: fit-content; min-height: 44px; margin: 18px auto 0; padding-block: 12px; font-size: 12px; color: #cfbba3; }
+@media (prefers-reduced-motion: no-preference) {
+  .occasion-hero-copy { animation: occasion-enter 900ms 100ms cubic-bezier(.2, 0, 0, 1) both; }
+  .occasion-hero h1 > span:last-child { animation: occasion-enter 1000ms 200ms cubic-bezier(.2, 0, 0, 1) both; }
+  .occasion-hero-image img { animation: occasion-photo-enter 1600ms cubic-bezier(.2, 0, 0, 1) both; }
+  .occasion-format-photo { animation: occasion-format-enter 650ms cubic-bezier(.2, 0, 0, 1) both; }
+  .occasion-page[data-motion="true"] .occasion-reveal { opacity: 0; transform: translateY(24px); transition: opacity 700ms ease, transform 700ms cubic-bezier(.2, 0, 0, 1); }
+  .occasion-page[data-motion="true"] .occasion-reveal[data-visible="true"] { opacity: 1; transform: translateY(0); }
+}
+@keyframes occasion-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes occasion-photo-enter { from { opacity: .5; scale: 1.05; } to { opacity: 1; scale: 1; } }
+@keyframes occasion-format-enter { from { opacity: .4; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+@media (max-width: 1000px) {
+  .occasion-format-heading { align-items: start; flex-direction: column; }
+  .occasion-format-layout { gap: 32px; }
+}
+@media (max-width: 700px) {
+  .occasion-hero { min-height: calc(100svh - 76px); padding-block: 64px 100px; }
+  .occasion-hero-image img { object-position: 58% center; }
+  .occasion-hero::after { background: linear-gradient(90deg, #100e0bd9, #100e0b70), linear-gradient(0deg, #100e0bcc, transparent 45%); }
+  .occasion-page .occasion-hero h1 { font-size: clamp(58px, 13.5vw, 94px); line-height: .98; }
+  .occasion-hero-copy > p:not(.occasion-eyebrow) { font-size: 14px; max-width: 320px; }
+  .occasion-eyebrow { font-size: 8px; }
+  .occasion-actions { gap: 10px; flex-direction: column; align-items: stretch; }
+  .occasion-actions .primary-button { justify-content: space-between; gap: 12px; font-size: 11px; padding-inline: 16px; }
+  .occasion-actions > a { justify-content: center; }
+  .occasion-hero-bottom { bottom: 22px; font-size: 7px; }
+  .occasion-hero-bottom > span:last-child { display: none; }
+  .occasion-intro > div:first-of-type, .occasion-format-layout, .occasion-steps, .occasion-questions { grid-template-columns: minmax(0, 1fr); gap: 30px; }
+  .occasion-intro > div > p { font-size: 14px; }
+  .occasion-contexts { gap: 12px 24px; }
+  .occasion-format-switch { width: 100%; }
+  .occasion-format-switch button { flex: 1; padding-inline: 12px; gap: 10px; font-size: 11px; }
+  .occasion-formats { scroll-margin-top: 76px; }
+  .occasion-format-photo { height: 380px; }
+  .occasion-format-number { margin-bottom: 20px; }
+  .occasion-steps { margin-top: 36px; }
+  .occasion-steps article > div { padding-bottom: 18px; }
+}

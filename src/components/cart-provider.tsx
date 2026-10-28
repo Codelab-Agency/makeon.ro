@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ArrowUpRight,
   Check,
@@ -72,6 +73,13 @@ export default function CartProvider({
   const [paying, setPaying] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [paymentError, setPaymentError] = useState("");
+  const [recoveringCheckout, setRecoveringCheckout] = useState(false);
+  const [checkoutRecoveryError, setCheckoutRecoveryError] = useState(false);
+  const pathname = usePathname();
+  const departingForCheckout = useRef(false);
+  const checkoutRecoveryInFlight = useRef(false);
+  const refreshCatalog = useRef(catalog.refresh);
+  refreshCatalog.current = catalog.refresh;
   // Network retries retain the key for this cart; a changed cart receives a new key.
   const checkoutKey = useRef<{ fingerprint: string; key: string } | null>(null);
   const [items, setItems] = useState<CartLine[]>([]),
@@ -82,6 +90,39 @@ export default function CartProvider({
   const dialog = useRef<HTMLDialogElement>(null);
   useDialogMotion(dialog, opened, "cart");
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    // A Stripe return page owns its confirmation/cancellation. Any return to the
+    // storefront (including browser Back/BFCache) abandons the previous session.
+    if (pathname === "/comanda") return;
+    const recover = async (event?: Event) => {
+      if (event?.type === "pageshow") departingForCheckout.current = false;
+      if (checkoutRecoveryInFlight.current || document.hidden || departingForCheckout.current) return;
+      const key = sessionStorage.getItem("makeon-checkout-key");
+      if (!key) return;
+      checkoutRecoveryInFlight.current = true; setRecoveringCheckout(true); setCheckoutRecoveryError(false);
+      try {
+        const response = await fetch("/api/checkout/cancel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key }) });
+        if (!response.ok) throw new Error("Reservation recovery failed");
+        const result = await response.json();
+        const snapshot = sessionStorage.getItem("makeon-checkout-cart");
+        if (sessionStorage.getItem("makeon-checkout-key") === key) {
+          sessionStorage.removeItem("makeon-checkout-key");
+          sessionStorage.removeItem("makeon-checkout-cart");
+        }
+        if (result.paid && snapshot) setItems(previous => JSON.stringify(previous) === snapshot ? [] : previous);
+        checkoutKey.current = null; setPaying(false); setPaymentError(""); setCheckoutRecoveryError(false); setTermsAccepted(false);
+        refreshCatalog.current();
+      } catch {
+        setCheckoutRecoveryError(true);
+        setPaymentError("Nu am putut confirma eliberarea rezervării. Reîncearcă înainte de a porni o nouă plată.");
+        setPaying(false);
+      } finally { checkoutRecoveryInFlight.current = false; setRecoveringCheckout(false); }
+    };
+    void recover();
+    window.addEventListener("pageshow", recover); window.addEventListener("focus", recover);
+    window.addEventListener("makeon:checkout-return", recover); document.addEventListener("visibilitychange", recover);
+    return () => { window.removeEventListener("pageshow", recover); window.removeEventListener("focus", recover); window.removeEventListener("makeon:checkout-return", recover); document.removeEventListener("visibilitychange", recover); };
+  }, [pathname]);
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) ?? "[]");
@@ -161,6 +202,7 @@ export default function CartProvider({
   // UI hint only: the server performs the atomic stock check. An existing retry
   // may already hold this cart's reservation, reducing the reported public stock.
   const canPay =
+    !recoveringCheckout && !checkoutRecoveryError &&
     catalog.checkout &&
     completePrices &&
     items.every((i) => {
@@ -174,6 +216,7 @@ export default function CartProvider({
       );
     });
   const needsRequest =
+    !recoveringCheckout && !checkoutRecoveryError &&
     catalog.managed &&
     catalog.ready &&
     !catalog.unavailable &&
@@ -210,6 +253,7 @@ export default function CartProvider({
       }
       sessionStorage.setItem("makeon-checkout-cart", fingerprint);
       sessionStorage.setItem("makeon-checkout-key", checkoutKey.current.key);
+      departingForCheckout.current = true;
       window.location.assign(data.url);
     } catch (error) {
       setPaymentError(
@@ -471,6 +515,8 @@ export default function CartProvider({
                     {paymentError}
                   </p>
                 )}
+                {recoveringCheckout && <p className="checkout-error" role="status">Eliberăm rezervarea de la plata anterioară…</p>}
+                {checkoutRecoveryError && <button type="button" className="text-link" onClick={() => window.dispatchEvent(new Event("makeon:checkout-return"))}>Reîncearcă eliberarea rezervării</button>}
                 <span className="cart-summary-note">
                   {needsRequest
                     ? "Plata se face prin link după confirmarea telefonică."

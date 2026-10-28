@@ -40,7 +40,8 @@ test('complementary products require a unit, not grams; payment preserves invent
   await assert.rejects(cms.update({collection:'products',id:accessory.id,data:{unitLabel:null}}), /unitatea/);
   const key = randomUUID();
   await commerce.createCheckout([{slug,grind:'Standard',quantity:1}],key,fakeStripe,cms);
-  const order = (await cms.find({collection:'orders',where:{reference:{equals:`MK-${key}`}}})).docs[0];
+  assert.equal((await cms.find({collection:'orders',where:{reference:{equals:`MK-${key}`}}})).docs.length,0);
+  const order = (await draft(key)).snapshot;
   assert.equal(order.items[0].name,'Cești test · Set de 6');
   assert.equal((await cms.findByID({collection:'products',id:accessory.id})).reserved,1);
   const session = keys.get(`MK-${key}`)!;
@@ -65,6 +66,14 @@ test('decaff formats and complementary selections reject incompatible grinds', (
 before(async () => {
   // This suite is deliberately restricted to an isolated local database.
   process.env.DATABASE_URL = 'postgresql://postgres:makeon-local-test-only@127.0.0.1:55432/makeon_test';
+  const testDatabase = new URL(process.env.DATABASE_URL);
+  assert.equal(testDatabase.hostname, '127.0.0.1');
+  assert.equal(testDatabase.port, '55432');
+  assert.equal(testDatabase.pathname, '/makeon_test');
+  // Payload's push removes these SQL-only TEST tables before this suite recreates
+  // them. Acknowledge that reset only after the hard-coded local target checks.
+  const { createRequire } = await import('node:module');
+  createRequire(import.meta.url)('prompts').inject([true]);
   process.env.PAYLOAD_DB_PUSH = 'true';
   process.env.PAYLOAD_SECRET = 'local-integration-test-secret-not-for-production';
   process.env.STRIPE_SECRET_KEY = 'sk_test_local_mock'; process.env.STRIPE_WEBHOOK_SECRET = 'whsec_local_mock';
@@ -83,6 +92,9 @@ before(async () => {
   const notifications = await import('../../src/migrations/20261011_120000_order_status_emails');
   await adapter.drizzle.execute(sql`DROP TABLE IF EXISTS order_status_emails`);
   await notifications.up({ db: adapter.drizzle } as Parameters<typeof notifications.up>[0]);
+  const reservations = await import('../../src/migrations/20261028_160000_checkout_reservations');
+  await adapter.drizzle.execute(sql`DROP TABLE IF EXISTS checkout_reservations`);
+  await reservations.up({ db: adapter.drizzle } as Parameters<typeof reservations.up>[0]);
   commerce = await import('../../src/lib/commerce');
 });
 after(async () => { if (cms) {
@@ -94,6 +106,11 @@ after(async () => { if (cms) {
 async function product(stock = 5) {
   return cms.create({ collection: 'products', data: { slug: `test-${randomUUID()}`, name: 'Cafea test', category: 'boabe',
     collection: 'Teste', grams: 500, description: 'Produs pentru verificarea comenzilor.', price: 49.99, stock, reserved: 0, active: true } });
+}
+
+async function draft(key: string) {
+  const result = await (cms.db as unknown as PostgresAdapter).drizzle.execute(sql`SELECT snapshot, status FROM checkout_reservations WHERE reference = ${`MK-${key}`}`);
+  return result.rows[0] as unknown as { snapshot: import('../../src/payload-types').Order; status: string };
 }
 
 test('only admins can delete unused products; order history and reservations prevent deletion', async () => {
@@ -123,6 +140,7 @@ test('only admins can delete unused products; order history and reservations pre
 test('admin order edits preserve payment snapshots and concurrent stock settlement', async () => {
   const p = await product(3); const key = randomUUID();
   await commerce.createCheckout([{ slug: p.slug, grind: 'Boabe', quantity: 1 }], key, fakeStripe, cms);
+  await commerce.applySession({ ...keys.get(`MK-${key}`)!, status: 'complete', payment_status: 'paid' }, cms);
   const order = (await cms.find({ collection: 'orders', where: { reference: { equals: `MK-${key}` } } })).docs[0];
   const user = { id: 999, collection: 'users' as const, email: 'admin@example.test' };
   await assert.rejects(cms.update({ collection: 'orders', id: order.id, overrideAccess: false, data: { fulfillmentStatus: 'processing' } }));
@@ -180,7 +198,7 @@ test('reserves stock, snapshots server price, and retries checkout idempotently'
   const updated = await cms.findByID({ collection: 'products', id: p.id });
   assert.equal(updated.stock, 5); assert.equal(updated.reserved, 2); assert.equal(creates, beforeCreates + 1);
   const orders = await cms.find({ collection: 'orders', where: { reference: { equals: `MK-${key}` } }, depth: 0 });
-  assert.equal(orders.docs.length, 1); assert.equal(orders.docs[0].totalBani, 11998);
+  assert.equal(orders.docs.length, 0); assert.equal((await draft(key)).snapshot.totalBani, 11998);
   await assert.rejects(commerce.createCheckout([{ ...lines[0], quantity: 1 }], key, fakeStripe, cms));
 });
 
@@ -213,6 +231,10 @@ test('expiration releases reservations without reducing physical stock', async (
   assert.equal(updated.stock, 2); assert.equal(updated.reserved, 0);
 });
 
+test('expiration redelivery for a removed legacy checkout is harmless', async () => {
+  await commerce.applySession({ id: 'cs_test_removed_legacy', client_reference_id: `MK-${randomUUID()}`, status: 'expired', payment_status: 'unpaid' } as Stripe.Checkout.Session, cms);
+});
+
 test('an invalid multi-product checkout rolls back every reservation', async () => {
   const a = await product(5), b = await product(0);
   await assert.rejects(commerce.createCheckout([{ slug: a.slug, grind: 'Boabe', quantity: 2 }, { slug: b.slug, grind: 'Boabe', quantity: 1 }], randomUUID(), fakeStripe, cms));
@@ -229,7 +251,41 @@ test('returning from cancelled checkout releases stock and keeps the physical qu
   await commerce.createCheckout([{ slug: p.slug, grind: 'Boabe', quantity: 2 }], key, fakeStripe, cms);
   await commerce.cancelCheckout(key, fakeStripe, cms);
   const updated = await cms.findByID({ collection: 'products', id: p.id });
+  assert.equal((await cms.find({ collection: 'orders', where: { reference: { equals: `MK-${key}` } } })).docs.length, 0);
   assert.equal(updated.stock, 2); assert.equal(updated.reserved, 0);
+});
+
+test('abandonment is idempotent, leaves no order, and the same cart can start a fresh payment', async () => {
+  const p = await product(2), key = randomUUID();
+  const lines = [{ slug: p.slug, grind: 'Boabe', quantity: 2 }];
+  await commerce.createCheckout(lines, key, fakeStripe, cms, legal.version);
+  assert.equal((await cms.find({ collection: 'orders', where: { reference: { equals: `MK-${key}` } } })).totalDocs, 0);
+  await Promise.all([commerce.cancelCheckout(key, fakeStripe, cms), commerce.cancelCheckout(key, fakeStripe, cms)]);
+  const saved = await cms.findByID({ collection: 'products', id: p.id });
+  assert.equal(saved.stock, 2); assert.equal(saved.reserved, 0);
+  assert.equal((await draft(key)).status, 'expired');
+  await assert.rejects(commerce.createCheckout(lines, key, fakeStripe, cms));
+  const nextKey = randomUUID();
+  await commerce.createCheckout(lines, nextKey, fakeStripe, cms, legal.version);
+  const session = { ...keys.get(`MK-${nextKey}`)!, status: 'complete', payment_status: 'paid' } as Stripe.Checkout.Session;
+  await Promise.all([commerce.applySession(session, cms), commerce.applySession(session, cms)]);
+  const orders = await cms.find({ collection: 'orders', where: { reference: { equals: `MK-${nextKey}` } } });
+  assert.equal(orders.totalDocs, 1); assert.equal(orders.docs[0].status, 'paid');
+});
+
+test('payment winning the cancel race is recorded instead of released', async () => {
+  const p = await product(1), key = randomUUID();
+  await commerce.createCheckout([{ slug: p.slug, grind: 'Boabe', quantity: 1 }], key, fakeStripe, cms);
+  const session = keys.get(`MK-${key}`)!;
+  const racingStripe = { checkout: { sessions: { ...fakeStripe.checkout.sessions, expire: async () => {
+    session.status = 'complete'; session.payment_status = 'paid';
+    throw new (await import('stripe')).default.errors.StripeInvalidRequestError({ message: 'Session already complete' });
+  } } } } as unknown as Stripe;
+  const result = await commerce.cancelCheckout(key, racingStripe, cms);
+  assert.equal(result?.paid, true);
+  const saved = await cms.findByID({ collection: 'products', id: p.id });
+  assert.equal(saved.stock, 0); assert.equal(saved.reserved, 0);
+  assert.equal((await cms.find({ collection: 'orders', where: { reference: { equals: `MK-${key}` } } })).totalDocs, 1);
 });
 
 test('an interrupted Stripe response can be recovered without a second order or reservation', async () => {
@@ -247,7 +303,7 @@ test('an interrupted Stripe response can be recovered without a second order or 
   await commerce.createCheckout(lines, key, networkStripe, cms);
   assert.equal((await cms.findByID({ collection: 'products', id: p.id })).reserved, 1);
   const orders = await cms.find({ collection: 'orders', where: { reference: { equals: `MK-${key}` } } });
-  assert.equal(orders.docs.length, 1);
+  assert.equal(orders.docs.length, 0);
 });
 
 test('webhook rejects an unsigned or forged request', async () => {
@@ -328,9 +384,9 @@ test('an order-save failure rolls back stock deductions and a retry settles exac
   await commerce.createCheckout([{ slug: p.slug, grind: 'Boabe', quantity: 1 }], key, fakeStripe, cms);
   const session = { ...keys.get(`MK-${key}`)!, status: 'complete', payment_status: 'paid' } as Stripe.Checkout.Session;
   const failingCMS = new Proxy(cms, { get(target, name) {
-    if (name === 'update') return async (args: { collection: string; data: { status?: string } }) => {
+    if (name === 'create') return async (args: { collection: string; data: { status?: string } }) => {
       if (args.collection === 'orders' && args.data.status === 'paid') throw new Error('Simulated database write failure');
-      return target.update(args as Parameters<Payload['update']>[0]);
+      return target.create(args as Parameters<Payload['create']>[0]);
     };
     const value = Reflect.get(target, name);
     return typeof value === 'function' ? value.bind(target) : value;
@@ -439,9 +495,9 @@ test('stock checkout rejects missing legal acknowledgement before reserving stoc
   }
   assert.equal((await cms.findByID({collection:'products',id:p.id})).reserved,0);
   const key=randomUUID();await commerce.createCheckout(input.items,key,fakeStripe,cms,legal.version);
-  const first=(await cms.find({collection:'orders',where:{reference:{equals:`MK-${key}`}}})).docs[0];
+  const first=(await draft(key)).snapshot;
   await commerce.createCheckout(input.items,key,fakeStripe,cms,legal.version);
-  const second=await cms.findByID({collection:'orders',id:first.id});
+  const second=(await draft(key)).snapshot;
   assert.equal(first.legalVersion,legal.version);assert.ok(first.legalAcceptedAt);
   assert.equal(second.legalAcceptedAt,first.legalAcceptedAt);
   await assert.rejects(commerce.createCheckout(input.items,key,fakeStripe,cms,'new-version'));

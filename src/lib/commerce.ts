@@ -10,12 +10,10 @@ import type { Payload } from "payload";
 import type { Order } from "@/payload-types";
 import { getCMS } from "./cms";
 import { checkoutConfigured } from "./commerce-env";
-import { packageLabel } from "./product-format";
+import { applyStockSession, cancelStockCheckout, createStockCheckout, reconcileStockReservations } from "./stock-checkout";
 import {
   CommerceError,
   parseLines,
-  priceBani,
-  validGrind,
   type CheckoutLine,
 } from "./commerce-validation";
 
@@ -80,6 +78,8 @@ export async function applySession(
         ? "expired"
         : null;
   if (!target) return;
+  const reservation = await applyStockSession(session, cms);
+  if (reservation.handled) return reservation.order;
   return transaction(cms, async (id) => {
     const req = { transactionID: id };
     await lockOrder(cms, id, reference);
@@ -91,6 +91,9 @@ export async function applySession(
       req,
     });
     const order = found.docs[0];
+    // Legacy abandoned orders are removed after verified expiration. Stripe can
+    // redeliver that expiration; absent state must not turn it into a retry loop.
+    if (!order && target === "expired") return;
     // Expiration retries from an older production link may arrive after regeneration.
     if (
       order?.orderType === "production" &&
@@ -131,6 +134,10 @@ export async function applySession(
         WHERE id = ${productID} AND reserved >= ${quantity} AND stock >= ${quantity} RETURNING id`);
       if (!("rows" in updated) || updated.rows.length !== 1)
         throw new Error("Stock reservation is inconsistent.");
+    }
+    if (target === "expired" && order.orderType !== "production") {
+      await cms.delete({ collection: "orders", id: order.id, req });
+      return;
     }
     return cms.update({
       collection: "orders",
@@ -200,6 +207,7 @@ async function failDraft(cms: Payload, reference: string) {
  * Catalog/checkout requests invoke this recovery; it is not a scheduled job.
  */
 export async function reconcileExpired(cms: Payload, stripe: Stripe) {
+  await reconcileStockReservations(cms, stripe);
   const { docs } = await cms.find({
     collection: "orders",
     depth: 0,
@@ -321,136 +329,14 @@ export async function sessionForOrder(
   }
 }
 
-/**
- * Reserve inventory and persist a price snapshot before opening Stripe Checkout.
- * Client lines contain selections only; CMS supplies prices and availability.
- * Reusing a key requires the same pending cart. Different grind variants consume
- * the same product stock, so reservations aggregate their quantities.
- */
+/** Reserve a cart separately; only confirmed payment creates an order. */
 export async function createCheckout(
-  lines: CheckoutLine[],
-  key: string,
-  stripe = stripeClient(),
-  cmsArg?: Payload,
-  legalVersion?: string,
+  lines: CheckoutLine[], key: string, stripe = stripeClient(), cmsArg?: Payload, legalVersion?: string,
 ) {
   const cms = cmsArg ?? (await getCMS());
-  if (!checkoutConfigured())
-    throw new CommerceError("Plata online nu este încă disponibilă.", 503);
-  // Keep validation here as well as at the HTTP boundary: every caller must
-  // provide positive integer quantities before any reservation is attempted.
-  lines = parseLines({ items: lines });
+  if (!checkoutConfigured()) throw new CommerceError("Plata online nu este disponibil\u0103.", 503);
   await reconcileExpired(cms, stripe);
-  const reference = `MK-${key}`;
-  const fingerprint = (items: CheckoutLine[]) =>
-    JSON.stringify(
-      items
-        .map(({ slug, grind, quantity }) => ({ slug, grind, quantity }))
-        .sort((a, b) =>
-          `${a.slug}:${a.grind}`.localeCompare(`${b.slug}:${b.grind}`),
-        ),
-    );
-  const order = await transaction(cms, async (id) => {
-    await lockOrder(cms, id, reference);
-    const req = { transactionID: id };
-    const existing = await cms.find({
-      collection: "orders",
-      where: { reference: { equals: reference } },
-      limit: 1,
-      depth: 0,
-      req,
-    });
-    if (existing.docs[0]) {
-      const doc = existing.docs[0];
-      if (
-        fingerprint(doc.items) !== fingerprint(lines) ||
-        doc.orderType === "production" ||
-        doc.status !== "pending"
-      )
-        throw new CommerceError("Coșul s-a modificat. Reîncearcă plata.", 409);
-      if (legalVersion && doc.legalVersion && doc.legalVersion !== legalVersion)
-        throw new CommerceError(
-          "Termenii s-au actualizat. Reîncarcă pagina și începe o comandă nouă.",
-          409,
-        );
-      if (legalVersion && !doc.legalVersion)
-        return cms.update({
-          collection: "orders",
-          id: doc.id,
-          req,
-          data: {
-            legalVersion,
-            legalAcceptedAt: new Date().toISOString(),
-          },
-        });
-      return doc;
-    }
-    const products = await cms.find({
-      collection: "products",
-      where: { slug: { in: lines.map((l) => l.slug) } },
-      limit: 100,
-      depth: 0,
-      req,
-    });
-    const bySlug = new Map(products.docs.map((p) => [p.slug, p]));
-    const quantities = new Map<number, number>();
-    const items = lines.map((line) => {
-      const p = bySlug.get(line.slug);
-      if (!p || !p.active)
-        throw new CommerceError("Un produs nu mai este disponibil.", 409);
-      if (!validGrind(p.category, line.grind, p.decaffFormat))
-        throw new CommerceError("Formatul cafelei este invalid.");
-      quantities.set(p.id, (quantities.get(p.id) ?? 0) + line.quantity);
-      return {
-        ...line,
-        product: p.id,
-        name: `${p.name} · ${packageLabel(p)}`,
-        unitPriceBani: priceBani(p.price),
-      };
-    });
-    for (const [productID, quantity] of [...quantities].sort(
-      (a, b) => a[0] - b[0],
-    )) {
-      const updated = await transactionDB(cms, id)
-        .execute(sql`UPDATE products SET reserved = reserved + ${quantity}
-        WHERE id = ${productID} AND active = true AND stock - reserved >= ${quantity} RETURNING id`);
-      if (!("rows" in updated) || updated.rows.length !== 1)
-        throw new CommerceError(
-          "Stoc insuficient pentru unul dintre produse. Actualizează coșul.",
-          409,
-        );
-    }
-    const shippingBani = Number(process.env.SHIPPING_PRICE_BANI);
-    const totalBani = items.reduce(
-      (sum, line) => sum + line.unitPriceBani * line.quantity,
-      shippingBani,
-    );
-    if (!Number.isSafeInteger(totalBani))
-      throw new CommerceError("Valoare comandă invalidă.");
-    return cms.create({
-      collection: "orders",
-      req,
-      data: {
-        reference,
-        items,
-        ...(legalVersion
-          ? { legalVersion, legalAcceptedAt: new Date().toISOString() }
-          : {}),
-        totalBani,
-        shippingBani,
-        currency: "ron",
-        status: "pending",
-        fulfillmentStatus: "new",
-        expiresAt: new Date(Date.now() + 35 * 60 * 1000).toISOString(),
-      },
-    });
-  });
-  const session = order.stripeSessionId
-    ? await stripe.checkout.sessions.retrieve(order.stripeSessionId)
-    : await sessionForOrder(order, stripe, cms);
-  if (!session.url || session.status !== "open")
-    throw new CommerceError("Sesiunea de plată nu mai este disponibilă.", 409);
-  return { url: session.url };
+  return createStockCheckout(lines, key, stripe, cms, legalVersion);
 }
 
 /** Expire an open Stripe session, then reconcile its actual state to handle payment races. */
@@ -460,6 +346,8 @@ export async function cancelCheckout(
   cmsArg?: Payload,
 ) {
   const cms = cmsArg ?? (await getCMS());
+  const reservation = await cancelStockCheckout(key, stripe, cms);
+  if (reservation.handled) return { cancelled: !reservation.paid, paid: reservation.paid, reference: reservation.reference };
   const { docs } = await cms.find({
     collection: "orders",
     where: { reference: { equals: `MK-${key}` } },
@@ -471,11 +359,17 @@ export async function cancelCheckout(
   const session = await stripe.checkout.sessions.retrieve(
     order.stripeSessionId,
   );
-  const settled =
-    session.status === "open"
-      ? await stripe.checkout.sessions.expire(session.id)
-      : session;
-  await applySession(settled, cms);
+  let settled = session;
+  if (session.status === "open") {
+    try { settled = await stripe.checkout.sessions.expire(session.id); }
+    catch (error) {
+      if (!(error instanceof Stripe.errors.StripeInvalidRequestError)) throw error;
+      settled = await stripe.checkout.sessions.retrieve(session.id);
+      if (settled.status === "open") throw error;
+    }
+  }
+  const paid = await applySession(settled, cms);
+  return { cancelled: paid?.status !== "paid", paid: paid?.status === "paid", reference: paid?.reference };
 }
 
 export { parseLines, CommerceError };

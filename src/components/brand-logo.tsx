@@ -16,16 +16,17 @@ export default function BrandLogo({
     >
       <span className="brand-horizontal">
         <Image
-          src="/images/makeon-horizontal-logo-open-a.png"
+          className="brand-emblem"
+          src="/images/makeon-logo.svg"
           alt=""
           width={240}
           height={80}
           priority={priority}
         />
-        {/* Separate layers align the lettering with the emblem and adapt its contrast. */}
+        {/* Keep the existing wordmark while the vector emblem stays open at the base. */}
         <Image
           className="brand-horizontal-contrast"
-          src="/images/makeon-horizontal-logo-open-a.png"
+          src="/images/makeon-horizontal-logo.svg"
           alt=""
           aria-hidden="true"
           width={240}

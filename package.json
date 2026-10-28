@@ -13,7 +13,6 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
-    "preview:images": "node scripts/preview.mjs",
     "cms:types": "payload generate:types",
     "cms:importmap": "payload generate:importmap",
     "cms:migrate": "payload migrate",

@@ -16,6 +16,7 @@ import "../legal.css";
 import "../typography.css";
 import "../layout-spacing.css";
 import "../hero-combined.css";
+import "../event-experience.css";
 import CartProvider from "@/components/cart-provider";
 import CatalogProvider from "@/components/catalog-provider";
 

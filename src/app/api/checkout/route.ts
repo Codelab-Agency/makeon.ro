@@ -1,6 +1,7 @@
 import { createCheckout, parseLines, CommerceError } from "@/lib/commerce";
 import { checkoutConfigured } from "@/lib/commerce-env";
 import { requireLegalAcceptance } from "@/lib/commerce-validation";
+import { allowedRequestOrigin } from "@/lib/request-origin";
 
 export const runtime = "nodejs";
 /** Validate browser input; the commerce service owns pricing and inventory locks. */
@@ -10,8 +11,7 @@ export async function POST(request: Request) {
       { error: "Plata online nu este încă disponibilă." },
       { status: 503 },
     );
-  const origin = request.headers.get("origin");
-  if (!origin || origin !== new URL(process.env.APP_URL!).origin)
+  if (!allowedRequestOrigin(request))
     return Response.json({ error: "Cerere neautorizată." }, { status: 403 });
   try {
     const text = await request.text();
