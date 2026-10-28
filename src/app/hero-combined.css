@@ -54,13 +54,23 @@
 .hero-elements .primary-button { font-size: 12px; padding: 17px 20px; gap: 20px; }
 .hero-elements .hero-shop-link { font-size: 12px; }
 .hero-elements .hero-offers { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 520px; margin-top: 28px; padding-top: 22px; border-top: 1px solid #ffffff24; }
-.hero-offers > div { min-width: 0; }
-.hero-offers > div + div { padding-left: 24px; border-left: 1px solid #ffffff24; }
-.hero-offers .hero-offer-label { display: block; margin-bottom: 10px; font-size: 9px; letter-spacing: .12em; color: #bcb4aa; }
+.hero-offers > * { min-width: 0; }
+.hero-offers > * + * { padding-left: 24px; border-left: 1px solid #ffffff24; }
+.hero-offers .hero-offer-label { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 9px; letter-spacing: .12em; color: #d6c5af; }
 .hero-offers p { margin: 0; color: #f5eee5; font-size: 14px; line-height: 1.5; }
 .hero-offer-water p { font-size: 12px; }
 .hero-offer-water strong { color: #a9d5df; font-size: 30px; font-weight: 500; letter-spacing: -.04em; }
 .hero-offers small { display: block; margin-top: 6px; color: #bcb4aa; font-size: 10px; line-height: 1.6; }
+.hero-offer-coffee p { font-size: 16px; font-weight: 500; }
+.hero-offer-guidance { margin: 14px 0 0; max-width: 440px; color: #bcb4aa; font-size: 11px; line-height: 1.7; }
+.hero-offers a:focus-visible { outline: 2px solid #eac499; outline-offset: 6px; }
+.site .service-discovery .brand-card { min-height: 390px; height: auto; padding: 30px; overflow: hidden; }
+.site .service-discovery .brand-card h3 { max-width: 62%; font-size: clamp(27px, 2.6vw, 40px); line-height: 1.12; }
+.site .service-discovery .brand-card > p { max-width: 50%; font-size: 13px; line-height: 1.8; }
+.service-discovery .brand-service-photo { position: absolute; width: 36%; height: 72%; right: 20px; bottom: 30px; pointer-events: none; }
+.service-discovery .brand-service-photo img { object-fit: contain; object-position: bottom center; filter: drop-shadow(0 14px 16px #0004); }
+.service-discovery .water-brand .brand-service-photo { width: 29%; right: 30px; }
+@media (hover: hover) { .hero-offers a:hover .hero-offer-label { color: #fff1dd; } }
 .hero-switch-wrap { position: relative; width: 362px; max-width: 100%; z-index: 10; }
 .hero-elements .hero-world-switch { width: 100%; height: 73px; margin: 0; position: relative; }
 .hero-world-switch button { position: relative; border-radius: 34px; min-width: 0; }
@@ -80,13 +90,14 @@
   .site .hero-elements .hero-description { order: 4; }
   .hero-elements .hero-switch-wrap { order: 5; }
   .hero-elements .hero-offers { order: 5; width: 100%; gap: 16px; margin-top: 0; padding-top: 18px; }
-  .hero-offers > div + div { padding-left: 16px; }
+  .hero-offers > * + * { padding-left: 16px; }
   .hero-offers .hero-offer-label { font-size: 8px; }
   .hero-offer-water strong { font-size: 27px; }
   .hero-offer-water p > span { display: block; }
   .hero-offer-coffee p { font-size: 13px; }
   .hero-elements .hero-art { order: 7; }
   .hero-elements .hero-actions { order: 6; }
+  .hero-elements .hero-offer-guidance { order: 6; margin-top: 10px; }
   .site .hero.hero-elements h1 { font-size: clamp(46px,11.8vw,70px); margin-bottom: 20px; }
   .hero-elements .hero-service-label { margin-bottom: 20px; font-size: 9px; }
   .site .hero-elements .hero-description { min-height: 0; margin-bottom: 22px; font-size: 14px; }
@@ -102,4 +113,9 @@
   .hero-elements .hero-world-switch button { gap: 10px; font-size: 15px; }
   .hero-elements .hero-world-switch button small { font-size: 6px; }
   .hero-elements .hero-world-switch button svg { width: 21px; height: 21px; }
+  .site .service-discovery .brand-card { min-height: 380px; padding: 24px; }
+  .site .service-discovery .brand-card h3 { max-width: 65%; font-size: clamp(26px, 7vw, 36px); }
+  .site .service-discovery .brand-card > p { max-width: 52%; font-size: 12px; }
+  .service-discovery .brand-service-photo { width: 35%; right: 12px; bottom: 36px; height: 62%; }
+  .service-discovery .water-brand .brand-service-photo { width: 28%; right: 22px; }
 }

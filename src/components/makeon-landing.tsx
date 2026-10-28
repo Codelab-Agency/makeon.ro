@@ -69,7 +69,7 @@ const content = {
       {
         title: "Cafea cu personalitate",
         category: "CAFEA BOABE",
-        text: "Intense, Noblesse, Armonia și Exotic Blend. Patru caractere, aceeași pasiune pentru o cafea proaspătă.",
+        text: "Cafele de origine și blenduri pentru preferințele echipei tale. Descoperă selecția actualizată și detaliile fiecărui sortiment în magazin.",
         type: "beans",
       },
       {
@@ -205,7 +205,11 @@ export default function MakeonLanding({
   const [faq, setFaq] = useState<number | null>(0);
   const [modal, setModal] = useState(false);
   const [interest, setInterest] = useState(
-    dedicatedWater ? "Consultanță pentru filtrarea apei" : dedicatedCoffee ? "Cafea și espressoare" : "Cafea + apă",
+    dedicatedWater
+      ? "Consultanță pentru filtrarea apei"
+      : dedicatedCoffee
+        ? "Cafea și espressoare"
+        : "Cafea + apă",
   );
   const root = useRef<HTMLDivElement>(null);
   const scrollAnchor = useRef<{ element: HTMLElement; top: number } | null>(
@@ -262,13 +266,14 @@ export default function MakeonLanding({
           ease: "power3.out",
         });
         const heroArt = root.current?.querySelector(".hero-art");
-        if (heroArt) gsap.from(heroArt, {
-          y: 35,
-          opacity: 0,
-          duration: 1.3,
-          delay: 0.25,
-          ease: "power3.out",
-        });
+        if (heroArt)
+          gsap.from(heroArt, {
+            y: 35,
+            opacity: 0,
+            duration: 1.3,
+            delay: 0.25,
+            ease: "power3.out",
+          });
         gsap.to(".floating-note", {
           y: -9,
           duration: 2.6,
@@ -340,7 +345,9 @@ export default function MakeonLanding({
   function openOffer(
     selection = dedicatedWater
       ? "Consultanță pentru filtrarea apei"
-      : dedicatedCoffee ? "Cafea și espressoare" : "Cafea + apă",
+      : dedicatedCoffee
+        ? "Cafea și espressoare"
+        : "Cafea + apă",
   ) {
     setInterest(normalizeService(selection));
     setModal(true);
@@ -409,137 +416,201 @@ export default function MakeonLanding({
       />
 
       <main>
-        {dedicatedCoffee ? <section className="hero" aria-labelledby="hero-title">
-          <div className="hero-copy">
-            <p className="eyebrow">SWITCHMORN COFFEE · CAFEAUA TA</p>
-            <h1 id="hero-title">Cafea de origine.<br /><span>La biroul tău.</span></h1>
-            <p className="hero-description">Cafea proaspăt prăjită, din prăjitorie direct la voi. Alegem cafeaua, espressorul în comodat și aprovizionarea în funcție de numărul de colegi, consum și preferințele echipei.</p>
-            <div className="hero-actions">
-              <button className="primary-button" onClick={() => openOffer("Cafea și espressoare")}>Solicită o ofertă personalizată <ArrowUpRight size={18} /></button>
-              <a className="hero-shop-link" href="#solutii">Descoperă serviciul <ArrowDown size={16} /></a>
-            </div>
-          </div>
-          <div className="hero-art"><ElementScene world="coffee" transitionId={0} /><div className="element-identity"><span>SWITCHMORN COFFEE</span><strong>Pauza de energie a echipei tale.</strong></div></div>
-        </section> : !dedicatedWater ? <CombinedHero onOffer={() => openOffer("Cafea + apă")} /> : <section className="hero" aria-labelledby="hero-title">
-          <div className="hero-copy">
-            <div className={`hero-world-label${dedicatedWater ? " world-copy" : " hero-brand-pair"}`}>
-              {!dedicatedWater && (
-                <Image
-                  src="/images/switchmorn-coffee-logo.webp"
-                  alt="SwitchMORN Coffee"
-                  width={52}
-                  height={53}
-                  className="hero-brand-logo hero-brand-coffee"
-                  priority
-                />
-              )}
-              {!dedicatedWater && <span className="hero-brand-divider" aria-hidden="true" />}
-              {(
-                <Image
-                  src="/images/vero-aqua-logo.webp"
-                  alt="Vero Aqua"
-                  width={116}
-                  height={44}
-                  className="hero-brand-logo hero-brand-water"
-                  priority
-                />
-              )}
-            </div>
-            {!dedicatedWater && (
-              <p className="hero-service-label">
-                Cafea de specialitate · Apă filtrată · Soluții pentru birouri
+        {dedicatedCoffee ? (
+          <section className="hero" aria-labelledby="hero-title">
+            <div className="hero-copy">
+              <p className="eyebrow">SWITCHMORN COFFEE · CAFEAUA TA</p>
+              <h1 id="hero-title">
+                Cafea de origine.
+                <br />
+                <span>La biroul tău.</span>
+              </h1>
+              <p className="hero-description">
+                Cafea proaspăt prăjită, din prăjitorie direct la voi. Alegem
+                cafeaua, espressorul în comodat și aprovizionarea în funcție de
+                numărul de colegi, consum și preferințele echipei.
               </p>
-            )}
-            <h1 id="hero-title" className="hero-world-heading">
-              {dedicatedWater ? <>Hidratare bună.<br /><span>zi de zi.</span></> : <>
-                <span className="hero-energy-word">Energie</span> și <em>hidratare</em> premium{" "}
-                <span className="hero-combined-audience">pentru tine și echipa ta!</span>
-              </>}
-            </h1>
-            <p className={`hero-description${dedicatedWater ? " world-copy" : ""}`}>
-              {dedicatedWater ? data.description : "De la prima cafea la fiecare pahar de apă. Un singur partener pentru confortul echipei tale."}
-            </p>
-            <div className={`hero-actions${dedicatedWater ? " world-copy" : ""}`}>
-              {!dedicatedWater ? (
-                <>
-                  <button
-                    className="primary-button"
-                    onClick={() => openOffer("Cafea + apă")}
-                  >
-                    Solicită ofertă pentru echipa ta
-                    <ArrowUpRight size={20} />
-                  </button>
-                  <a className="hero-shop-link" href="#ecosistem">
-                    Descoperă soluțiile <ArrowUpRight size={18} />
-                  </a>
-                </>
-              ) : (
-                <a className="primary-button" href="#solutii">
-                  {data.cta}
-                  <ArrowUpRight size={20} />
+              <div className="hero-actions">
+                <button
+                  className="primary-button"
+                  onClick={() => openOffer("Cafea și espressoare")}
+                >
+                  Solicită o ofertă personalizată <ArrowUpRight size={18} />
+                </button>
+                <a className="hero-shop-link" href="#solutii">
+                  Descoperă serviciul <ArrowDown size={16} />
                 </a>
-              )}
+              </div>
             </div>
-            <div className="hero-footnote hero-reveal">
+            <div className="hero-art">
+              <ElementScene world="coffee" transitionId={0} />
+              <div className="element-identity">
+                <span>SWITCHMORN COFFEE</span>
+                <strong>Pauza de energie a echipei tale.</strong>
+              </div>
+            </div>
+          </section>
+        ) : !dedicatedWater ? (
+          <CombinedHero onOffer={() => openOffer("Cafea + apă")} />
+        ) : (
+          <section className="hero" aria-labelledby="hero-title">
+            <div className="hero-copy">
+              <div
+                className={`hero-world-label${dedicatedWater ? " world-copy" : " hero-brand-pair"}`}
+              >
+                {!dedicatedWater && (
+                  <Image
+                    src="/images/switchmorn-coffee-logo.webp"
+                    alt="SwitchMORN Coffee"
+                    width={52}
+                    height={53}
+                    className="hero-brand-logo hero-brand-coffee"
+                    priority
+                  />
+                )}
+                {!dedicatedWater && (
+                  <span className="hero-brand-divider" aria-hidden="true" />
+                )}
+                {
+                  <Image
+                    src="/images/vero-aqua-logo.webp"
+                    alt="Vero Aqua"
+                    width={116}
+                    height={44}
+                    className="hero-brand-logo hero-brand-water"
+                    priority
+                  />
+                }
+              </div>
               {!dedicatedWater && (
-                <>
-                  <Coffee size={14} />
-                  <span>Cafea bună.</span>
-                  <span className="footnote-divider" />
-                </>
+                <p className="hero-service-label">
+                  Cafea de specialitate · Apă filtrată · Soluții pentru birouri
+                </p>
               )}
-              <Droplets size={14} />
-              <span>Apă pură.</span>
-              <span className="footnote-divider" />
-              <span>Zile mai bune.</span>
-            </div>
-          </div>
-          {dedicatedWater && <div className="hero-art">
-            <div className="art-kicker">
-              <span>THE ELEMENTS OF A BETTER DAY.</span>
-              <span>INTERACTIVE EXPERIENCE</span>
-            </div>
-            <div className="element-orbit" />
-            <div className="element-orbit orbit-inner" />
-            <ElementScene world={dedicatedWater ? world : "coffee"} transitionId={dedicatedWater ? transitionId : 0} combined={!dedicatedWater} />
-            <span className="element-side-label">
-              {!dedicatedWater ? "DOUĂ ELEMENTE. ACELAȘI ECHILIBRU." : world === "coffee"
-                ? "FROM BEAN TO YOUR EVERYDAY"
-                : "LET THE GOOD FLOW"}
-            </span>
-            <div className="element-coordinate">
-              <span>45° 56′ N</span>
-              <span>25° 00′ E</span>
-            </div>
-            <div className={`element-identity${dedicatedWater ? " world-copy" : ""}`}>
-              <span>{!dedicatedWater ? "SWITCHMORN COFFEE + VERO AQUA" : "APĂ"}</span>
-              <strong>
-                {!dedicatedWater ? "Împreună, pentru o zi mai bună." : world === "coffee"
-                  ? "Totul începe cu un bob."
-                  : "Echilibru, în fiecare picătură."}
-              </strong>
-              <p>
-                {!dedicatedWater ? "Energia cafelei. Prospețimea apei." : world === "coffee"
-                  ? "O origine. O aromă. Ritualul tău."
-                  : "Un gest simplu. Un ritm mai bun."}
+              <h1 id="hero-title" className="hero-world-heading">
+                {dedicatedWater ? (
+                  <>
+                    Hidratare bună.
+                    <br />
+                    <span>zi de zi.</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="hero-energy-word">Energie</span> și{" "}
+                    <em>hidratare</em> premium{" "}
+                    <span className="hero-combined-audience">
+                      pentru tine și echipa ta!
+                    </span>
+                  </>
+                )}
+              </h1>
+              <p
+                className={`hero-description${dedicatedWater ? " world-copy" : ""}`}
+              >
+                {dedicatedWater
+                  ? data.description
+                  : "De la prima cafea la fiecare pahar de apă. Un singur partener pentru confortul echipei tale."}
               </p>
+              <div
+                className={`hero-actions${dedicatedWater ? " world-copy" : ""}`}
+              >
+                {!dedicatedWater ? (
+                  <>
+                    <button
+                      className="primary-button"
+                      onClick={() => openOffer("Cafea + apă")}
+                    >
+                      Solicită ofertă pentru echipa ta
+                      <ArrowUpRight size={20} />
+                    </button>
+                    <a className="hero-shop-link" href="#ecosistem">
+                      Descoperă soluțiile <ArrowUpRight size={18} />
+                    </a>
+                  </>
+                ) : (
+                  <a className="primary-button" href="#solutii">
+                    {data.cta}
+                    <ArrowUpRight size={20} />
+                  </a>
+                )}
+              </div>
+              <div className="hero-footnote hero-reveal">
+                {!dedicatedWater && (
+                  <>
+                    <Coffee size={14} />
+                    <span>Cafea bună.</span>
+                    <span className="footnote-divider" />
+                  </>
+                )}
+                <Droplets size={14} />
+                <span>Apă pură.</span>
+                <span className="footnote-divider" />
+                <span>Zile mai bune.</span>
+              </div>
             </div>
-          </div>}
-          <a
-            className="scroll-cue"
-            href={dedicatedWater ? "#solutii" : "#ecosistem"}
-          >
-            <ArrowDown size={15} />
-            {dedicatedWater
-              ? "Descoperă soluțiile Vero Aqua"
-              : "Explorează universul Makeon"}
-          </a>
-          <span className="hero-bottom-line">
-            {dedicatedWater
-              ? "APĂ FILTRATĂ. ZI DE ZI."
-              : "CAFEA & APĂ. ÎN ECHILIBRU."}
-          </span>
-        </section>}
+            {dedicatedWater && (
+              <div className="hero-art">
+                <div className="art-kicker">
+                  <span>THE ELEMENTS OF A BETTER DAY.</span>
+                  <span>INTERACTIVE EXPERIENCE</span>
+                </div>
+                <div className="element-orbit" />
+                <div className="element-orbit orbit-inner" />
+                <ElementScene
+                  world={dedicatedWater ? world : "coffee"}
+                  transitionId={dedicatedWater ? transitionId : 0}
+                  combined={!dedicatedWater}
+                />
+                <span className="element-side-label">
+                  {!dedicatedWater
+                    ? "DOUĂ ELEMENTE. ACELAȘI ECHILIBRU."
+                    : world === "coffee"
+                      ? "FROM BEAN TO YOUR EVERYDAY"
+                      : "LET THE GOOD FLOW"}
+                </span>
+                <div className="element-coordinate">
+                  <span>45° 56′ N</span>
+                  <span>25° 00′ E</span>
+                </div>
+                <div
+                  className={`element-identity${dedicatedWater ? " world-copy" : ""}`}
+                >
+                  <span>
+                    {!dedicatedWater ? "SWITCHMORN COFFEE + VERO AQUA" : "APĂ"}
+                  </span>
+                  <strong>
+                    {!dedicatedWater
+                      ? "Împreună, pentru o zi mai bună."
+                      : world === "coffee"
+                        ? "Totul începe cu un bob."
+                        : "Echilibru, în fiecare picătură."}
+                  </strong>
+                  <p>
+                    {!dedicatedWater
+                      ? "Energia cafelei. Prospețimea apei."
+                      : world === "coffee"
+                        ? "O origine. O aromă. Ritualul tău."
+                        : "Un gest simplu. Un ritm mai bun."}
+                  </p>
+                </div>
+              </div>
+            )}
+            <a
+              className="scroll-cue"
+              href={dedicatedWater ? "#solutii" : "#ecosistem"}
+            >
+              <ArrowDown size={15} />
+              {dedicatedWater
+                ? "Descoperă soluțiile Vero Aqua"
+                : "Explorează universul Makeon"}
+            </a>
+            <span className="hero-bottom-line">
+              {dedicatedWater
+                ? "APĂ FILTRATĂ. ZI DE ZI."
+                : "CAFEA & APĂ. ÎN ECHILIBRU."}
+            </span>
+          </section>
+        )}
 
         <div className="benefits-strip">
           <span>
@@ -564,7 +635,10 @@ export default function MakeonLanding({
         </div>
 
         {!dedicatedWater && !dedicatedCoffee && (
-          <section className="ecosystem section-padding" id="ecosistem">
+          <section
+            className="ecosystem service-discovery section-padding"
+            id="ecosistem"
+          >
             <AmbientOrbit />
             <div className="section-top reveal">
               <span className="eyebrow">UNIVERSUL MAKEON</span>
@@ -572,29 +646,19 @@ export default function MakeonLanding({
             </div>
             <div className="ecosystem-heading reveal">
               <h2>
-                Două ritualuri.
+                Cafea și apă pentru echipa ta.
                 <br />
-                <span>O singură alegere bună.</span>
+                <span>Un singur partener.</span>
               </h2>
               <p>
-                Credem că un loc de muncă mai bun începe cu lucrurile simple. O
-                cafea care inspiră. Un pahar de apă care revigorează. Și un
-                partener care se ocupă de tot.
+                Alegi cafeaua, apa sau ambele. Noi adaptăm aparatura și
+                serviciile la spațiul, consumul și preferințele firmei tale.
               </p>
             </div>
             <div className="brand-cards">
-              <button
+              <Link
+                href="/cafeaua-ta"
                 className={`brand-card coffee-brand reveal ${world === "coffee" ? "selected" : ""}`}
-                onClick={() => {
-                  changeWorld("coffee");
-                  document.getElementById("solutii")?.scrollIntoView({
-                    behavior: window.matchMedia(
-                      "(prefers-reduced-motion: reduce)",
-                    ).matches
-                      ? "instant"
-                      : "smooth",
-                  });
-                }}
               >
                 <div className="brand-card-top">
                   <span>
@@ -610,32 +674,30 @@ export default function MakeonLanding({
                   <ArrowUpRight />
                 </div>
                 <h3>
-                  Gustul unei
+                  Cafea de origine.
                   <br />
-                  dimineți mai bune.
+                  Espressor în comodat.
                 </h3>
-                <p>Cafea de specialitate · Espressoare · Abonamente</p>
-                <div className="brand-art">
-                  <AmbientOrbit />
-                  <Beans />
+                <p>
+                  Din prăjitorie la birou, cu aprovizionare adaptată consumului
+                  vostru.
+                </p>
+                <div className="brand-service-photo">
+                  <Image
+                    src="/images/coffee-machine-switchmorn.png"
+                    alt="Espressor automat SwitchMORN Coffee pentru birou"
+                    fill
+                    sizes="(max-width: 700px) 40vw, 24vw"
+                  />
                 </div>
                 <span className="brand-card-link">
-                  Explorează lumea cafelei
+                  Vezi serviciul de cafea
                   <ArrowRight size={18} />
                 </span>
-              </button>
-              <button
+              </Link>
+              <Link
+                href="/apa"
                 className={`brand-card water-brand reveal ${world === "water" ? "selected" : ""}`}
-                onClick={() => {
-                  changeWorld("water");
-                  document.getElementById("solutii")?.scrollIntoView({
-                    behavior: window.matchMedia(
-                      "(prefers-reduced-motion: reduce)",
-                    ).matches
-                      ? "instant"
-                      : "smooth",
-                  });
-                }}
               >
                 <div className="brand-card-top">
                   <Image
@@ -648,26 +710,27 @@ export default function MakeonLanding({
                   <ArrowUpRight />
                 </div>
                 <h3>
-                  Claritate în fiecare
+                  Apă filtrată.
                   <br />
-                  picătură.
+                  Întreținere inclusă.
                 </h3>
-                <p>Apă filtrată · Aparate · Filtre & mentenanță</p>
-                <div className="water-visual">
-                  <AmbientOrbit />
-                  <span className="water-ripple ripple-one" />
-                  <span className="water-ripple ripple-two" />
-                  <div className="water-glass">
-                    <div className="water-fill" />
-                    <span className="glass-highlight" />
-                  </div>
-                  <span className="water-spark">✧</span>
+                <p>
+                  Aparat Vero Aqua, instalare, igienizare și schimbarea
+                  filtrelor, în abonament.
+                </p>
+                <div className="brand-service-photo">
+                  <Image
+                    src="/images/vero-aqua-dispenser.webp"
+                    alt="Aparat Vero Aqua pentru apă filtrată la birou"
+                    fill
+                    sizes="(max-width: 700px) 35vw, 20vw"
+                  />
                 </div>
                 <span className="brand-card-link">
-                  Explorează lumea apei
+                  Vezi aparatul și abonamentul
                   <ArrowRight size={18} />
                 </span>
-              </button>
+              </Link>
             </div>
           </section>
         )}
@@ -706,9 +769,19 @@ export default function MakeonLanding({
               </div>
             )}
             <h2>
-              Tu ai grijă de echipă.
-              <br />
-              <span>Noi, de pauzele ei.</span>
+              {world === "coffee" ? (
+                <>
+                  Soluția de cafea,
+                  <br />
+                  <span>pe măsura echipei tale.</span>
+                </>
+              ) : (
+                <>
+                  Apă filtrată la birou.
+                  <br />
+                  <span>Cu întreținerea inclusă.</span>
+                </>
+              )}
             </h2>
             <p>
               {world === "water"
@@ -822,8 +895,8 @@ export default function MakeonLanding({
                 <div className="membership-divider" />
                 <ul>
                   {[
-                    "Cafea aleasă după preferințele echipei",
-                    "Espressor potrivit consumului din birou",
+                    "Cafea proaspăt prăjită, aleasă pentru echipă",
+                    "Espressor în comodat, potrivit consumului",
                     "Plan de aprovizionare în funcție de consum",
                     "Instalare și mentenanță stabilite în ofertă",
                   ].map((item) => (
@@ -855,7 +928,11 @@ export default function MakeonLanding({
           <div className="section-top reveal">
             <span className="eyebrow world-copy">{data.brand}</span>
             {!dedicatedWater && !dedicatedCoffee && (
-              <div className="world-switch solutions-world-switch" role="group" aria-label="Alege lumea Makeon">
+              <div
+                className="world-switch solutions-world-switch"
+                role="group"
+                aria-label="Alege lumea Makeon"
+              >
                 <span className={`switch-slider ${world}`} aria-hidden="true" />
                 <button
                   aria-label="Lumea cafelei"
@@ -1034,14 +1111,14 @@ export default function MakeonLanding({
 
         <section className="closing section-padding reveal">
           <AmbientOrbit />
-          <span className="eyebrow">LUCRURI MICI. ZILE MAI BUNE.</span>
+          <span className="eyebrow">O SOLUȚIE ADAPTATĂ FIRMEI TALE</span>
           <h2>
-            Energie și hidratare premium
+            Ce se potrivește
             <br />
-            <span>pentru tine și echipa ta!</span>
+            <span>biroului tău?</span>
           </h2>
           <button className="primary-button" onClick={() => openOffer()}>
-            Începem cu o conversație
+            Cere o ofertă personalizată
             <ArrowUpRight size={20} />
           </button>
           <span className="closing-footnote">
@@ -1093,34 +1170,34 @@ export default function MakeonLanding({
             <X size={22} />
           </button>
           <div className="dialog-intro">
-          <span className="eyebrow">HAI SĂ NE CUNOAȘTEM</span>
-          <h2 id="contact-dialog-title">
-            O soluție bună
-            <br />
-            începe cu tine.
-          </h2>
-          <p>
-            {isEventService(interest)
-              ? "Spune-ne despre evenimentul tău și lasă-ne datele de contact. Verificăm disponibilitatea și pregătim o ofertă potrivită."
-              : "Spune-ne ce cauți și lasă-ne datele de contact. Îți pregătim o ofertă potrivită echipei tale."}
-          </p>
-          <a className="dialog-phone" href="tel:+40744524728">
-            <Phone size={18} />
-            +40 744 524 728
-            <ArrowUpRight size={18} />
-          </a>
-          <a className="dialog-email text-link" href="mailto:info@makeon.ro">
-            info@makeon.ro
-            <ArrowUpRight size={16} />
-          </a>
+            <span className="eyebrow">HAI SĂ NE CUNOAȘTEM</span>
+            <h2 id="contact-dialog-title">
+              O soluție bună
+              <br />
+              începe cu tine.
+            </h2>
+            <p>
+              {isEventService(interest)
+                ? "Spune-ne despre evenimentul tău și lasă-ne datele de contact. Verificăm disponibilitatea și pregătim o ofertă potrivită."
+                : "Spune-ne ce cauți și lasă-ne datele de contact. Îți pregătim o ofertă potrivită echipei tale."}
+            </p>
+            <a className="dialog-phone" href="tel:+40744524728">
+              <Phone size={18} />
+              +40 744 524 728
+              <ArrowUpRight size={18} />
+            </a>
+            <a className="dialog-email text-link" href="mailto:info@makeon.ro">
+              info@makeon.ro
+              <ArrowUpRight size={16} />
+            </a>
           </div>
           <div className="dialog-form-panel">
-          {modal && (
-            <ContactRequestForm
-              interest={interest}
-              onInterestChange={setInterest}
-            />
-          )}
+            {modal && (
+              <ContactRequestForm
+                interest={interest}
+                onInterestChange={setInterest}
+              />
+            )}
           </div>
         </div>
       </dialog>
